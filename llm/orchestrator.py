@@ -34,15 +34,17 @@ class OrchestratorResponse:
 
 # Keyword intent matcher for deterministic routing & fallback
 _INTENT_PATTERNS = [
-    ("forecast", re.compile(r"(টানাটানি|ঘাটতি|ভবিষ্যত|সামনে|আগামী|forecast|shortfall|predict|future)", re.IGNORECASE)),
+    ("greeting", re.compile(r"(hello|hi|hey|assalamu|salam|সালাম|হ্যালো|নমস্কার|কেমন|আদাব)", re.IGNORECASE)),
+    ("safe_spend", re.compile(r"(নিরাপদ|বাজেট|কত খরচ|safe to spend|can i spend|budget|daily|প্রতিদিন|খরচ করতে পারব)", re.IGNORECASE)),
+    ("forecast", re.compile(r"(টানাটানি|ঘাটতি|ভবিষ্যত|সামনে|আগামী|পূর্বাভাস|forecast|shortfall|predict|future|risk|ঝুঁকি)", re.IGNORECASE)),
+    ("cashout", re.compile(r"(ক্যাশ-?আউট|এজেন্ট|ফি|cashout|cash-?out|fee|agent)", re.IGNORECASE)),
     ("goal", re.compile(r"(সঞ্চয়|লক্ষ্য|জমাতে|সেভ|goal|save|savings|plan)", re.IGNORECASE)),
-    ("cashout", re.compile(r"(ক্যাশ-?আউট|এজেন্ট|ফি|খরচ|cashout|cash-?out|fee|agent)", re.IGNORECASE)),
-    ("summary", re.compile(r"(খরচ|ব্যালেন্স|হিসাব|লেনদেন|summary|balance|spend|transactions)", re.IGNORECASE)),
+    ("summary", re.compile(r"(ব্যালেন্স|হিসাব|লেনদেন|আয়|খরচ|summary|balance|income|spend|transactions)", re.IGNORECASE)),
 ]
 
 
 def detect_intent(text: str) -> str:
-    """Classify user intent into one of the 4 core journeys or general."""
+    """Classify user intent into one of the core journeys or general."""
     for intent, pattern in _INTENT_PATTERNS:
         if pattern.search(text):
             return intent
@@ -97,7 +99,6 @@ def handle_message(
         )
 
     # 2. Simulated LLM generation (when enabled, validated against ground truth)
-    # Note: If an external provider key is set, call provider adapter here.
     draft_reply, draft_is_generated = _generate_draft(intent, context_data, locale)
 
     # 3. Numeric validation
@@ -129,6 +130,19 @@ def handle_message(
 
 def _resolve_template_vars(intent: str, ctx: dict[str, Any], locale: str) -> tuple[str, dict[str, str]]:
     """Map intent to pre-reviewed templates and formatted variables."""
+    if intent == "greeting":
+        return "greeting", {}
+
+    if intent == "safe_spend":
+        bal = format_taka(ctx.get("balance_paisa", 0), locale)
+        safe = format_taka(ctx.get("safe_to_spend_paisa", ctx.get("balance_paisa", 0)), locale)
+        daily = format_taka(ctx.get("daily_safe_budget_paisa", 0), locale)
+        return "safe_spend", {
+            "balance": bal,
+            "safe_spend": safe,
+            "daily_budget": daily,
+        }
+
     if intent == "forecast":
         prob = ctx.get("shortfall_prob", 0.0)
         horizon = str(ctx.get("horizon_days", 14))
@@ -138,13 +152,13 @@ def _resolve_template_vars(intent: str, ctx: dict[str, Any], locale: str) -> tup
             return "forecast_risk", {
                 "horizon": horizon,
                 "shortfall_prob": format_probability(prob, locale),
-                "trough_date": str(ctx.get("trough_date", "পরের সপ্তাহ")),
+                "trough_date": str(ctx.get("trough_date", "পরের সপ্তাহ" if locale == "bn" else "next week")),
             }
         else:
             return "forecast_safe", {
                 "horizon": horizon,
                 "min_balance": format_taka(ctx.get("min_balance_paisa", 0), locale),
-                "trough_date": str(ctx.get("trough_date", "পরের সপ্তাহ")),
+                "trough_date": str(ctx.get("trough_date", "পরের সপ্তাহ" if locale == "bn" else "next week")),
             }
 
     if intent == "cashout":
@@ -154,7 +168,7 @@ def _resolve_template_vars(intent: str, ctx: dict[str, Any], locale: str) -> tup
         }
 
     if intent == "goal":
-        target = ctx.get("target_paisa", 0)
+        target = ctx.get("target_paisa", 1000000)
         months = str(ctx.get("months", 6))
         if locale == "bn":
             months = to_bangla_digits(months)
@@ -163,12 +177,18 @@ def _resolve_template_vars(intent: str, ctx: dict[str, Any], locale: str) -> tup
             "months": months,
         }
 
-    # Default to general refusal or summary
-    return "general_refusal", {}
+    if intent == "summary":
+        inc = format_taka(ctx.get("monthly_income_paisa", 0), locale)
+        spd = format_taka(ctx.get("monthly_spend_paisa", 0), locale)
+        return "summary_income_spend", {
+            "income": inc,
+            "spend": spd,
+        }
+
+    return "general_help", {}
 
 
 def _generate_draft(intent: str, ctx: dict[str, Any], locale: str) -> tuple[str, bool]:
     """Internal draft generation from verified tool context."""
-    # When no remote LLM is called, use reviewed templates directly
     name, vars = _resolve_template_vars(intent, ctx, locale)
     return render(name, locale=locale, **vars), False

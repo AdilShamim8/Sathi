@@ -85,6 +85,56 @@ export async function fetchBenchmark(isOffline: boolean): Promise<any> {
   return null;
 }
 
+/**
+ * Log in a demo user to obtain a JWT token for calling live /v1/me/* and /v1/chat endpoints.
+ */
+export async function loginDemoUser(userId: string): Promise<string | null> {
+  try {
+    const res = await fetch(`${API_BASE}/v1/auth/demo-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId }),
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.token || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Send a message to Sathi Copilot backend (/v1/chat) with fail-closed safety and evidence tracking.
+ */
+export async function sendChatMessage(
+  token: string | null,
+  message: string,
+  locale: 'bn' | 'en' = 'bn'
+): Promise<{ reply: string; intent?: string; evidence?: Evidence } | null> {
+  if (!token) return null;
+  try {
+    const res = await fetch(`${API_BASE}/v1/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ message, locale }),
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return null;
+    const body = await res.json();
+    return {
+      reply: body.data?.reply || '',
+      intent: body.data?.intent,
+      evidence: body.evidence,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function getFallbackUsers(): DemoUser[] {
   return [
     {

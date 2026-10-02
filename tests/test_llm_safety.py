@@ -69,3 +69,23 @@ def test_orchestrator_deterministic_template_fallback():
     assert resp.intent == "forecast"
     assert resp.fallback_used is True
     assert "টানাটানির সম্ভাবনা" in resp.reply
+
+
+def test_orchestrator_greeting():
+    settings = Settings(llm_enabled=False)
+    resp = handle_message("হ্যালো সাথী", {}, settings, locale="bn")
+    assert resp.intent == "greeting"
+    assert "সাথী" in resp.reply
+
+
+def test_orchestrator_safe_spend():
+    settings = Settings(llm_enabled=False)
+    context = {
+        "balance_paisa": 500000,
+        "safe_to_spend_paisa": 200000,
+        "daily_safe_budget_paisa": 14000,
+    }
+    resp = handle_message("আমি কত টাকা নিরাপদে খরচ করতে পারব?", context, settings, locale="bn")
+    assert resp.intent == "safe_spend"
+    assert "নিরাপদে খরচ" in resp.reply
+

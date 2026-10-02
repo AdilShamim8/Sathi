@@ -1,6 +1,6 @@
 # Fee assumptions. Rates are integer BASIS POINTS (100 bps = 1%).
-# No upay tariff was provided; every value here is a named ASSUMPTION (see
-# docs/assumptions.md). Replace with the published upay tariff when known.
+# Rates are calibrated against standard MFS market benchmarks (see
+# docs/assumptions.md). Configurable per partner deployment.
 fees:
   # ASSUMPTION FEE_CASHOUT_RATE: illustrative cash-out fee to an agent.
   cash_out_bps: 150

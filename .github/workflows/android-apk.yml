@@ -78,12 +78,14 @@ jobs:
           path: web/out/
           retention-days: 14
 
-      - name: Create Release on Version Tag
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Create or Update GitHub Release with APK
+        if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          name: Sathi Release ${{ github.ref_name }}
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'v1.2.0' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('Sathi Release {0}', github.ref_name) || 'Sathi App Release v1.2.0 (Latest APK)' }}
           files: apk-output/sathi-v1.0.0-debug.apk
           generate_release_notes: true
           draft: false
           prerelease: false
+

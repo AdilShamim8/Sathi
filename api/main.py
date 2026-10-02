@@ -385,6 +385,11 @@ def chat_endpoint(req: ChatRequest, user_id: str = Depends(get_current_user_id))
         "trough_date": forecast_data.trough_date,
         "min_balance_paisa": forecast_data.days[0].p50_paisa if forecast_data.days else 0,
         "replaceable_fee_saved_paisa": cashout_data.replaceable_fee_saved_paisa,
+        "safe_to_spend_paisa": summary_data.safe_to_spend.safe_to_spend_total_paisa,
+        "daily_safe_budget_paisa": summary_data.safe_to_spend.daily_safe_budget_paisa,
+        "status": summary_data.safe_to_spend.status,
+        "upcoming_commitments_paisa": summary_data.safe_to_spend.upcoming_commitments_paisa,
+        "estimated_cash_paisa": summary_data.cash_on_hand.estimated_cash_paisa,
     }
 
     res = handle_message(req.message, context, settings, locale=req.locale)
