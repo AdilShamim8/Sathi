@@ -67,6 +67,24 @@ export async function fetchPersonaBundle(persona: string): Promise<any> {
   return await res.json();
 }
 
+export async function fetchBenchmark(isOffline: boolean): Promise<any> {
+  if (!isOffline) {
+    try {
+      const res = await fetch(`${API_BASE}/v1/me/benchmark`, { signal: AbortSignal.timeout(3000) });
+      if (res.ok) return await res.json();
+    } catch {
+      // fallback
+    }
+  }
+  try {
+    const res = await fetch('/demo/benchmark.json');
+    if (res.ok) return await res.json();
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
 function getFallbackUsers(): DemoUser[] {
   return [
     {

@@ -30,9 +30,10 @@ from api.schemas.extended import (ChatData, ChatRequest, DemoLoginRequest,
                                   DemoLoginResponse, DemoUserItem,
                                   ForecastData, GoalPlanData, GoalPlanRequest,
                                   ParseAmountData, ParseAmountRequest)
-from api.schemas.me import (CategoryTrace, CounterpartyOut, GoalCreateRequest,
-                            GoalRecord, GoalsData, SummaryData,
-                            TransactionItem, TransactionsData)
+from api.schemas.me import (BenchmarkComparisonOut, CategoryTrace,
+                            CounterpartyOut, GoalCreateRequest, GoalRecord,
+                            GoalsData, SummaryData, TransactionItem,
+                            TransactionsData)
 from api.services.cashout_service import get_cashout_insights
 from api.services.convert import row_to_txn
 from api.services.evidence import as_of_date, build_evidence
@@ -43,6 +44,7 @@ from core.amounts import parse_amount
 from core.categorizer import categorize
 from core.formatting import format_date, format_taka
 from llm.orchestrator import handle_message
+from ml.benchmark import load_benchmark_metrics
 from ml.inference import load_latest_version, load_metadata
 
 BASE_DIR = Path(__file__).parent.parent
@@ -73,7 +75,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Sathi (সাথী) API",
-    description="Bangla-first AI financial coach for upay customers",
+    description="Bangla-first AI financial coach for mobile-wallet customers",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -406,6 +408,14 @@ def chat_endpoint(req: ChatRequest, user_id: str = Depends(get_current_user_id))
     return {"data": data.model_dump(), "evidence": evidence.model_dump()}
 
 
+# --- Empirical Benchmark (AI vs Rule Baseline) ---
+@app.get("/v1/me/benchmark", response_model=BenchmarkComparisonOut)
+@app.get("/v1/benchmark", response_model=BenchmarkComparisonOut)
+def get_benchmark_comparison():
+    """Empirical proof comparing ML quantile forecaster against rule baselines."""
+    return load_benchmark_metrics()
+
+
 # --- Model Card & Metadata ---
 @app.get("/v1/meta/model-card")
 def get_model_card():
@@ -421,7 +431,7 @@ def get_model_card():
         "task": "Daily net-flow quantile prediction (p10, p50, p90)",
         "intended_use": "Short-term liquidity pressure estimation and savings planning",
         "limitations": [
-            "Synthetic transaction training data only; requires governed upay data before production use",
+            "Synthetic transaction training data only; requires governed MFS partner data before production use",
             "Predictions are probability ranges, never single-point guarantees",
             "Does not execute financial transactions or approve lending",
         ],

@@ -1,7 +1,7 @@
-"""Schemas for /v1/me/summary, /v1/me/transactions and /v1/me/goals."""
+"""Schemas for /v1/me/summary, /v1/me/transactions, /v1/me/goals and /v1/me/benchmark."""
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -12,6 +12,69 @@ class UserRef(BaseModel):
     persona: str
     persona_label_bn: str
     persona_label_en: str
+
+
+class SafeToSpendOut(BaseModel):
+    safe_to_spend_total_paisa: int
+    safe_to_spend_total_display: str
+    safe_to_spend_wallet_paisa: int
+    safe_to_spend_wallet_display: str
+    daily_safe_budget_paisa: int
+    daily_safe_budget_display: str
+    upcoming_commitments_paisa: int
+    upcoming_commitments_display: str
+    safety_buffer_paisa: int
+    safety_buffer_display: str
+    estimated_cash_paisa: int
+    estimated_cash_display: str
+    wallet_balance_paisa: int
+    wallet_balance_display: str
+    status: Literal["comfortable", "cautious", "tight", "deficit"]
+    status_label_bn: str
+    status_label_en: str
+    horizon_days: int
+    advice_bn: str
+    advice_en: str
+
+
+class CashOnHandOut(BaseModel):
+    estimated_cash_paisa: int
+    estimated_cash_display: str
+    trailing_cashout_total_paisa: int
+    trailing_cashout_total_display: str
+    daily_cash_burn_paisa: int
+    daily_cash_burn_display: str
+    days_of_cash_remaining: float
+    confidence: Literal["normal", "low"]
+    last_cashout_date: Optional[str] = None
+
+
+class RecurringItemOut(BaseModel):
+    item_id: str
+    title_bn: str
+    title_en: str
+    category: str
+    direction: Literal["inflow", "outflow"]
+    amount_paisa: int
+    amount_display: str
+    interval_days: int
+    periodicity: Literal["monthly", "weekly"]
+    expected_day_of_month: Optional[int] = None
+    confidence: float
+    next_expected_date: str
+    occurrence_count: int
+
+
+class RecurringSummaryOut(BaseModel):
+    inflows: list[RecurringItemOut]
+    outflows: list[RecurringItemOut]
+    total_monthly_inflow_paisa: int
+    total_monthly_outflow_paisa: int
+    total_monthly_inflow_display: str
+    total_monthly_outflow_display: str
+    detected_salary_dom: Optional[int] = None
+    upcoming_commitments_14d_paisa: int
+    upcoming_commitments_14d_display: str
 
 
 class MetricsOut(BaseModel):
@@ -56,6 +119,9 @@ class SummaryData(BaseModel):
     balance_paisa: int
     balance_display: str
     confidence: Literal["normal", "low"]
+    safe_to_spend: SafeToSpendOut
+    cash_on_hand: CashOnHandOut
+    recurring: RecurringSummaryOut
     metrics: MetricsOut
     categories: list[CategoryRow]
     insights: list[Insight]
@@ -102,10 +168,10 @@ class TransactionsData(BaseModel):
 
 class GoalCreateRequest(BaseModel):
     goal_type: str
-    target_paisa: int = Field(gt=0)
-    months: int = Field(gt=0)
+    target_paisa: int
+    months: int
     plan_option_key: str
-    monthly_contribution_paisa: int = Field(ge=0)
+    monthly_contribution_paisa: int
 
 
 class GoalRecord(BaseModel):
@@ -124,3 +190,14 @@ class GoalRecord(BaseModel):
 
 class GoalsData(BaseModel):
     goals: list[GoalRecord]
+
+
+class BenchmarkComparisonOut(BaseModel):
+    title: str
+    description: str
+    brier_score: dict[str, Any]
+    quantile_loss: dict[str, Any]
+    wape_accuracy: dict[str, Any]
+    early_warning_7d: dict[str, Any]
+    interpretability: dict[str, Any]
+    governance_note: str

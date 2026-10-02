@@ -132,6 +132,11 @@ def generate_bundle() -> None:
 
     manifest_file = OUTPUT_DIR / "users.json"
     manifest_file.write_text(json.dumps(users_manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    from ml.benchmark import load_benchmark_metrics
+    benchmark_file = OUTPUT_DIR / "benchmark.json"
+    benchmark_file.write_text(json.dumps(load_benchmark_metrics(), ensure_ascii=False, indent=2), encoding="utf-8")
+
     print(f"Demo bundle generated successfully in {OUTPUT_DIR} for {len(demo_users)} personas.")
 
 

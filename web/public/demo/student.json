@@ -19,6 +19,81 @@
       "balance_paisa": 86,
       "balance_display": "৳০",
       "confidence": "normal",
+      "safe_to_spend": {
+        "safe_to_spend_total_paisa": 0,
+        "safe_to_spend_total_display": "৳০",
+        "safe_to_spend_wallet_paisa": 0,
+        "safe_to_spend_wallet_display": "৳০",
+        "daily_safe_budget_paisa": 0,
+        "daily_safe_budget_display": "৳০",
+        "upcoming_commitments_paisa": 53788,
+        "upcoming_commitments_display": "৳৫৩৭",
+        "safety_buffer_paisa": 105000,
+        "safety_buffer_display": "৳১,০৫০",
+        "estimated_cash_paisa": 0,
+        "estimated_cash_display": "৳০",
+        "wallet_balance_paisa": 86,
+        "wallet_balance_display": "৳০",
+        "status": "deficit",
+        "status_label_bn": "ঘাটতির ঝুঁকি",
+        "status_label_en": "Deficit Risk",
+        "horizon_days": 14,
+        "advice_bn": "সামনের 14 দিনে আবশ্যক বিল ও খরচের তুলনায় তহবিলের ঘাটতি হতে পারে। অপ্রয়োজনীয় খরচ স্থগিত রাখুন।",
+        "advice_en": "Upcoming obligations exceed available funds in the next 14 days. Defer discretionary spending."
+      },
+      "cash_on_hand": {
+        "estimated_cash_paisa": 0,
+        "estimated_cash_display": "৳০",
+        "trailing_cashout_total_paisa": 0,
+        "trailing_cashout_total_display": "৳০",
+        "daily_cash_burn_paisa": 0,
+        "daily_cash_burn_display": "৳০",
+        "days_of_cash_remaining": 0.0,
+        "confidence": "normal",
+        "last_cashout_date": "2026-08-16"
+      },
+      "recurring": {
+        "inflows": [],
+        "outflows": [
+          {
+            "item_id": "outflow_food_0",
+            "title_bn": "নিয়মিত ব্যয় (food)",
+            "title_en": "Recurring Spend (food)",
+            "category": "food",
+            "direction": "outflow",
+            "amount_paisa": 4917,
+            "amount_display": "৳৪৯",
+            "interval_days": 7,
+            "periodicity": "weekly",
+            "expected_day_of_month": null,
+            "confidence": 0.95,
+            "next_expected_date": "2026-10-01",
+            "occurrence_count": 5
+          },
+          {
+            "item_id": "outflow_transport_0",
+            "title_bn": "নিয়মিত ব্যয় (transport)",
+            "title_en": "Recurring Spend (transport)",
+            "category": "transport",
+            "direction": "outflow",
+            "amount_paisa": 48871,
+            "amount_display": "৳৪৮৮",
+            "interval_days": 7,
+            "periodicity": "weekly",
+            "expected_day_of_month": null,
+            "confidence": 0.8,
+            "next_expected_date": "2026-10-05",
+            "occurrence_count": 2
+          }
+        ],
+        "total_monthly_inflow_paisa": 0,
+        "total_monthly_outflow_paisa": 215152,
+        "total_monthly_inflow_display": "৳০",
+        "total_monthly_outflow_display": "৳২,১৫১",
+        "detected_salary_dom": null,
+        "upcoming_commitments_14d_paisa": 53788,
+        "upcoming_commitments_14d_display": "৳৫৩৭"
+      },
       "metrics": {
         "monthly_income_paisa": 322581,
         "monthly_income_display": "৳৩,২২৫",
@@ -76,6 +151,12 @@
         }
       ],
       "insights": [
+        {
+          "id": "safe_to_spend",
+          "label": "Data",
+          "text_bn": "আগামী ১৪ দিনের সব সম্ভাব্য নিয়মিত বিল ও আবশ্যক খরচ মিটিয়ে আপনার নিরাপদ ব্যয়ের সীমা প্রায় ৳০ (দৈনিক ৳০)।",
+          "text_en": "After covering upcoming bills and essentials, your safe-to-spend limit is ৳০ (~৳০/day) over the next 14 days."
+        },
         {
           "id": "income_spend",
           "label": "Data",
@@ -138,6 +219,9 @@
       ],
       "labels": {
         "balance": "Data",
+        "safe_to_spend": "Data",
+        "cash_on_hand": "Data",
+        "recurring_commitments": "Data",
         "monthly_income": "Data",
         "monthly_spend": "Data",
         "categories": "Data",

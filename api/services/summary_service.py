@@ -1,7 +1,7 @@
-"""Summary service: composes core metrics + categorizer + reviewed templates.
+"""Summary service: composes core metrics + categorizer + safe-to-spend + cash-on-hand.
 
 No financial math here beyond aggregation and display formatting — the
-numbers come from core/metrics.py and the strings from llm/templates/.
+numbers come from pure core/ functions and strings from llm/templates/.
 """
 from __future__ import annotations
 
@@ -9,14 +9,26 @@ import sqlite3
 
 from api.repositories import transactions as tx_repo
 from api.repositories import users as users_repo
-from api.schemas.me import (CategoryRow, Insight, MetricsOut, SummaryData,
-                            UserRef)
+from api.schemas.common import Evidence
+from api.schemas.me import (
+    CashOnHandOut,
+    CategoryRow,
+    Insight,
+    MetricsOut,
+    RecurringItemOut,
+    RecurringSummaryOut,
+    SafeToSpendOut,
+    SummaryData,
+    UserRef,
+)
 from api.services import convert
 from api.services.evidence import as_of_date, build_evidence
-from api.schemas.common import Evidence
+from core.cash_on_hand import estimate_cash_on_hand
 from core.categorizer import categorize
 from core.formatting import format_date, format_probability, format_taka, to_bangla_digits
 from core.metrics import compute_metrics, monthly_totals, weekly_outflows
+from core.recurring import detect_recurring_patterns
+from core.safe_to_spend import calculate_safe_to_spend
 from llm.render import render
 
 
@@ -56,6 +68,22 @@ def get_summary(conn: sqlite3.Connection, cfg, forecast_version: str,
     confidence = "low" if (metrics.n_transactions < int(th["min_history_transactions"])
                            or metrics.window_days < int(th["min_history_days"])) else "normal"
 
+    # Dynamic Recurring obligations detection directly from transaction patterns
+    rec_summary = detect_recurring_patterns(txns, as_of)
+
+    # Physical Cash-on-Hand estimation from recent cash-outs
+    coh_estimate = estimate_cash_on_hand(txns, as_of)
+
+    # Core Safe-to-Spend output
+    s2s = calculate_safe_to_spend(
+        wallet_balance_paisa=balance,
+        estimated_cash_paisa=coh_estimate.estimated_cash_paisa,
+        upcoming_commitments_paisa=rec_summary.upcoming_commitments_14d_paisa,
+        daily_essential_paisa=essentials,
+        horizon_days=14,
+        monthly_savings_target_paisa=0,
+    )
+
     # Categories: outflow totals per category (the "where does money go" view).
     totals: dict[str, int] = {}
     outflow_sum = 0
@@ -81,6 +109,14 @@ def get_summary(conn: sqlite3.Connection, cfg, forecast_version: str,
 
     # Insights from reviewed templates. Every figure is preformatted here.
     insights: list[Insight] = []
+    # Safe to spend primary insight
+    insights.append(Insight(
+        id="safe_to_spend",
+        label="Data",
+        text_bn=f"আগামী ১৪ দিনের সব সম্ভাব্য নিয়মিত বিল ও আবশ্যক খরচ মিটিয়ে আপনার নিরাপদ ব্যয়ের সীমা প্রায় {s2s.safe_to_spend_total_display} (দৈনিক {s2s.daily_safe_budget_display})।",
+        text_en=f"After covering upcoming bills and essentials, your safe-to-spend limit is {s2s.safe_to_spend_total_display} (~{s2s.daily_safe_budget_display}/day) over the next 14 days.",
+    ))
+
     months = monthly_totals(txns)
     if months:
         last_month = max(months)
@@ -104,8 +140,6 @@ def get_summary(conn: sqlite3.Connection, cfg, forecast_version: str,
                            week_date=format_date(largest.start, "en"),
                            amount=format_taka(largest.outflow_paisa, "en")),
         ))
-    if metrics.fee_leakage and metrics.fee_leakage > 0:
-        pass  # ratio lives in metrics; the taka total below is the insight
     fee_total = sum(t.fee_paisa for t in txns if not t.is_inflow)
     if fee_total > 0:
         insights.append(Insight(
@@ -126,6 +160,87 @@ def get_summary(conn: sqlite3.Connection, cfg, forecast_version: str,
             text_en=render("summary_low_data", "en"),
         ))
 
+    safe_to_spend_out = SafeToSpendOut(
+        safe_to_spend_total_paisa=s2s.safe_to_spend_total_paisa,
+        safe_to_spend_total_display=s2s.safe_to_spend_total_display,
+        safe_to_spend_wallet_paisa=s2s.safe_to_spend_wallet_paisa,
+        safe_to_spend_wallet_display=s2s.safe_to_spend_wallet_display,
+        daily_safe_budget_paisa=s2s.daily_safe_budget_paisa,
+        daily_safe_budget_display=s2s.daily_safe_budget_display,
+        upcoming_commitments_paisa=s2s.upcoming_commitments_paisa,
+        upcoming_commitments_display=s2s.upcoming_commitments_display,
+        safety_buffer_paisa=s2s.safety_buffer_paisa,
+        safety_buffer_display=s2s.safety_buffer_display,
+        estimated_cash_paisa=s2s.estimated_cash_paisa,
+        estimated_cash_display=s2s.estimated_cash_display,
+        wallet_balance_paisa=s2s.wallet_balance_paisa,
+        wallet_balance_display=s2s.wallet_balance_display,
+        status=s2s.status,
+        status_label_bn=s2s.status_label_bn,
+        status_label_en=s2s.status_label_en,
+        horizon_days=s2s.horizon_days,
+        advice_bn=s2s.advice_bn,
+        advice_en=s2s.advice_en,
+    )
+
+    cash_on_hand_out = CashOnHandOut(
+        estimated_cash_paisa=coh_estimate.estimated_cash_paisa,
+        estimated_cash_display=coh_estimate.estimated_cash_display,
+        trailing_cashout_total_paisa=coh_estimate.trailing_cashout_total_paisa,
+        trailing_cashout_total_display=coh_estimate.trailing_cashout_total_display,
+        daily_cash_burn_paisa=coh_estimate.daily_cash_burn_paisa,
+        daily_cash_burn_display=coh_estimate.daily_cash_burn_display,
+        days_of_cash_remaining=coh_estimate.days_of_cash_remaining,
+        confidence=coh_estimate.confidence,
+        last_cashout_date=coh_estimate.last_cashout_date,
+    )
+
+    rec_out = RecurringSummaryOut(
+        inflows=[
+            RecurringItemOut(
+                item_id=it.item_id,
+                title_bn=it.title_bn,
+                title_en=it.title_en,
+                category=it.category,
+                direction=it.direction,
+                amount_paisa=it.amount_paisa,
+                amount_display=it.amount_display,
+                interval_days=it.interval_days,
+                periodicity=it.periodicity,
+                expected_day_of_month=it.expected_day_of_month,
+                confidence=it.confidence,
+                next_expected_date=it.next_expected_date,
+                occurrence_count=it.occurrence_count,
+            )
+            for it in rec_summary.inflows
+        ],
+        outflows=[
+            RecurringItemOut(
+                item_id=it.item_id,
+                title_bn=it.title_bn,
+                title_en=it.title_en,
+                category=it.category,
+                direction=it.direction,
+                amount_paisa=it.amount_paisa,
+                amount_display=it.amount_display,
+                interval_days=it.interval_days,
+                periodicity=it.periodicity,
+                expected_day_of_month=it.expected_day_of_month,
+                confidence=it.confidence,
+                next_expected_date=it.next_expected_date,
+                occurrence_count=it.occurrence_count,
+            )
+            for it in rec_summary.outflows
+        ],
+        total_monthly_inflow_paisa=rec_summary.total_monthly_inflow_paisa,
+        total_monthly_outflow_paisa=rec_summary.total_monthly_outflow_paisa,
+        total_monthly_inflow_display=rec_summary.total_monthly_inflow_display,
+        total_monthly_outflow_display=rec_summary.total_monthly_outflow_display,
+        detected_salary_dom=rec_summary.detected_salary_dom,
+        upcoming_commitments_14d_paisa=rec_summary.upcoming_commitments_14d_paisa,
+        upcoming_commitments_14d_display=rec_summary.upcoming_commitments_14d_display,
+    )
+
     data = SummaryData(
         user=UserRef(persona=user["persona"],
                      persona_label_bn=persona_cfg["label_bn"],
@@ -134,6 +249,9 @@ def get_summary(conn: sqlite3.Connection, cfg, forecast_version: str,
         balance_paisa=balance,
         balance_display=format_taka(balance, "bn"),
         confidence=confidence,
+        safe_to_spend=safe_to_spend_out,
+        cash_on_hand=cash_on_hand_out,
+        recurring=rec_out,
         metrics=MetricsOut(
             monthly_income_paisa=metrics.monthly_income_paisa,
             monthly_income_display=format_taka(metrics.monthly_income_paisa, "bn"),
@@ -157,6 +275,9 @@ def get_summary(conn: sqlite3.Connection, cfg, forecast_version: str,
     )
     evidence = build_evidence(cfg, metrics.n_transactions, {
         "balance": "Data",
+        "safe_to_spend": "Data",
+        "cash_on_hand": "Data",
+        "recurring_commitments": "Data",
         "monthly_income": "Data",
         "monthly_spend": "Data",
         "categories": "Data",

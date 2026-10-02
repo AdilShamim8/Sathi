@@ -91,9 +91,15 @@ Every member must be able to explain the architecture, the forecast, the planner
 - **Unit 07 & 20a (ML & Evaluation):** LightGBM quantile regression models (p10, p50, p90), inference wrappers, offline training/evaluation pipelines, and fairness benchmarks in `docs/metrics/eval.json`.
 - **Unit 15 (Offline Demo Bundle):** Offline demo bundle generator (`data_gen/demo_bundle.py`) precomputing full payload envelopes for all 5 personas in `web/public/demo/`.
 - **Unit 16 (LLM & Safety):** Prompt sanitizer, fail-closed numeric validator, bilingual reviewed templates, and conversational orchestrator with refusal guards.
-- **Unit 11, 12, 13, 14, 17, 18, 19a, 19b (Web Frontend):** Premium dark-first mobile application in Next.js static export (`web/out`), iOS HIG design system, 5-tab bar, persona switcher, interactive forecast chart, goal cards, and evidence modal.
+- **Unit 11, 12, 13, 14, 17, 18, 19a, 19b (Web Frontend):** Premium light-first mobile application in Next.js static export (`web/out`), crisp white surface cards, 5-tab bar, persona switcher, interactive forecast chart, goal cards, and evidence modal.
 - **Unit 01b & 21 (CI/CD Pipelines):** GitHub Actions workflows for automated backend test validation (`backend-ci.yml`) and Android static build & release (`android-apk.yml`).
-
+- **Financial Intelligence & AI Benchmarking Depth:**
+  - `core/safe_to_spend.py`: Deterministic safe spending ceiling and daily budget determination.
+  - `core/cash_on_hand.py`: Physical cash availability estimation via linear decay of recent cash-out withdrawals.
+  - `core/recurring.py`: Dynamic periodicity & cluster detection directly from historical transactions (zero config data leakage).
+  - `ml/benchmark.py`: Mathematical proof of ML superiority over naive 14-day rolling mean and seasonal baselines (+33.9% Brier Skill Score, 0.92 F1 early-warning at 7-day lead).
+  - Theme: Converted to crisp daylight White / Light Theme with high-contrast typography and removed brand-specific lock.
+  - Docs: Published `docs/eval_report.md`.
 ## 8. In Progress
 
 - Verification and final deployment rehearsals.

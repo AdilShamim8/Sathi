@@ -1,33 +1,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg-base: #000000;
-  --bg-grouped: #121214;
-  --bg-surface: #1C1C1E;
-  --bg-surface-raised: #2C2C2E;
-  --bg-scrim: rgba(0, 0, 0, 0.55);
+  /* Crisp Modern Light Theme */
+  --bg-base: #F8FAFC;
+  --bg-grouped: #F1F5F9;
+  --bg-surface: #FFFFFF;
+  --bg-surface-raised: #F8FAFC;
+  --bg-scrim: rgba(15, 23, 42, 0.45);
   
-  --text-primary: #FFFFFF;
-  --text-secondary: #AEAEB2;
-  --text-muted: #8E8E93;
-  --text-disabled: #636366;
-  --text-on-accent: #00131C;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --text-disabled: #94A3B8;
+  --text-on-accent: #FFFFFF;
   
-  --accent-primary: #64D2FF;
-  --accent-tint: rgba(100, 210, 255, 0.14);
+  --accent-primary: #0284C7;
+  --accent-tint: rgba(2, 132, 199, 0.08);
   
-  --border-default: rgba(255, 255, 255, 0.10);
-  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-default: #E2E8F0;
+  --border-strong: #CBD5E1;
   
-  --state-success: #30D158;
-  --state-caution: #FF9F0A;
-  --state-error: #FF453A;
-  --state-info: #64D2FF;
+  --state-success: #16A34A;
+  --state-caution: #D97706;
+  --state-error: #DC2626;
+  --state-info: #0284C7;
   
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-full: 9999px;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
   
   --font-sans: 'Inter', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-bangla: 'Hind Siliguri', 'Inter', sans-serif;
@@ -50,19 +55,21 @@ html, body {
   overflow-x: hidden;
 }
 
-/* Glass styling for floating chrome */
+/* Glass styling for floating chrome in daylight mode */
 .glass-chrome {
-  background: rgba(28, 28, 30, 0.82);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-top: 1px solid var(--border-default);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .glass-header {
-  background: rgba(18, 18, 20, 0.85);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-default);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 /* Custom scrollbars */
@@ -74,7 +81,7 @@ html, body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-surface-raised);
+  background: #CBD5E1;
   border-radius: var(--radius-full);
 }
 

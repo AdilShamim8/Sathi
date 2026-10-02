@@ -47,13 +47,14 @@ export const PersonaPicker: React.FC<PersonaPickerProps> = ({
               width: '28px',
               height: '28px',
               borderRadius: '8px',
-              background: 'linear-gradient(135deg, #64D2FF 0%, #0077B6 100%)',
+              background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#000',
+              color: '#FFFFFF',
               fontWeight: 800,
               fontSize: '14px',
+              boxShadow: '0 2px 4px rgba(2, 132, 199, 0.25)',
             }}
           >
             সা
@@ -66,18 +67,19 @@ export const PersonaPicker: React.FC<PersonaPickerProps> = ({
               <span
                 style={{
                   fontSize: '0.65rem',
-                  padding: '1px 5px',
+                  padding: '1px 6px',
                   borderRadius: '4px',
-                  backgroundColor: 'rgba(255, 204, 0, 0.15)',
-                  color: '#FFCC00',
+                  backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                  color: 'var(--accent-primary)',
                   fontWeight: 600,
+                  letterSpacing: '0.2px',
                 }}
               >
-                upay
+                MFS Copilot
               </span>
             </div>
             <p style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>
-              আর্থিক স্বাধীনতা ও পরামর্শক
+              আর্থিক স্বাধীনতা ও বুদ্ধিমত্তা
             </p>
           </div>
         </div>
@@ -91,8 +93,8 @@ export const PersonaPicker: React.FC<PersonaPickerProps> = ({
             gap: '6px',
             padding: '5px 10px',
             borderRadius: 'var(--radius-full)',
-            backgroundColor: isOffline ? 'rgba(255,159,10,0.18)' : 'rgba(48,209,88,0.18)',
-            border: `1px solid ${isOffline ? 'rgba(255,159,10,0.4)' : 'rgba(48,209,88,0.4)'}`,
+            backgroundColor: isOffline ? 'rgba(217, 119, 6, 0.12)' : 'rgba(22, 163, 74, 0.12)',
+            border: `1px solid ${isOffline ? 'rgba(217, 119, 6, 0.3)' : 'rgba(22, 163, 74, 0.3)'}`,
             color: isOffline ? 'var(--state-caution)' : 'var(--state-success)',
             fontSize: '0.72rem',
             fontWeight: 600,
@@ -126,7 +128,7 @@ export const PersonaPicker: React.FC<PersonaPickerProps> = ({
                 gap: '6px',
                 padding: '6px 12px',
                 borderRadius: 'var(--radius-full)',
-                backgroundColor: isSelected ? 'var(--accent-tint)' : 'var(--bg-surface-raised)',
+                backgroundColor: isSelected ? 'var(--accent-tint)' : '#FFFFFF',
                 border: isSelected
                   ? '1px solid var(--accent-primary)'
                   : '1px solid var(--border-default)',
@@ -135,6 +137,7 @@ export const PersonaPicker: React.FC<PersonaPickerProps> = ({
                 fontWeight: isSelected ? 600 : 400,
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
+                boxShadow: isSelected ? '0 1px 2px rgba(2, 132, 199, 0.1)' : 'var(--shadow-sm)',
               }}
             >
               <User size={13} />
@@ -151,7 +154,7 @@ export const PersonaPicker: React.FC<PersonaPickerProps> = ({
             marginTop: '8px',
             padding: '3px 8px',
             borderRadius: '6px',
-            backgroundColor: 'rgba(255, 159, 10, 0.12)',
+            backgroundColor: 'rgba(217, 119, 6, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -160,7 +163,7 @@ export const PersonaPicker: React.FC<PersonaPickerProps> = ({
             color: 'var(--state-caution)',
           }}
         >
-          <span>⚠️ ডেমো ডেটা, লাইভ নয় (Airplane Mode / Offline Bundle Active)</span>
+          <span>⚠️ অফলাইন ডেমো বান্ডল সক্রিয় (Airplane Mode Ready)</span>
         </div>
       )}
     </div>

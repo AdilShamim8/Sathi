@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Sathi (সাথী) — AI Financial Coach for upay',
-  description: 'Bangla-first AI financial companion for upay mobile-wallet customers. Explaining cash-flow, forecasting short-term pressure, and planning realistic savings.',
+  title: 'Sathi (সাথী) — AI Financial Coach',
+  description: 'Bangla-first AI financial companion for mobile-wallet customers. Explaining cash-flow, forecasting short-term pressure, and planning realistic savings.',
 };
 
 export const viewport: Viewport = {
@@ -12,7 +12,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#000000',
+  themeColor: '#FFFFFF',
 };
 
 export default function RootLayout({

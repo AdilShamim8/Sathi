@@ -60,9 +60,21 @@ def test_summary_endpoint(client, auth_headers):
     data = body["data"]
     assert "balance_paisa" in data
     assert "balance_display" in data
+    assert "safe_to_spend" in data
+    assert "cash_on_hand" in data
+    assert "recurring" in data
     assert "categories" in data
     assert "metrics" in data
     assert body["evidence"]["data_used"]["source"] == "synthetic"
+
+
+def test_benchmark_endpoint(client, auth_headers):
+    resp = client.get("/v1/me/benchmark", headers=auth_headers)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert "brier_score" in body
+    assert "quantile_loss" in body
+    assert "early_warning_7d" in body
 
 
 def test_transactions_endpoint(client, auth_headers):
