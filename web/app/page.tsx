@@ -873,13 +873,20 @@ export default function SathiApp() {
               <div className="origin-card" style={{ padding: '16px' }}>
                 <h3 style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>{t.recentTxns}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {txns.slice(0, 5).map((tx: any) => {
-                    const isCredit = tx.direction === 'inflow';
+                  {txns.slice(0, 5).map((tx: any, idx: number) => {
+                    const isCredit = tx.direction === 'inflow' || tx.direction === 'in';
+                    const cpName = typeof tx.counterparty === 'object' && tx.counterparty !== null
+                      ? (tx.counterparty.id || tx.counterparty.type || (isCredit ? (isBn ? 'ক্যাশ ইন' : 'Cash In') : (isBn ? 'পেমেন্ট' : 'Payment')))
+                      : (tx.counterparty || (isCredit ? (isBn ? 'ক্যাশ ইন' : 'Cash In') : (isBn ? 'পেমেন্ট' : 'Payment')));
+                    const catLabel = typeof tx.category === 'object' && tx.category !== null
+                      ? (isBn ? tx.category.label_bn : tx.category.label_en) || tx.category.category || 'General'
+                      : (tx.category || 'General');
+                    const txDate = (tx.ts || tx.timestamp || '').slice(0, 10);
                     return (
-                      <div key={tx.transaction_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 10px', borderRadius: 'var(--radius-sm)', background: 'var(--bg-surface-2)', border: '1px solid var(--border-default)' }}>
+                      <div key={tx.txn_id || tx.transaction_id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 10px', borderRadius: 'var(--radius-sm)', background: 'var(--bg-surface-2)', border: '1px solid var(--border-default)' }}>
                         <div>
-                          <strong style={{ fontSize: '0.82rem', color: 'var(--text-primary)' }}>{tx.counterparty || (isCredit ? 'Cash In' : 'Payment')}</strong>
-                          <p style={{ fontSize: '0.67rem', color: 'var(--text-muted)' }}>{tx.timestamp?.slice(0, 10)} · {tx.category?.category || 'general'}</p>
+                          <strong style={{ fontSize: '0.82rem', color: 'var(--text-primary)' }}>{cpName}</strong>
+                          <p style={{ fontSize: '0.67rem', color: 'var(--text-muted)' }}>{txDate} · {catLabel}</p>
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           <span style={{ fontSize: '0.84rem', fontWeight: 800, color: isCredit ? 'var(--accent-green)' : 'var(--text-primary)' }}>
