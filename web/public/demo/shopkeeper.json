@@ -1,0 +1,1174 @@
+{
+  "user": {
+    "user_id": "u0001",
+    "persona": "shopkeeper",
+    "persona_label_bn": "ছোট ব্যবসায়ী",
+    "persona_label_en": "Small shopkeeper",
+    "age_band": "35-44",
+    "region": "chattogram",
+    "income_band": "25k-40k"
+  },
+  "summary": {
+    "data": {
+      "user": {
+        "persona": "shopkeeper",
+        "persona_label_bn": "ছোট ব্যবসায়ী",
+        "persona_label_en": "Small shopkeeper"
+      },
+      "as_of_date": "2026-09-30",
+      "balance_paisa": 2759772,
+      "balance_display": "৳২৭,৫৯৭",
+      "confidence": "normal",
+      "metrics": {
+        "monthly_income_paisa": 8529904,
+        "monthly_income_display": "৳৮৫,২৯৯",
+        "monthly_spend_paisa": 8366478,
+        "monthly_spend_display": "৳৮৩,৬৬৪",
+        "savings_rate": 0.019159204697656185,
+        "savings_rate_display": "২%",
+        "income_volatility": 0.10771859630215115,
+        "income_volatility_display": "১১%",
+        "buffer_days": 45.06816619957264,
+        "buffer_days_display": "৪৫",
+        "cash_dependency_ratio": 0.3226124344375917,
+        "cash_dependency_ratio_display": "৩২%",
+        "fee_leakage_paisa": 478332,
+        "fee_leakage_display": "৳৪,৭৮৩",
+        "fixed_commitment_ratio": 0.3989751577115503,
+        "fixed_commitment_ratio_display": "৪০%"
+      },
+      "categories": [
+        {
+          "category": "cash_out",
+          "label_bn": "ক্যাশ-আউট",
+          "label_en": "Cash-out",
+          "total_paisa": 32367391,
+          "total_display": "৳৩,২৩,৬৭৩",
+          "share": 0.3226124344375917,
+          "share_display": "৩২%"
+        },
+        {
+          "category": "business",
+          "label_bn": "ব্যবসা",
+          "label_en": "Business",
+          "total_paisa": 25730685,
+          "total_display": "৳২,৫৭,৩০৬",
+          "share": 0.25646302254008746,
+          "share_display": "২৬%"
+        },
+        {
+          "category": "food",
+          "label_bn": "খাবার",
+          "label_en": "Food",
+          "total_paisa": 15293719,
+          "total_display": "৳১,৫২,৯৩৭",
+          "share": 0.15243563863996484,
+          "share_display": "১৫%"
+        },
+        {
+          "category": "rent",
+          "label_bn": "ভাড়া",
+          "label_en": "Rent",
+          "total_paisa": 14000000,
+          "total_display": "৳১,৪০,০০০",
+          "share": 0.1395408756339454,
+          "share_display": "১৪%"
+        },
+        {
+          "category": "transport",
+          "label_bn": "যাতায়াত",
+          "label_en": "Transport",
+          "total_paisa": 5977241,
+          "total_display": "৳৫৯,৭৭২",
+          "share": 0.05957638878679425,
+          "share_display": "৬%"
+        },
+        {
+          "category": "other",
+          "label_bn": "অন্যান্য",
+          "label_en": "Other",
+          "total_paisa": 5879989,
+          "total_display": "৳৫৮,৭৯৯",
+          "share": 0.058607058126997645,
+          "share_display": "৬%"
+        },
+        {
+          "category": "bills",
+          "label_bn": "বিল",
+          "label_en": "Bills",
+          "total_paisa": 1080000,
+          "total_display": "৳১০,৮০০",
+          "share": 0.010764581834618646,
+          "share_display": "১%"
+        }
+      ],
+      "insights": [
+        {
+          "id": "income_spend",
+          "label": "Data",
+          "text_bn": "গত পূর্ণ মাসে আপনার ওয়ালেটে এসেছে ৳৮৩,২৫৪, খরচ হয়েছে ৳৭২,৩৫২।",
+          "text_en": "Last full month, ৳83,254 came into your wallet and ৳72,352 went out."
+        },
+        {
+          "id": "largest_week",
+          "label": "Data",
+          "text_bn": "সবচেয়ে বেশি খরচ হয়েছে ৩ আগস্ট ২০২৬ শুরু হওয়া সপ্তাহে — মোট ৳৪৫,৭০৩।",
+          "text_en": "The heaviest spending week started 3 Aug 2026 — ৳45,703 in total."
+        },
+        {
+          "id": "fees",
+          "label": "Data",
+          "text_bn": "ক্যাশ-আউট ফি হিসেবে এই সময়ে মোট ৳৪,৭৮৩ গেছে।",
+          "text_en": "Cash-out fees over this period add up to ৳4,783."
+        },
+        {
+          "id": "buffer",
+          "label": "Data",
+          "text_bn": "বর্তমান ব্যালেন্স দিয়ে প্রয়োজনীয় খরচ চলতে পারে প্রায় ৪৫ দিন।",
+          "text_en": "Your current balance can cover essentials for about 45 days."
+        }
+      ]
+    },
+    "evidence": {
+      "data_used": {
+        "window": "2025-10-01…2026-09-30",
+        "as_of_date": "2026-09-30",
+        "n_transactions": 865,
+        "source": "synthetic"
+      },
+      "model_version": {
+        "forecast": "fc-2026-09-30-26761078",
+        "categorizer": "rules-v1"
+      },
+      "config_hash": "681a6cb5ac7a",
+      "assumptions": [
+        {
+          "id": "FEE_CASHOUT_RATE",
+          "value": "150 bps, min ৳5",
+          "label": "Assumption"
+        },
+        {
+          "id": "FEE_DIGITAL_PAYMENT_RATE",
+          "value": "0 bps",
+          "label": "Assumption"
+        },
+        {
+          "id": "ESSENTIALS_PER_DAY",
+          "value": "৳350",
+          "label": "Assumption"
+        },
+        {
+          "id": "SHORTFALL_HORIZON_DAYS",
+          "value": "21",
+          "label": "Assumption"
+        }
+      ],
+      "labels": {
+        "balance": "Data",
+        "monthly_income": "Data",
+        "monthly_spend": "Data",
+        "categories": "Data",
+        "insights": "Data",
+        "fee_rate": "Assumption"
+      },
+      "generated_text": false,
+      "prompt_version": null,
+      "validator": {
+        "passed": true,
+        "fallback_used": false
+      }
+    }
+  },
+  "transactions": {
+    "data": {
+      "items": [
+        {
+          "txn_id": "u0001_t00864",
+          "ts": "2026-09-30T13:29:00+00:00",
+          "type": "cash_in",
+          "direction": "in",
+          "amount_paisa": 380322,
+          "amount_display": "৳৩,৮০৩",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "person_00",
+            "type": "person",
+            "category": "family",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "transfer_in",
+            "label_bn": "ট্রান্সফার",
+            "label_en": "Transfer in",
+            "rule_id": "type:cash_in",
+            "reason_bn": "ওয়ালেটে টাকা এসেছে",
+            "reason_en": "Money received into the wallet"
+          },
+          "balance_after_paisa": 2759772,
+          "balance_after_display": "৳২৭,৫৯৭"
+        },
+        {
+          "txn_id": "u0001_t00861",
+          "ts": "2026-09-30T12:16:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 102285,
+          "amount_display": "৳১,০২২",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_d17",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 2379450,
+          "balance_after_display": "৳২৩,৭৯৪"
+        },
+        {
+          "txn_id": "u0001_t00866",
+          "ts": "2026-09-30T10:47:00+00:00",
+          "type": "cash_out",
+          "direction": "out",
+          "amount_paisa": 151425,
+          "amount_display": "৳১,৫১৪",
+          "fee_paisa": 2271,
+          "fee_display": "৳২২",
+          "counterparty": {
+            "id": "agent_021",
+            "type": "agent",
+            "category": "agent",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "cash_out",
+            "label_bn": "ক্যাশ-আউট",
+            "label_en": "Cash-out",
+            "rule_id": "type:cash_out",
+            "reason_bn": "এজেন্ট থেকে ক্যাশ-আউট",
+            "reason_en": "Cash withdrawal at an agent"
+          },
+          "balance_after_paisa": 2481735,
+          "balance_after_display": "৳২৪,৮১৭"
+        },
+        {
+          "txn_id": "u0001_t00867",
+          "ts": "2026-09-30T08:10:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 64149,
+          "amount_display": "৳৬৪১",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_ot_d06",
+            "type": "merchant",
+            "category": "other",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "other",
+            "label_bn": "অন্যান্য",
+            "label_en": "Other",
+            "rule_id": "payment:default_other",
+            "reason_bn": "অন্য কোনো নিয়মে পড়েনি",
+            "reason_en": "No other rule matched"
+          },
+          "balance_after_paisa": 2635431,
+          "balance_after_display": "৳২৬,৩৫৪"
+        },
+        {
+          "txn_id": "u0001_t00865",
+          "ts": "2026-09-30T06:51:00+00:00",
+          "type": "send_money",
+          "direction": "out",
+          "amount_paisa": 500000,
+          "amount_display": "৳৫,০০০",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "person_supplier",
+            "type": "person",
+            "category": "business",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "business",
+            "label_bn": "ব্যবসা",
+            "label_en": "Business",
+            "rule_id": "send_money:cp=business",
+            "reason_bn": "ব্যবসায়িক লেনদেন",
+            "reason_en": "Business transaction"
+          },
+          "balance_after_paisa": 2699580,
+          "balance_after_display": "৳২৬,৯৯৫"
+        },
+        {
+          "txn_id": "u0001_t00859",
+          "ts": "2026-09-29T13:05:00+00:00",
+          "type": "cash_in",
+          "direction": "in",
+          "amount_paisa": 366457,
+          "amount_display": "৳৩,৬৬৪",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "person_03",
+            "type": "person",
+            "category": "family",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "transfer_in",
+            "label_bn": "ট্রান্সফার",
+            "label_en": "Transfer in",
+            "rule_id": "type:cash_in",
+            "reason_bn": "ওয়ালেটে টাকা এসেছে",
+            "reason_en": "Money received into the wallet"
+          },
+          "balance_after_paisa": 3199580,
+          "balance_after_display": "৳৩১,৯৯৫"
+        },
+        {
+          "txn_id": "u0001_t00860",
+          "ts": "2026-09-29T10:53:00+00:00",
+          "type": "cash_out",
+          "direction": "out",
+          "amount_paisa": 153773,
+          "amount_display": "৳১,৫৩৭",
+          "fee_paisa": 2307,
+          "fee_display": "৳২৩",
+          "counterparty": {
+            "id": "agent_021",
+            "type": "agent",
+            "category": "agent",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "cash_out",
+            "label_bn": "ক্যাশ-আউট",
+            "label_en": "Cash-out",
+            "rule_id": "type:cash_out",
+            "reason_bn": "এজেন্ট থেকে ক্যাশ-আউট",
+            "reason_en": "Cash withdrawal at an agent"
+          },
+          "balance_after_paisa": 2833123,
+          "balance_after_display": "৳২৮,৩৩১"
+        },
+        {
+          "txn_id": "u0001_t00863",
+          "ts": "2026-09-29T09:28:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 251049,
+          "amount_display": "৳২,৫১০",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_ot_c04",
+            "type": "merchant",
+            "category": "other",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "other",
+            "label_bn": "অন্যান্য",
+            "label_en": "Other",
+            "rule_id": "payment:default_other",
+            "reason_bn": "অন্য কোনো নিয়মে পড়েনি",
+            "reason_en": "No other rule matched"
+          },
+          "balance_after_paisa": 2989203,
+          "balance_after_display": "৳২৯,৮৯২"
+        },
+        {
+          "txn_id": "u0001_t00862",
+          "ts": "2026-09-29T08:48:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 94506,
+          "amount_display": "৳৯৪৫",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_d16",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 3240252,
+          "balance_after_display": "৳৩২,৪০২"
+        },
+        {
+          "txn_id": "u0001_t00857",
+          "ts": "2026-09-28T13:51:00+00:00",
+          "type": "cash_in",
+          "direction": "in",
+          "amount_paisa": 312579,
+          "amount_display": "৳৩,১২৫",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "person_04",
+            "type": "person",
+            "category": "family",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "transfer_in",
+            "label_bn": "ট্রান্সফার",
+            "label_en": "Transfer in",
+            "rule_id": "type:cash_in",
+            "reason_bn": "ওয়ালেটে টাকা এসেছে",
+            "reason_en": "Money received into the wallet"
+          },
+          "balance_after_paisa": 3334758,
+          "balance_after_display": "৳৩৩,৩৪৭"
+        },
+        {
+          "txn_id": "u0001_t00858",
+          "ts": "2026-09-28T08:09:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 89733,
+          "amount_display": "৳৮৯৭",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_ot_c04",
+            "type": "merchant",
+            "category": "other",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "other",
+            "label_bn": "অন্যান্য",
+            "label_en": "Other",
+            "rule_id": "payment:default_other",
+            "reason_bn": "অন্য কোনো নিয়মে পড়েনি",
+            "reason_en": "No other rule matched"
+          },
+          "balance_after_paisa": 3022179,
+          "balance_after_display": "৳৩০,২২১"
+        },
+        {
+          "txn_id": "u0001_t00855",
+          "ts": "2026-09-27T13:24:00+00:00",
+          "type": "cash_in",
+          "direction": "in",
+          "amount_paisa": 203895,
+          "amount_display": "৳২,০৩৮",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "person_03",
+            "type": "person",
+            "category": "family",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "transfer_in",
+            "label_bn": "ট্রান্সফার",
+            "label_en": "Transfer in",
+            "rule_id": "type:cash_in",
+            "reason_bn": "ওয়ালেটে টাকা এসেছে",
+            "reason_en": "Money received into the wallet"
+          },
+          "balance_after_paisa": 3111912,
+          "balance_after_display": "৳৩১,১১৯"
+        },
+        {
+          "txn_id": "u0001_t00856",
+          "ts": "2026-09-27T08:01:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 94411,
+          "amount_display": "৳৯৪৪",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_ot_c03",
+            "type": "merchant",
+            "category": "other",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "other",
+            "label_bn": "অন্যান্য",
+            "label_en": "Other",
+            "rule_id": "payment:default_other",
+            "reason_bn": "অন্য কোনো নিয়মে পড়েনি",
+            "reason_en": "No other rule matched"
+          },
+          "balance_after_paisa": 2908017,
+          "balance_after_display": "৳২৯,০৮০"
+        },
+        {
+          "txn_id": "u0001_t00853",
+          "ts": "2026-09-26T13:31:00+00:00",
+          "type": "cash_in",
+          "direction": "in",
+          "amount_paisa": 143353,
+          "amount_display": "৳১,৪৩৩",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "person_09",
+            "type": "person",
+            "category": "family",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "transfer_in",
+            "label_bn": "ট্রান্সফার",
+            "label_en": "Transfer in",
+            "rule_id": "type:cash_in",
+            "reason_bn": "ওয়ালেটে টাকা এসেছে",
+            "reason_en": "Money received into the wallet"
+          },
+          "balance_after_paisa": 3002428,
+          "balance_after_display": "৳৩০,০২৪"
+        },
+        {
+          "txn_id": "u0001_t00854",
+          "ts": "2026-09-26T08:25:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 49389,
+          "amount_display": "৳৪৯৩",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_d12",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 2859075,
+          "balance_after_display": "৳২৮,৫৯০"
+        },
+        {
+          "txn_id": "u0001_t00851",
+          "ts": "2026-09-24T13:51:00+00:00",
+          "type": "cash_in",
+          "direction": "in",
+          "amount_paisa": 521623,
+          "amount_display": "৳৫,২১৬",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "person_00",
+            "type": "person",
+            "category": "family",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "transfer_in",
+            "label_bn": "ট্রান্সফার",
+            "label_en": "Transfer in",
+            "rule_id": "type:cash_in",
+            "reason_bn": "ওয়ালেটে টাকা এসেছে",
+            "reason_en": "Money received into the wallet"
+          },
+          "balance_after_paisa": 2908464,
+          "balance_after_display": "৳২৯,০৮৪"
+        },
+        {
+          "txn_id": "u0001_t00852",
+          "ts": "2026-09-24T08:32:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 42199,
+          "amount_display": "৳৪২১",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_d18",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 2386841,
+          "balance_after_display": "৳২৩,৮৬৮"
+        },
+        {
+          "txn_id": "u0001_t00848",
+          "ts": "2026-09-23T13:57:00+00:00",
+          "type": "cash_in",
+          "direction": "in",
+          "amount_paisa": 227314,
+          "amount_display": "৳২,২৭৩",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "person_04",
+            "type": "person",
+            "category": "family",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "transfer_in",
+            "label_bn": "ট্রান্সফার",
+            "label_en": "Transfer in",
+            "rule_id": "type:cash_in",
+            "reason_bn": "ওয়ালেটে টাকা এসেছে",
+            "reason_en": "Money received into the wallet"
+          },
+          "balance_after_paisa": 2429040,
+          "balance_after_display": "৳২৪,২৯০"
+        },
+        {
+          "txn_id": "u0001_t00850",
+          "ts": "2026-09-23T08:32:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 56070,
+          "amount_display": "৳৫৬০",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_d01",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 2201726,
+          "balance_after_display": "৳২২,০১৭"
+        },
+        {
+          "txn_id": "u0001_t00849",
+          "ts": "2026-09-23T06:37:00+00:00",
+          "type": "send_money",
+          "direction": "out",
+          "amount_paisa": 500000,
+          "amount_display": "৳৫,০০০",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "person_supplier",
+            "type": "person",
+            "category": "business",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "business",
+            "label_bn": "ব্যবসা",
+            "label_en": "Business",
+            "rule_id": "send_money:cp=business",
+            "reason_bn": "ব্যবসায়িক লেনদেন",
+            "reason_en": "Business transaction"
+          },
+          "balance_after_paisa": 2257796,
+          "balance_after_display": "৳২২,৫৭৭"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "total": 865,
+      "as_of_date": "2026-09-30"
+    },
+    "evidence": {
+      "data_used": {
+        "window": "2025-10-01…2026-09-30",
+        "as_of_date": "2026-09-30",
+        "n_transactions": 865,
+        "source": "synthetic"
+      },
+      "model_version": {
+        "forecast": "fc-2026-09-30-26761078",
+        "categorizer": "rules-v1"
+      },
+      "config_hash": "681a6cb5ac7a",
+      "assumptions": [
+        {
+          "id": "FEE_CASHOUT_RATE",
+          "value": "150 bps, min ৳5",
+          "label": "Assumption"
+        },
+        {
+          "id": "FEE_DIGITAL_PAYMENT_RATE",
+          "value": "0 bps",
+          "label": "Assumption"
+        },
+        {
+          "id": "ESSENTIALS_PER_DAY",
+          "value": "৳350",
+          "label": "Assumption"
+        },
+        {
+          "id": "SHORTFALL_HORIZON_DAYS",
+          "value": "21",
+          "label": "Assumption"
+        }
+      ],
+      "labels": {
+        "transactions": "Data"
+      },
+      "generated_text": false,
+      "prompt_version": null,
+      "validator": {
+        "passed": true,
+        "fallback_used": false
+      }
+    }
+  },
+  "forecast": {
+    "data": {
+      "horizon_days": 21,
+      "as_of_date": "2026-09-30",
+      "start_balance_paisa": 2759772,
+      "start_balance_display": "৳২৭,৫৯৭",
+      "shortfall_prob": 0.075,
+      "shortfall_prob_display": "৮%",
+      "risk_level": "low",
+      "trough_date": "৮ অক্টোবর ২০২৬",
+      "confidence": "normal",
+      "days": [
+        {
+          "date": "2026-10-01",
+          "p10_paisa": 2393994,
+          "p10_display": "৳২৩,৯৩৯",
+          "p50_paisa": 2869206,
+          "p50_display": "৳২৮,৬৯২",
+          "p90_paisa": 3105960,
+          "p90_display": "৳৩১,০৫৯"
+        },
+        {
+          "date": "2026-10-02",
+          "p10_paisa": 2220682,
+          "p10_display": "৳২২,২০৬",
+          "p50_paisa": 2898778,
+          "p50_display": "৳২৮,৯৮৭",
+          "p90_paisa": 3307691,
+          "p90_display": "৳৩৩,০৭৬"
+        },
+        {
+          "date": "2026-10-03",
+          "p10_paisa": 2160673,
+          "p10_display": "৳২১,৬০৬",
+          "p50_paisa": 2932607,
+          "p50_display": "৳২৯,৩২৬",
+          "p90_paisa": 3451169,
+          "p90_display": "৳৩৪,৫১১"
+        },
+        {
+          "date": "2026-10-04",
+          "p10_paisa": 2118758,
+          "p10_display": "৳২১,১৮৭",
+          "p50_paisa": 2928832,
+          "p50_display": "৳২৯,২৮৮",
+          "p90_paisa": 3591415,
+          "p90_display": "৳৩৫,৯১৪"
+        },
+        {
+          "date": "2026-10-05",
+          "p10_paisa": 1916729,
+          "p10_display": "৳১৯,১৬৭",
+          "p50_paisa": 2954665,
+          "p50_display": "৳২৯,৫৪৬",
+          "p90_paisa": 3670739,
+          "p90_display": "৳৩৬,৭০৭"
+        },
+        {
+          "date": "2026-10-06",
+          "p10_paisa": 1954785,
+          "p10_display": "৳১৯,৫৪৭",
+          "p50_paisa": 2928898,
+          "p50_display": "৳২৯,২৮৮",
+          "p90_paisa": 3796874,
+          "p90_display": "৳৩৭,৯৬৮"
+        },
+        {
+          "date": "2026-10-07",
+          "p10_paisa": 1845808,
+          "p10_display": "৳১৮,৪৫৮",
+          "p50_paisa": 2942790,
+          "p50_display": "৳২৯,৪২৭",
+          "p90_paisa": 3814533,
+          "p90_display": "৳৩৮,১৪৫"
+        },
+        {
+          "date": "2026-10-08",
+          "p10_paisa": 1652823,
+          "p10_display": "৳১৬,৫২৮",
+          "p50_paisa": 2908123,
+          "p50_display": "৳২৯,০৮১",
+          "p90_paisa": 3982963,
+          "p90_display": "৳৩৯,৮২৯"
+        },
+        {
+          "date": "2026-10-09",
+          "p10_paisa": 1525509,
+          "p10_display": "৳১৫,২৫৫",
+          "p50_paisa": 2971764,
+          "p50_display": "৳২৯,৭১৭",
+          "p90_paisa": 3994498,
+          "p90_display": "৳৩৯,৯৪৪"
+        },
+        {
+          "date": "2026-10-10",
+          "p10_paisa": 1588035,
+          "p10_display": "৳১৫,৮৮০",
+          "p50_paisa": 2985535,
+          "p50_display": "৳২৯,৮৫৫",
+          "p90_paisa": 3998670,
+          "p90_display": "৳৩৯,৯৮৬"
+        },
+        {
+          "date": "2026-10-11",
+          "p10_paisa": 1385693,
+          "p10_display": "৳১৩,৮৫৬",
+          "p50_paisa": 3002848,
+          "p50_display": "৳৩০,০২৮",
+          "p90_paisa": 4173584,
+          "p90_display": "৳৪১,৭৩৫"
+        },
+        {
+          "date": "2026-10-12",
+          "p10_paisa": 1377723,
+          "p10_display": "৳১৩,৭৭৭",
+          "p50_paisa": 2987593,
+          "p50_display": "৳২৯,৮৭৫",
+          "p90_paisa": 4214245,
+          "p90_display": "৳৪২,১৪২"
+        },
+        {
+          "date": "2026-10-13",
+          "p10_paisa": 1343510,
+          "p10_display": "৳১৩,৪৩৫",
+          "p50_paisa": 2987433,
+          "p50_display": "৳২৯,৮৭৪",
+          "p90_paisa": 4413187,
+          "p90_display": "৳৪৪,১৩১"
+        },
+        {
+          "date": "2026-10-14",
+          "p10_paisa": 1122246,
+          "p10_display": "৳১১,২২২",
+          "p50_paisa": 3022116,
+          "p50_display": "৳৩০,২২১",
+          "p90_paisa": 4437862,
+          "p90_display": "৳৪৪,৩৭৮"
+        },
+        {
+          "date": "2026-10-15",
+          "p10_paisa": 1062595,
+          "p10_display": "৳১০,৬২৫",
+          "p50_paisa": 3126572,
+          "p50_display": "৳৩১,২৬৫",
+          "p90_paisa": 4496155,
+          "p90_display": "৳৪৪,৯৬১"
+        },
+        {
+          "date": "2026-10-16",
+          "p10_paisa": 1077944,
+          "p10_display": "৳১০,৭৭৯",
+          "p50_paisa": 3026358,
+          "p50_display": "৳৩০,২৬৩",
+          "p90_paisa": 4653015,
+          "p90_display": "৳৪৬,৫৩০"
+        },
+        {
+          "date": "2026-10-17",
+          "p10_paisa": 1024514,
+          "p10_display": "৳১০,২৪৫",
+          "p50_paisa": 3032178,
+          "p50_display": "৳৩০,৩২১",
+          "p90_paisa": 4657919,
+          "p90_display": "৳৪৬,৫৭৯"
+        },
+        {
+          "date": "2026-10-18",
+          "p10_paisa": 1055070,
+          "p10_display": "৳১০,৫৫০",
+          "p50_paisa": 3000453,
+          "p50_display": "৳৩০,০০৪",
+          "p90_paisa": 4700576,
+          "p90_display": "৳৪৭,০০৫"
+        },
+        {
+          "date": "2026-10-19",
+          "p10_paisa": 1080353,
+          "p10_display": "৳১০,৮০৩",
+          "p50_paisa": 3070944,
+          "p50_display": "৳৩০,৭০৯",
+          "p90_paisa": 4705997,
+          "p90_display": "৳৪৭,০৫৯"
+        },
+        {
+          "date": "2026-10-20",
+          "p10_paisa": 994187,
+          "p10_display": "৳৯,৯৪১",
+          "p50_paisa": 3058086,
+          "p50_display": "৳৩০,৫৮০",
+          "p90_paisa": 4681708,
+          "p90_display": "৳৪৬,৮১৭"
+        },
+        {
+          "date": "2026-10-21",
+          "p10_paisa": 962842,
+          "p10_display": "৳৯,৬২৮",
+          "p50_paisa": 3011117,
+          "p50_display": "৳৩০,১১১",
+          "p90_paisa": 4732214,
+          "p90_display": "৳৪৭,৩২২"
+        }
+      ]
+    },
+    "evidence": {
+      "data_used": {
+        "window": "2025-10-01…2026-09-30",
+        "as_of_date": "2026-09-30",
+        "n_transactions": 865,
+        "source": "synthetic"
+      },
+      "model_version": {
+        "forecast": "fc-2026-09-30-26761078",
+        "categorizer": "rules-v1"
+      },
+      "config_hash": "681a6cb5ac7a",
+      "assumptions": [
+        {
+          "id": "FEE_CASHOUT_RATE",
+          "value": "150 bps, min ৳5",
+          "label": "Assumption"
+        },
+        {
+          "id": "FEE_DIGITAL_PAYMENT_RATE",
+          "value": "0 bps",
+          "label": "Assumption"
+        },
+        {
+          "id": "ESSENTIALS_PER_DAY",
+          "value": "৳350",
+          "label": "Assumption"
+        },
+        {
+          "id": "SHORTFALL_HORIZON_DAYS",
+          "value": "21",
+          "label": "Assumption"
+        }
+      ],
+      "labels": {
+        "shortfall_prob": "Prediction",
+        "start_balance": "Data",
+        "trough_date": "Prediction",
+        "daily_quantiles": "Prediction"
+      },
+      "generated_text": false,
+      "prompt_version": null,
+      "validator": {
+        "passed": true,
+        "fallback_used": false
+      }
+    }
+  },
+  "cashout": {
+    "data": {
+      "patterns": [
+        {
+          "counterparty_id": "agent_021",
+          "count": 91,
+          "total_amount_paisa": 27089792,
+          "total_amount_display": "৳২,৭০,৮৯৭",
+          "total_fee_paisa": 406345,
+          "total_fee_display": "৳৪,০৬৩",
+          "replaceable_count": 42,
+          "replaceable_amount_paisa": 11568953,
+          "replaceable_amount_display": "৳১,১৫,৬৮৯",
+          "replaceable_fee_saved_paisa": 173535,
+          "replaceable_fee_saved_display": "৳১,৭৩৫"
+        }
+      ],
+      "total_cashouts": 108,
+      "total_fees_paisa": 478332,
+      "total_fees_display": "৳৪,৭৮৩",
+      "replaceable_count": 42,
+      "replaceable_amount_paisa": 11568953,
+      "replaceable_amount_display": "৳১,১৫,৬৮৯",
+      "replaceable_fee_saved_paisa": 173535,
+      "replaceable_fee_saved_display": "৳১,৭৩৫",
+      "cash_dependency_ratio": 0.3226124344375917,
+      "cash_dependency_ratio_display": "৩২%"
+    },
+    "evidence": {
+      "data_used": {
+        "window": "2025-10-01…2026-09-30",
+        "as_of_date": "2026-09-30",
+        "n_transactions": 865,
+        "source": "synthetic"
+      },
+      "model_version": {
+        "forecast": "fc-2026-09-30-26761078",
+        "categorizer": "rules-v1"
+      },
+      "config_hash": "681a6cb5ac7a",
+      "assumptions": [
+        {
+          "id": "FEE_CASHOUT_RATE",
+          "value": "150 bps, min ৳5",
+          "label": "Assumption"
+        },
+        {
+          "id": "FEE_DIGITAL_PAYMENT_RATE",
+          "value": "0 bps",
+          "label": "Assumption"
+        },
+        {
+          "id": "ESSENTIALS_PER_DAY",
+          "value": "৳350",
+          "label": "Assumption"
+        },
+        {
+          "id": "SHORTFALL_HORIZON_DAYS",
+          "value": "21",
+          "label": "Assumption"
+        }
+      ],
+      "labels": {
+        "replaceable_fees": "Prediction",
+        "total_cashouts": "Data",
+        "cash_dependency": "Data"
+      },
+      "generated_text": false,
+      "prompt_version": null,
+      "validator": {
+        "passed": true,
+        "fallback_used": false
+      }
+    }
+  },
+  "goal_plan": {
+    "data": {
+      "target_paisa": 1000000,
+      "target_display": "৳১০,০০০",
+      "requested_months": 6,
+      "monthly_required_paisa": 166667,
+      "monthly_required_display": "৳১,৬৬৬",
+      "p_requested": 0.0425,
+      "p_requested_display": "৪%",
+      "verdict": "unlikely",
+      "options": [
+        {
+          "key": "extend_timeline",
+          "title_bn": "সময় বাড়িয়ে সহজে সঞ্চয়",
+          "title_en": "Extend Timeline",
+          "monthly_contribution_paisa": 163314,
+          "monthly_contribution_display": "৳১,৬৩৩",
+          "percent_of_inflow": null,
+          "months": 7,
+          "p_goal_met": 0.0265,
+          "p_goal_met_display": "৩%",
+          "p_low": 0.020316920414969065,
+          "p_high": 0.03449852336037745,
+          "tradeoff_bn": "বেশি সময় লাগবে, তবে মাসিক অংক ছোট ও টেকসই",
+          "tradeoff_en": "Takes longer, but the monthly amount stays small and sustainable"
+        },
+        {
+          "key": "trim_leakage",
+          "title_bn": "অপ্রয়োজনীয় ফি কমিয়ে সঞ্চয়",
+          "title_en": "Redirect Avoidable Fees",
+          "monthly_contribution_paisa": 163314,
+          "monthly_contribution_display": "৳১,৬৩৩",
+          "percent_of_inflow": null,
+          "months": 7,
+          "p_goal_met": 0.0265,
+          "p_goal_met_display": "৩%",
+          "p_low": 0.020316920414969065,
+          "p_high": 0.03449852336037745,
+          "tradeoff_bn": "ক্যাশ-আউট ফি ও এড়ানো যায় এমন খরচ কমিয়ে সেই টাকা জমানো হবে",
+          "tradeoff_en": "Redirects cash-out fees and avoidable spend into the goal"
+        }
+      ],
+      "feasibility_note_bn": "এই সময়ে এই লক্ষ্য পৌঁছানো কঠিন। নিচের বিকল্পগুলো দেখুন — সিদ্ধান্ত আপনার।",
+      "feasibility_note_en": "This goal is unlikely in the requested time. The options below are more realistic — you decide."
+    },
+    "evidence": {
+      "data_used": {
+        "window": "2025-10-01…2026-09-30",
+        "as_of_date": "2026-09-30",
+        "n_transactions": 865,
+        "source": "synthetic"
+      },
+      "model_version": {
+        "forecast": "fc-2026-09-30-26761078",
+        "categorizer": "rules-v1"
+      },
+      "config_hash": "681a6cb5ac7a",
+      "assumptions": [
+        {
+          "id": "FEE_CASHOUT_RATE",
+          "value": "150 bps, min ৳5",
+          "label": "Assumption"
+        },
+        {
+          "id": "FEE_DIGITAL_PAYMENT_RATE",
+          "value": "0 bps",
+          "label": "Assumption"
+        },
+        {
+          "id": "ESSENTIALS_PER_DAY",
+          "value": "৳350",
+          "label": "Assumption"
+        },
+        {
+          "id": "SHORTFALL_HORIZON_DAYS",
+          "value": "21",
+          "label": "Assumption"
+        }
+      ],
+      "labels": {
+        "target": "Data",
+        "options": "Prediction",
+        "feasibility": "Prediction"
+      },
+      "generated_text": false,
+      "prompt_version": null,
+      "validator": {
+        "passed": true,
+        "fallback_used": false
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "user_id": "u0008",
+    "persona": "garment_worker",
+    "persona_label_bn": "পোশাক শ্রমিক",
+    "persona_label_en": "Garment worker",
+    "age_band": "25-34",
+    "region": "dhaka",
+    "income_band": "15k-25k"
+  },
+  {
+    "user_id": "u0019",
+    "persona": "gig_driver",
+    "persona_label_bn": "গিগ চালক",
+    "persona_label_en": "Gig driver",
+    "age_band": "18-24",
+    "region": "dhaka",
+    "income_band": "15k-25k"
+  },
+  {
+    "user_id": "u0002",
+    "persona": "remittance_household",
+    "persona_label_bn": "রেমিট্যান্স-নির্ভর পরিবার",
+    "persona_label_en": "Remittance household",
+    "age_band": "35-44",
+    "region": "sylhet",
+    "income_band": "25k-40k"
+  },
+  {
+    "user_id": "u0001",
+    "persona": "shopkeeper",
+    "persona_label_bn": "ছোট ব্যবসায়ী",
+    "persona_label_en": "Small shopkeeper",
+    "age_band": "35-44",
+    "region": "chattogram",
+    "income_band": "25k-40k"
+  },
+  {
+    "user_id": "u0003",
+    "persona": "student",
+    "persona_label_bn": "শিক্ষার্থী",
+    "persona_label_en": "Student",
+    "age_band": "18-24",
+    "region": "rajshahi",
+    "income_band": "under-15k"
+  }
+]
