@@ -1,0 +1,1 @@
+There is an estimated {shortfall_prob} probability of liquidity pressure in the next {horizon} days, especially around {trough_date}.

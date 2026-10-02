@@ -1,0 +1,1 @@
+A realistic savings plan has been prepared for your {target_amount} goal over {months} months.

@@ -1,0 +1,1 @@
+Cash-out fees over this period add up to {fees}.

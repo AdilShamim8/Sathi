@@ -1,0 +1,1 @@
+Your current balance can cover essentials for about {days} days.

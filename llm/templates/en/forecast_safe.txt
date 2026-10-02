@@ -1,0 +1,1 @@
+Cash flow is projected to remain stable over the next {horizon} days. Estimated lowest balance around {trough_date} is approximately {min_balance}.
