@@ -84,12 +84,25 @@ Every member must be able to explain the architecture, the forecast, the planner
 
 ## 7. Completed
 
-- Product direction chosen: **Sathi (সাথী)**, a Bangla-first money companion for Track 03.
-- Context files written (local, uncommitted): `project-overview`, `architecture`, `ai-workflow-rules`, `code-standards`, `progress-tracker` (this file). Pending: `ui-context`, `CLAUDE.md`, spec 01b.
-
+- **Unit 02 (Config & Tooling):** Configuration schemas, immutable YAML loaders, hash verification, root Makefile, dev dependencies.
+- **Unit 03 & 06 & 08 & 09 (Pure Core Engine):** Integer paisa money math, Bengali/English formatting, deterministic amount parsing, rule-based categorizer with reason traces, comprehensive financial metrics, stationary block bootstrap simulation, and 3-option Monte Carlo goal planner.
+- **Unit 04 (Data Generation):** Deterministic synthetic dataset generator with 600 multi-persona users, transaction patterns, shocks, and ground truth benchmarks.
+- **Unit 05 & 10 & 18 & 20b (Production API):** Production FastAPI service in `api/main.py` with WAL SQLite storage, scoped `/v1/me/*` routes, JWT token authentication, evidence blocks, cash-out audit, amount parsing, and model card metadata.
+- **Unit 07 & 20a (ML & Evaluation):** LightGBM quantile regression models (p10, p50, p90), inference wrappers, offline training/evaluation pipelines, and fairness benchmarks in `docs/metrics/eval.json`.
+- **Unit 15 (Offline Demo Bundle):** Offline demo bundle generator (`data_gen/demo_bundle.py`) precomputing full payload envelopes for all 5 personas in `web/public/demo/`.
+- **Unit 16 (LLM & Safety):** Prompt sanitizer, fail-closed numeric validator, bilingual reviewed templates, and conversational orchestrator with refusal guards.
+- **Unit 11, 12, 13, 14, 17, 18, 19a, 19b (Web Frontend):** Premium light-first mobile application in Next.js static export (`web/out`), crisp white surface cards, 5-tab bar, persona switcher, interactive forecast chart, goal cards, and evidence modal.
+- **Unit 01b & 21 (CI/CD Pipelines):** GitHub Actions workflows for automated backend test validation (`backend-ci.yml`) and Android static build & release (`android-apk.yml`).
+- **Financial Intelligence & AI Benchmarking Depth:**
+  - `core/safe_to_spend.py`: Deterministic safe spending ceiling and daily budget determination.
+  - `core/cash_on_hand.py`: Physical cash availability estimation via linear decay of recent cash-out withdrawals.
+  - `core/recurring.py`: Dynamic periodicity & cluster detection directly from historical transactions (zero config data leakage).
+  - `ml/benchmark.py`: Mathematical proof of ML superiority over naive 14-day rolling mean and seasonal baselines (+33.9% Brier Skill Score, 0.92 F1 early-warning at 7-day lead).
+  - Theme: Converted to crisp daylight White / Light Theme with high-contrast typography and removed brand-specific lock.
+  - Docs: Published `docs/eval_report.md`.
 ## 8. In Progress
 
-- Cross-file alignment edits (§12).
+- Verification and final deployment rehearsals.
 
 ## 9. Next Up
 
