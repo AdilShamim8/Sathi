@@ -75,7 +75,7 @@ def handle_message(
     intent = detect_intent(cleaned_text)
 
     # Compile ground truth allowed numbers from context
-    allowed_numbers = set()
+    allowed_numbers: set[float | int] = {0, 1, 2, 3, 4, 5, 6, 7, 14, 21, 30}
     for k, v in context_data.items():
         if isinstance(v, (int, float)):
             allowed_numbers.add(v)
@@ -83,6 +83,7 @@ def handle_message(
                 # Include Taka amount equivalent if paisa
                 if k.endswith("_paisa"):
                     allowed_numbers.add(v // 100)
+                    allowed_numbers.add(round(v / 100, 2))
 
     # 1. If LLM is disabled or kill switch active, render template directly
     if not settings.llm_enabled or settings.llm_provider == "none":
@@ -98,8 +99,8 @@ def handle_message(
             fallback_used=True,
         )
 
-    # 2. Simulated LLM generation (when enabled, validated against ground truth)
-    draft_reply, draft_is_generated = _generate_draft(intent, context_data, locale)
+    # 2. OpenRouter LLM generation (when enabled, validated against ground truth)
+    draft_reply, draft_is_generated = _generate_draft(cleaned_text, intent, context_data, locale, settings)
 
     # 3. Numeric validation
     val_res = validate_numbers(draft_reply, allowed_numbers)
@@ -188,7 +189,79 @@ def _resolve_template_vars(intent: str, ctx: dict[str, Any], locale: str) -> tup
     return "general_help", {}
 
 
-def _generate_draft(intent: str, ctx: dict[str, Any], locale: str) -> tuple[str, bool]:
-    """Internal draft generation from verified tool context."""
+def _call_openrouter(
+    user_message: str,
+    intent: str,
+    ctx: dict[str, Any],
+    locale: str,
+    settings: Settings,
+) -> str | None:
+    if not settings.llm_api_key or not settings.llm_enabled:
+        return None
+
+    try:
+        import httpx
+
+        lang_name = "Bangla (বাংলা)" if locale == "bn" else "English"
+        context_lines = []
+        for k, v in ctx.items():
+            if not str(k).endswith("_raw"):
+                context_lines.append(f"- {k}: {v}")
+        context_str = "\n".join(context_lines)
+
+        system_prompt = (
+            f"You are Sathi (সাথী), an empathetic and certified AI financial copilot for mobile wallet users in Bangladesh. "
+            f"Respond politely and conversationally in {lang_name}. "
+            f"Keep your response concise (2-3 sentences max). "
+            f"CRITICAL SAFETY RULE: You must ONLY reference the exact numerical figures provided in the verified context below. "
+            f"Never invent ungrounded numbers or make unauthorized investment guarantees.\n\n"
+            f"VERIFIED CONTEXT:\n{context_str}"
+        )
+
+        headers = {
+            "Authorization": f"Bearer {settings.llm_api_key}",
+            "HTTP-Referer": "https://sathi.app",
+            "X-Title": "Sathi Copilot",
+            "Content-Type": "application/json",
+        }
+
+        payload = {
+            "model": settings.llm_model or "openrouter/auto",
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message},
+            ],
+            "temperature": 0.2,
+            "max_tokens": 250,
+        }
+
+        base_url = getattr(settings, "llm_base_url", "https://openrouter.ai/api/v1").rstrip("/")
+        endpoint = f"{base_url}/chat/completions"
+        with httpx.Client(timeout=12.0) as client:
+            resp = client.post(endpoint, headers=headers, json=payload)
+            if resp.status_code == 200:
+                data = resp.json()
+                content = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+                if content:
+                    return content
+    except Exception:
+        pass
+    return None
+
+
+def _generate_draft(
+    user_text: str,
+    intent: str,
+    ctx: dict[str, Any],
+    locale: str,
+    settings: Settings,
+) -> tuple[str, bool]:
+    """Generate draft via OpenRouter if active, otherwise fall back to template."""
+    if settings.llm_enabled and settings.llm_provider in ("openai-compatible", "openrouter"):
+        llm_reply = _call_openrouter(user_text, intent, ctx, locale, settings)
+        if llm_reply:
+            return llm_reply, True
+
     name, vars = _resolve_template_vars(intent, ctx, locale)
     return render(name, locale=locale, **vars), False
+

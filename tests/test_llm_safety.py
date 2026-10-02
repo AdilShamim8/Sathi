@@ -89,3 +89,58 @@ def test_orchestrator_safe_spend():
     assert resp.intent == "safe_spend"
     assert "নিরাপদে খরচ" in resp.reply
 
+
+def test_orchestrator_openrouter_mocked(monkeypatch):
+    settings = Settings(
+        llm_enabled=True,
+        llm_provider="openai-compatible",
+        llm_api_key="test-key",
+        llm_base_url="https://openrouter.ai/api/v1",
+        llm_model="openrouter/auto",
+    )
+    context = {
+        "balance_paisa": 500000,
+        "safe_to_spend_paisa": 200000,
+        "daily_safe_budget_paisa": 14000,
+    }
+
+    import llm.orchestrator as orch
+    monkeypatch.setattr(
+        orch,
+        "_call_openrouter",
+        lambda user_msg, intent, ctx, locale, st: "আপনার ওয়ালেটে ৫,০০০ টাকা আছে এবং নিরাপদে ২,০০০ টাকা খরচ করতে পারেন。",
+    )
+    resp = orch.handle_message("আমি কত টাকা খরচ করতে পারব?", context, settings, locale="bn")
+    assert resp.intent == "safe_spend"
+    assert resp.generated_text is True
+    assert resp.validator_passed is True
+    assert resp.fallback_used is False
+
+
+def test_orchestrator_openrouter_hallucination_fail_closed(monkeypatch):
+    settings = Settings(
+        llm_enabled=True,
+        llm_provider="openai-compatible",
+        llm_api_key="test-key",
+        llm_base_url="https://openrouter.ai/api/v1",
+        llm_model="openrouter/auto",
+    )
+    context = {
+        "balance_paisa": 500000,
+        "safe_to_spend_paisa": 200000,
+        "daily_safe_budget_paisa": 14000,
+    }
+
+    import llm.orchestrator as orch
+    # LLM hallucinates 999999 which is ungrounded
+    monkeypatch.setattr(
+        orch,
+        "_call_openrouter",
+        lambda user_msg, intent, ctx, locale, st: "আপনি এখনই ৯৯৯৯৯৯ টাকা খরচ করতে পারেন!",
+    )
+    resp = orch.handle_message("আমি কত টাকা খরচ করতে পারব?", context, settings, locale="bn")
+    assert resp.intent == "safe_spend"
+    assert resp.validator_passed is False
+    assert resp.fallback_used is True
+
+

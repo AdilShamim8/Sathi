@@ -121,7 +121,7 @@ export async function sendChatMessage(
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ message, locale }),
-      signal: AbortSignal.timeout(6000),
+      signal: AbortSignal.timeout(15000),
     });
     if (!res.ok) return null;
     const body = await res.json();

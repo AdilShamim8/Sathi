@@ -20,9 +20,10 @@ class Settings(BaseSettings):
     # Comma-separated. The Capacitor origin (https://localhost) and the local
     # dev origin are always allowed (architecture §5 / ADR-04).
     allowed_origins: str = ""
-    llm_provider: str = "none"          # "none" | "openai-compatible"
+    llm_provider: str = "openai-compatible"  # "none" | "openai-compatible" | "openrouter"
     llm_api_key: str = ""
-    llm_model: str = ""
+    llm_base_url: str = "https://openrouter.ai/api/v1"
+    llm_model: str = "openrouter/auto"
     llm_enabled: bool = False           # kill switch (P0)
     llm_daily_cap: int = 200
     git_commit: str = "unknown"
