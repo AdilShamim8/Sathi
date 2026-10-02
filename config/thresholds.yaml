@@ -1,0 +1,18 @@
+# Thresholds. All are named ASSUMPTIONs tracked in docs/assumptions.md.
+thresholds:
+  # ASSUMPTION ESSENTIALS_PER_DAY: minimum daily spend on essentials
+  # (food, transport, utilities share) for the hero income band. ৳350/day.
+  essentials_per_day_paisa: 35000
+  # ASSUMPTION SHORTFALL_HORIZON_DAYS: a shortfall alert looks at the balance
+  # path until the next expected income, capped at this many days ahead.
+  shortfall_horizon_days: 21
+  # ASSUMPTION SHORTFALL_ALERT_LEAD_DAYS: evaluation lead time for the
+  # early-warning recall/precision metrics.
+  shortfall_alert_lead_days: 7
+  # ASSUMPTION MIN_BUFFER_DAYS: the planner never recommends a contribution
+  # that pushes the expected balance below this many days of essentials.
+  min_buffer_days: 3
+  # Minimum history before per-user models are trusted; below this the
+  # forecast falls back to persona priors with confidence "low".
+  min_history_days: 45
+  min_history_transactions: 20

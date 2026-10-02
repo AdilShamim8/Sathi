@@ -1,0 +1,13 @@
+# Fee assumptions. Rates are integer BASIS POINTS (100 bps = 1%).
+# No upay tariff was provided; every value here is a named ASSUMPTION (see
+# docs/assumptions.md). Replace with the published upay tariff when known.
+fees:
+  # ASSUMPTION FEE_CASHOUT_RATE: illustrative cash-out fee to an agent.
+  cash_out_bps: 150
+  cash_out_min_paisa: 500        # illustrative minimum fee ৳5.00
+  # ASSUMPTION FEE_DIGITAL_PAYMENT_RATE: merchant payments are assumed free
+  # for the customer (typical MFS design), so savings from substitution are
+  # the full cash-out fee.
+  digital_payment_bps: 0
+  # ASSUMPTION FEE_SEND_MONEY: P2P send assumed free in the synthetic world.
+  send_money_bps: 0

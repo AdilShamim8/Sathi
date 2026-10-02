@@ -1,0 +1,7 @@
+# Risk banding for the shortfall probability. Calm wording, amber only.
+risk:
+  # P(shortfall) < low_cutoff      -> risk_level "low"
+  low_cutoff: 0.20
+  # low_cutoff <= P < high_cutoff  -> risk_level "watch"
+  high_cutoff: 0.50
+  # P >= high_cutoff               -> risk_level "high" (amber, never red)

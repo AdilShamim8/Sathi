@@ -1,0 +1,16 @@
+# Dataset configuration. "Today" for the whole prototype is as_of_date (ADR-10):
+# the last day of the synthetic window. Real wall-clock time is never used.
+dataset:
+  seed: 20261003            # master seed; same seed + config => identical data
+  as_of_date: "2026-09-30"  # ASSUMPTION: synthetic window ends here
+  start_date: "2025-10-01"  # 12 months of history
+  n_users: 600              # 5 personas x ~120 users each
+  timezone: "Asia/Dhaka"
+  splits:
+    # User-level split: whole users assigned to train/val/test by id.
+    test_user_share: 0.20   # frozen held-out test users (never trained/tuned on)
+    val_user_share: 0.20    # validation users (threshold selection only)
+    # Time-level split inside train users: last `time_test_days` are the
+    # time-based hold-out for forecast evaluation.
+    time_test_days: 60
+    time_val_days: 30

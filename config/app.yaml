@@ -1,0 +1,55 @@
+# Goal types are data-driven: a new goal type is a config entry, not code.
+goal_types:
+  emergency_fund: {label_bn: "জরুরি তহবিল",   label_en: "Emergency fund"}
+  education:      {label_bn: "শিক্ষা",        label_en: "Education"}
+  device:         {label_bn: "ডিভাইস",        label_en: "Device"}
+  family_need:    {label_bn: "পারিবারিক প্রয়োজন", label_en: "Family need"}
+  travel:         {label_bn: "ভ্রমণ",         label_en: "Travel"}
+  other:          {label_bn: "অন্যান্য",       label_en: "Other"}
+
+planner:
+  n_simulations: 2000        # Monte Carlo paths per option (capped)
+  timeout_s: 5               # request handlers never run unbounded jobs
+  horizon_cap_months: 36     # option A (extend timeline) never exceeds this
+  min_monthly_contribution_paisa: 10000   # ৳100 floor for a sane plan
+  seed: 77031                # planner RNG seed (passed into core)
+  # Verdict bands for P(requested plan works). Presentation thresholds.
+  likely_cutoff: 0.70
+  uncertain_cutoff: 0.40
+
+# ASSUMPTION CASHOUT_DETECTOR: what counts as a "repeat pattern" and how a
+# withdrawal is matched to a later digital-capable merchant payment.
+cashout_detector:
+  min_repeat: 3              # cash-outs to the same agent to count as a habit
+  follow_days: 2             # payment within this many days counts as "used the cash"
+  min_amount_frac: 0.5       # payment >= this share of the withdrawn amount
+
+simulation:
+  n_paths: 400               # balance paths for shortfall probability
+  block_length_days: 5       # block bootstrap block length (keeps day correlation)
+  seed: 44021
+  # ASSUMPTION SPREAD_SCALE: the model's predicted (p90-p10) spread rescales
+  # bootstrapped residuals (architecture §6), clamped to this range.
+  spread_scale_min: 0.5
+  spread_scale_max: 2.0
+  # ASSUMPTION PRIOR_STD_RATIO: for low-data users the persona prior's daily
+  # net spread is this fraction of its mean daily gross flow.
+  prior_std_ratio: 0.6
+
+# ASSUMPTION RATE_LIMITS: in-memory sliding-window limits for the public
+# prototype (single instance; recorded in docs/risks.md).
+rate_limits:
+  window_s: 60
+  chat_per_window: 10
+  parse_amount_per_window: 20
+  demo_login_per_window: 10
+
+llm:
+  max_tool_calls: 4
+  timeout_s: 20
+  daily_cap: 200             # max provider calls/day (kill switch above this)
+  max_message_chars: 500
+
+locale:
+  default: "bn"
+  supported: ["bn", "en"]

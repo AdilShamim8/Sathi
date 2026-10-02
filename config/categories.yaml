@@ -1,0 +1,15 @@
+# Category display labels (copy, reviewed like all user-facing strings).
+# Keys match core.schemas.Category.
+categories:
+  salary:       {label_bn: "বেতন",        label_en: "Salary"}
+  remittance:   {label_bn: "রেমিট্যান্স",  label_en: "Remittance"}
+  transfer_in:  {label_bn: "ট্রান্সফার",   label_en: "Transfer in"}
+  rent:         {label_bn: "ভাড়া",        label_en: "Rent"}
+  bills:        {label_bn: "বিল",          label_en: "Bills"}
+  mobile:       {label_bn: "মোবাইল",      label_en: "Mobile"}
+  family:       {label_bn: "পরিবার",       label_en: "Family"}
+  food:         {label_bn: "খাবার",        label_en: "Food"}
+  transport:    {label_bn: "যাতায়াত",     label_en: "Transport"}
+  business:     {label_bn: "ব্যবসা",       label_en: "Business"}
+  cash_out:     {label_bn: "ক্যাশ-আউট",    label_en: "Cash-out"}
+  other:        {label_bn: "অন্যান্য",     label_en: "Other"}

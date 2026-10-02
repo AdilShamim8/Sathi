@@ -84,3 +84,8 @@ desktop.ini
 *.tmp
 *.bak
 scratch/
+
+# Database files
+*.db
+*.db-wal
+*.db-shm
