@@ -2,21 +2,25 @@
 
 import React from 'react';
 import { Home, TrendingUp, Target, Receipt, Sparkles } from 'lucide-react';
+import type { Language } from './PersonaPicker';
 
 export type TabType = 'overview' | 'forecast' | 'planner' | 'cashout' | 'chat';
 
 interface TabBarProps {
   currentTab: TabType;
   onTabChange: (tab: TabType) => void;
+  language?: Language;
 }
 
-export const TabBar: React.FC<TabBarProps> = ({ currentTab, onTabChange }) => {
+export const TabBar: React.FC<TabBarProps> = ({ currentTab, onTabChange, language = 'bn' }) => {
+  const isBn = language === 'bn';
+
   const tabs = [
-    { id: 'overview' as TabType, label: 'ওভারভিউ', icon: Home },
-    { id: 'forecast' as TabType, label: 'পূর্বাভাস', icon: TrendingUp },
-    { id: 'planner' as TabType, label: 'পরিকল্পনা', icon: Target },
-    { id: 'cashout' as TabType, label: 'ক্যাশ-আউট', icon: Receipt },
-    { id: 'chat' as TabType, label: 'সাথী এআই', icon: Sparkles },
+    { id: 'overview' as TabType, labelBn: 'সারসংক্ষেপ', labelEn: 'Overview', icon: Home },
+    { id: 'forecast' as TabType, labelBn: 'পূর্বাভাস', labelEn: 'Forecast', icon: TrendingUp },
+    { id: 'planner' as TabType, labelBn: 'পরিকল্পনা', labelEn: 'Planner', icon: Target },
+    { id: 'cashout' as TabType, labelBn: 'ক্যাশ ফি', labelEn: 'Fees', icon: Receipt },
+    { id: 'chat' as TabType, labelBn: 'সাথী AI', labelEn: 'AI Chat', icon: Sparkles },
   ];
 
   return (
@@ -43,35 +47,28 @@ export const TabBar: React.FC<TabBarProps> = ({ currentTab, onTabChange }) => {
         return (
           <button
             key={tab.id}
+            id={`tab-${tab.id}`}
             onClick={() => onTabChange(tab.id)}
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '4px',
+              gap: '3px',
               flex: 1,
               height: '100%',
               background: 'transparent',
               color: isActive ? 'var(--accent-primary)' : 'var(--text-muted)',
               position: 'relative',
+              transition: 'color 0.2s',
             }}
           >
-            <Icon size={21} strokeWidth={isActive ? 2.4 : 1.8} />
-            <span
-              style={{
-                fontSize: '0.72rem',
-                fontWeight: isActive ? 600 : 500,
-                letterSpacing: '-0.2px',
-              }}
-            >
-              {tab.label}
-            </span>
+            {/* Active indicator dot */}
             {isActive && (
               <span
                 style={{
                   position: 'absolute',
-                  top: '4px',
+                  top: '6px',
                   width: '4px',
                   height: '4px',
                   borderRadius: '50%',
@@ -79,6 +76,16 @@ export const TabBar: React.FC<TabBarProps> = ({ currentTab, onTabChange }) => {
                 }}
               />
             )}
+            <Icon size={21} strokeWidth={isActive ? 2.4 : 1.8} />
+            <span
+              style={{
+                fontSize: '0.68rem',
+                fontWeight: isActive ? 700 : 500,
+                letterSpacing: '-0.1px',
+              }}
+            >
+              {isBn ? tab.labelBn : tab.labelEn}
+            </span>
           </button>
         );
       })}
