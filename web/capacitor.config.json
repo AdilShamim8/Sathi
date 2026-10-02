@@ -1,0 +1,13 @@
+{
+  "appId": "com.upay.sathi",
+  "appName": "Sathi",
+  "webDir": "out",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "android": {
+    "backgroundColor": "#000000",
+    "allowMixedContent": false
+  }
+}
