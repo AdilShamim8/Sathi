@@ -46,27 +46,32 @@
       {
         "feature": "mean_net_30d",
         "importance_pct": 32.4,
-        "description_bn": "৩০ দিনের গড় নগদ প্রবাহ"
+        "description_bn": "৩০ দিনের গড় নগদ প্রবাহ",
+        "description_en": "30-day average net cash flow"
       },
       {
         "feature": "dom_net_profile",
         "importance_pct": 24.1,
-        "description_bn": "মাসের নির্দিষ্ট দিনের বেতন/বিল চক্র"
+        "description_bn": "মাসের নির্দিষ্ট দিনের বেতন/বিল চক্র",
+        "description_en": "Monthly salary & bill cycle pattern"
       },
       {
         "feature": "days_since_cashout",
         "importance_pct": 16.5,
-        "description_bn": "সর্বশেষ ক্যাশ-আউট পরবর্তী সময়"
+        "description_bn": "সর্বশেষ ক্যাশ-আউট পরবর্তী সময়",
+        "description_en": "Days since last cash withdrawal"
       },
       {
         "feature": "std_net_30d",
         "importance_pct": 14.8,
-        "description_bn": "দৈনিক আয়ের ওঠানামা ও অস্থিরতা"
+        "description_bn": "দৈনিক আয়ের ওঠানামা ও অস্থিরতা",
+        "description_en": "Volatility of daily income & spending"
       },
       {
         "feature": "is_festival_window",
         "importance_pct": 12.2,
-        "description_bn": "ঈদ ও উৎসবকালীন বাড়তি খরচের চাপ"
+        "description_bn": "ঈদ ও উৎসবকালীন বাড়তি খরচের চাপ",
+        "description_en": "Eid & festival spending pressure"
       }
     ]
   },
