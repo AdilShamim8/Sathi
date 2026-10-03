@@ -34,7 +34,7 @@ jobs:
       # Next.js app (server-rendered UI + API routes). No static export is
       # needed: capacitor.config.json points at the deployment URL.
       - name: Install Capacitor CLI
-        run: npm install -g @capacitor/cli@6 @capacitor/core@6 @capacitor/android@6
+        run: npm install --no-save @capacitor/core@6 @capacitor/android@6 @capacitor/cli@6
 
       - name: Sync Capacitor Android
         run: npx cap sync android
