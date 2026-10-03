@@ -1,0 +1,15 @@
+{
+  "appId": "com.upay.sathi",
+  "appName": "Sathi",
+  "webDir": "public",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false,
+    "url": "https://sathi.upay.example",
+    "allowNavigation": []
+  },
+  "android": {
+    "backgroundColor": "#F6F4EE",
+    "allowMixedContent": false
+  }
+}

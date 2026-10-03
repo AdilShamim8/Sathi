@@ -1,0 +1,388 @@
+{
+  "generated_at": "2026-10-03T02:50:26.077Z",
+  "persona": "student",
+  "persona_label_bn": "শিক্ষার্থী",
+  "persona_label_en": "Student",
+  "n_transactions": 64,
+  "confidence": "normal",
+  "balance": 4364,
+  "balance_display": "৳৪,৩৬৪",
+  "safe_to_spend": {
+    "total": 2253,
+    "total_display": "৳২,২৫৩",
+    "daily_budget": 160,
+    "daily_budget_display": "৳১৬০",
+    "status": "cautious",
+    "status_label_bn": "সতর্কতামূলক",
+    "status_label_en": "Cautious",
+    "advice_bn": "দৈনিক সর্বোচ্চ ৳160 খরচ করলে আগামী 14 দিন কোনো টানাপোড়েন ছাড়াই চলবে।",
+    "advice_en": "Spending up to ৳160/day maintains full financial stability."
+  },
+  "metrics": {
+    "monthly_income": 5218,
+    "monthly_income_display": "৳৫,২১৮",
+    "monthly_spend": 4963,
+    "monthly_spend_display": "৳৪,৯৬৩",
+    "savings_rate": 0.048879837067209775,
+    "income_volatility": 0.7245556720136543,
+    "buffer_days": 12.468571428571428,
+    "cash_dependency_ratio": 0.6567062487833366,
+    "fee_leakage": 0.2919992213354098,
+    "fixed_commitment_ratio": 0.1297186707185749
+  },
+  "recurring": {
+    "inflows": [
+      {
+        "label": "transfer",
+        "amount": 5401,
+        "cadence": "monthly",
+        "dom": 1
+      }
+    ],
+    "outflows": [
+      {
+        "label": "cash_out",
+        "amount": 533,
+        "cadence": "monthly",
+        "dom": 11
+      },
+      {
+        "label": "mobile",
+        "amount": 300,
+        "cadence": "monthly",
+        "dom": 10
+      },
+      {
+        "label": "food_beverage",
+        "amount": 31,
+        "cadence": "weekly",
+        "dom": null
+      },
+      {
+        "label": "food_beverage",
+        "amount": 38,
+        "cadence": "monthly",
+        "dom": null
+      },
+      {
+        "label": "food_beverage",
+        "amount": 27,
+        "cadence": "monthly",
+        "dom": null
+      },
+      {
+        "label": "shopping",
+        "amount": 58,
+        "cadence": "monthly",
+        "dom": null
+      },
+      {
+        "label": "transport",
+        "amount": 35,
+        "cadence": "monthly",
+        "dom": null
+      },
+      {
+        "label": "food_beverage",
+        "amount": 43,
+        "cadence": "monthly",
+        "dom": null
+      },
+      {
+        "label": "food_beverage",
+        "amount": 20,
+        "cadence": "monthly",
+        "dom": null
+      },
+      {
+        "label": "shopping",
+        "amount": 20,
+        "cadence": "monthly",
+        "dom": 17
+      },
+      {
+        "label": "shopping",
+        "amount": 20,
+        "cadence": "monthly",
+        "dom": null
+      },
+      {
+        "label": "shopping",
+        "amount": 21,
+        "cadence": "monthly",
+        "dom": 28
+      }
+    ],
+    "upcoming_commitments_14d": 1061
+  },
+  "forecast": {
+    "horizon_days": 21,
+    "shortfall_prob": 0.1275,
+    "shortfall_prob_display": "১৩%",
+    "risk_level": "low",
+    "trough_day_offset": 21,
+    "days_to_next_income": 29,
+    "next_income_date": "2026-11-01T00:00:00.000Z",
+    "daily_quantiles": [
+      {
+        "d": 1,
+        "p10": 3786,
+        "p50": 4343,
+        "p90": 4344
+      },
+      {
+        "d": 2,
+        "p10": 3597,
+        "p50": 4321,
+        "p90": 4324
+      },
+      {
+        "d": 3,
+        "p10": 3526,
+        "p50": 4212,
+        "p90": 4304
+      },
+      {
+        "d": 4,
+        "p10": 3186,
+        "p50": 4100,
+        "p90": 4284
+      },
+      {
+        "d": 5,
+        "p10": 2887,
+        "p50": 3891,
+        "p90": 8801
+      },
+      {
+        "d": 6,
+        "p10": 2790,
+        "p50": 3762,
+        "p90": 9983
+      },
+      {
+        "d": 7,
+        "p10": 2449,
+        "p50": 3737,
+        "p90": 10063
+      },
+      {
+        "d": 8,
+        "p10": 2306,
+        "p50": 3548,
+        "p90": 9977
+      },
+      {
+        "d": 9,
+        "p10": 2008,
+        "p50": 3464,
+        "p90": 9952
+      },
+      {
+        "d": 10,
+        "p10": 1639,
+        "p50": 3414,
+        "p90": 9910
+      },
+      {
+        "d": 11,
+        "p10": 1437,
+        "p50": 3347,
+        "p90": 9820
+      },
+      {
+        "d": 12,
+        "p10": 1315,
+        "p50": 3191,
+        "p90": 9845
+      },
+      {
+        "d": 13,
+        "p10": 1177,
+        "p50": 3103,
+        "p90": 9825
+      },
+      {
+        "d": 14,
+        "p10": 1119,
+        "p50": 3080,
+        "p90": 9768
+      },
+      {
+        "d": 15,
+        "p10": 863,
+        "p50": 3025,
+        "p90": 9699
+      },
+      {
+        "d": 16,
+        "p10": 609,
+        "p50": 3035,
+        "p90": 9686
+      },
+      {
+        "d": 17,
+        "p10": 541,
+        "p50": 2847,
+        "p90": 9862
+      },
+      {
+        "d": 18,
+        "p10": 469,
+        "p50": 2781,
+        "p90": 9914
+      },
+      {
+        "d": 19,
+        "p10": 357,
+        "p50": 2667,
+        "p90": 9939
+      },
+      {
+        "d": 20,
+        "p10": 287,
+        "p50": 2578,
+        "p90": 9919
+      },
+      {
+        "d": 21,
+        "p10": 168,
+        "p50": 2653,
+        "p90": 11856
+      }
+    ]
+  },
+  "cashout_audit": {
+    "total_cashouts": 6,
+    "total_fees": 3000,
+    "replaceable_count": 1,
+    "replaceable_fee_saved": 500,
+    "annualized_savings": 2028,
+    "patterns": [
+      {
+        "agent": "Agent Point",
+        "count": 3,
+        "fee_saved": 500
+      }
+    ]
+  },
+  "goal_plan": {
+    "target": 15654,
+    "verdict": "unlikely",
+    "p_requested": 0,
+    "feasibility_note_bn": "এই সময়ে এই লক্ষ্য পৌঁছানো কঠিন। নিচের বিকল্পগুলো দেখুন — সিদ্ধান্ত আপনার।",
+    "feasibility_note_en": "This goal is unlikely in the requested time. The options below are more realistic — you decide.",
+    "options": [
+      {
+        "key": "extend_timeline",
+        "monthly_contribution": 500,
+        "months": 32,
+        "p_goal_met": 0,
+        "p_low": 0,
+        "p_high": 0.001917047281252934,
+        "tradeoff_bn": "বেশি সময় লাগবে, তবে মাসিক অংক ছোট ও টেকসই",
+        "tradeoff_en": "Takes longer, but the monthly amount stays small and sustainable"
+      },
+      {
+        "key": "trim_leakage",
+        "monthly_contribution": 500,
+        "months": 32,
+        "p_goal_met": 0,
+        "p_low": 0,
+        "p_high": 0.001917047281252934,
+        "tradeoff_bn": "ক্যাশ-আউট ফি ও এড়ানো যায় এমন খরচ কমিয়ে সেই টাকা জমানো হবে",
+        "tradeoff_en": "Redirects cash-out fees and avoidable spend into the goal"
+      }
+    ]
+  },
+  "categories": [
+    {
+      "category": "cash_out",
+      "total": 6747,
+      "share": 0.6567062487833366
+    },
+    {
+      "category": "food",
+      "total": 1615,
+      "share": 0.15719291415222894
+    },
+    {
+      "category": "mobile",
+      "total": 900,
+      "share": 0.08759976640062293
+    },
+    {
+      "category": "bills",
+      "total": 501,
+      "share": 0.048763869963013434
+    },
+    {
+      "category": "other",
+      "total": 342,
+      "share": 0.03328791123223671
+    },
+    {
+      "category": "transport",
+      "total": 169,
+      "share": 0.016449289468561418
+    }
+  ],
+  "weekly_outflows": [
+    {
+      "isoYear": 2026,
+      "isoWeek": 33,
+      "start": "2026-08-10",
+      "outflow": 1299,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 34,
+      "start": "2026-08-17",
+      "outflow": 101,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 35,
+      "start": "2026-08-24",
+      "outflow": 1369,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 36,
+      "start": "2026-08-31",
+      "outflow": 261,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 37,
+      "start": "2026-09-07",
+      "outflow": 4264,
+      "isLargest": true
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 38,
+      "start": "2026-09-14",
+      "outflow": 606,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 39,
+      "start": "2026-09-21",
+      "outflow": 141,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 40,
+      "start": "2026-09-28",
+      "outflow": 1534,
+      "isLargest": false
+    }
+  ]
+}

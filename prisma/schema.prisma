@@ -1,0 +1,121 @@
+// Sathi (সাথী) — Prisma schema
+// AI Hackathon 2026 · Track 03: Customer Innovation & Financial Independence
+// Synthetic data only — no real PII. All money stored as integer BDT (whole taka).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int         @id @default(autoincrement())
+  name              String
+  preferredLanguage String      @default("en")
+  // role separates the device owner (the real app user) from the synthetic
+  // Sathi personas that power the reference-compatible /api/v1 surface.
+  role              String      @default("persona") // owner | persona
+  // mode records how the owner account was started:
+  //   "personal" — real day-to-day use, data entered by the user
+  //   "demo"     — seeded synthetic history (hackathon demo / exploration)
+  mode              String      @default("personal")
+  // NEW: salary settings the user can set/adjust (recurring detection still
+  // learns from transaction history; these fields inform the user's intent).
+  salaryAmount      Int? // monthly salary in BDT (whole taka)
+  salaryPayDay      Int? // day of month (1-31) salary usually arrives
+  salaryMerchant    String? // e.g. "Employer Payroll"
+  openingBalance    Int         @default(0) // wallet balance at first transaction
+  createdAt         DateTime    @default(now())
+  transactions      Transaction[]
+  goals             Goal[]
+  insights          Insight[]
+  auditEvents       AuditEvent[]
+  forecastRecords   ForecastRecord[]
+}
+
+model Transaction {
+  id                       Int      @id @default(autoincrement())
+  userId                   Int
+  user                     User     @relation(fields: [userId], references: [id])
+  timestamp                DateTime
+  amount                   Int // BDT whole taka
+  currency                 String   @default("BDT")
+  direction                String // "in" | "out"
+  category                 String
+  subcategory              String?
+  merchant                 String?
+  channel                  String   @default("wallet")
+  source                   String   @default("synthetic") // synthetic | natural_language_input | manual
+  classificationConfidence Float    @default(1)
+
+  @@index([userId, timestamp])
+}
+
+model Goal {
+  id                Int      @id @default(autoincrement())
+  userId            Int
+  user              User     @relation(fields: [userId], references: [id])
+  name              String
+  targetAmount      Int
+  targetDate        DateTime
+  savedSoFar        Int      @default(0)
+  monthlyCommitment Int      @default(0)
+  status            String   @default("active") // active | achieved | dropped
+  createdAt         DateTime @default(now())
+
+  @@index([userId, status])
+}
+
+model Insight {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  insightType  String
+  severity     String // positive | info | warning | alert
+  title        String
+  body         String
+  evidenceJson String // JSON array of {label, value}
+  optionsJson  String // JSON array of strings
+  modelVersion String
+  generatedAt  DateTime @default(now())
+
+  @@index([userId, generatedAt])
+}
+
+model KnowledgeDoc {
+  id         Int    @id @default(autoincrement())
+  sourceId   String
+  title      String
+  topic      String
+  chunkText  String
+}
+
+model AuditEvent {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  kind        String
+  payloadJson String
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model ForecastRecord {
+  id                 Int      @id @default(autoincrement())
+  userId             Int
+  user               User     @relation(fields: [userId], references: [id])
+  forecastDate       DateTime
+  horizonDays        Int
+  predictedInflow    Int
+  predictedOutflow   Int
+  shortfallProb      Float // ML: P(balance dips below safety line in horizon)
+  pressure           String
+  factorsJson        String
+  modelVersion       String
+
+  @@index([userId, forecastDate])
+}

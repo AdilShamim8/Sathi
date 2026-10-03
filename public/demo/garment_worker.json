@@ -1,0 +1,403 @@
+{
+  "generated_at": "2026-10-03T02:50:26.077Z",
+  "persona": "garment_worker",
+  "persona_label_bn": "পোশাক শ্রমিক",
+  "persona_label_en": "Garment worker",
+  "n_transactions": 314,
+  "confidence": "normal",
+  "balance": 2699,
+  "balance_display": "৳২,৬৯৯",
+  "safe_to_spend": {
+    "total": 0,
+    "total_display": "৳০",
+    "daily_budget": 0,
+    "daily_budget_display": "৳০",
+    "status": "deficit",
+    "status_label_bn": "ঘাটতির ঝুঁকি",
+    "status_label_en": "Deficit risk",
+    "advice_bn": "সামনের 14 দিনে আবশ্যক বিল ও খরচের তুলনায় তহবিলের ঘাটতি হতে পারে। অপ্রয়োজনীয় খরচ স্থগিত রাখুন।",
+    "advice_en": "Upcoming obligations exceed available funds in the next 14 days. Defer discretionary spending."
+  },
+  "metrics": {
+    "monthly_income": 17888,
+    "monthly_income_display": "৳১৭,৮৮৮",
+    "monthly_spend": 20346,
+    "monthly_spend_display": "৳২০,৩৪৬",
+    "savings_rate": -0.13740965725180684,
+    "income_volatility": 0.3164554516010519,
+    "buffer_days": 7.711428571428572,
+    "cash_dependency_ratio": 0.3695130983938874,
+    "fee_leakage": 0.1169499454233588,
+    "fixed_commitment_ratio": 0.41508634480269563
+  },
+  "recurring": {
+    "inflows": [
+      {
+        "label": "salary",
+        "amount": 18042,
+        "cadence": "weekly",
+        "dom": null
+      }
+    ],
+    "outflows": [
+      {
+        "label": "rent",
+        "amount": 5000,
+        "cadence": "monthly",
+        "dom": 7
+      },
+      {
+        "label": "cash_out",
+        "amount": 1118,
+        "cadence": "several times a week",
+        "dom": null
+      },
+      {
+        "label": "family",
+        "amount": 2000,
+        "cadence": "weekly",
+        "dom": null
+      },
+      {
+        "label": "cash_out",
+        "amount": 1099,
+        "cadence": "weekly",
+        "dom": null
+      },
+      {
+        "label": "cash_out",
+        "amount": 994,
+        "cadence": "weekly",
+        "dom": null
+      },
+      {
+        "label": "cash_out",
+        "amount": 1055,
+        "cadence": "monthly",
+        "dom": null
+      },
+      {
+        "label": "bills",
+        "amount": 1000,
+        "cadence": "monthly",
+        "dom": 10
+      },
+      {
+        "label": "mobile",
+        "amount": 500,
+        "cadence": "weekly",
+        "dom": null
+      },
+      {
+        "label": "food_beverage",
+        "amount": 252,
+        "cadence": "weekly",
+        "dom": null
+      },
+      {
+        "label": "food_beverage",
+        "amount": 206,
+        "cadence": "several times a week",
+        "dom": null
+      },
+      {
+        "label": "food_beverage",
+        "amount": 218,
+        "cadence": "several times a week",
+        "dom": null
+      },
+      {
+        "label": "food_beverage",
+        "amount": 125,
+        "cadence": "several times a week",
+        "dom": null
+      }
+    ],
+    "upcoming_commitments_14d": 25072
+  },
+  "forecast": {
+    "horizon_days": 21,
+    "shortfall_prob": 0.4,
+    "shortfall_prob_display": "৪০%",
+    "risk_level": "watch",
+    "trough_day_offset": 4,
+    "days_to_next_income": 4,
+    "next_income_date": "2026-10-07T00:00:00.000Z",
+    "daily_quantiles": [
+      {
+        "d": 1,
+        "p10": 699,
+        "p50": 2584,
+        "p90": 2639
+      },
+      {
+        "d": 2,
+        "p10": -924,
+        "p50": 1890,
+        "p90": 2579
+      },
+      {
+        "d": 3,
+        "p10": -1871,
+        "p50": 1574,
+        "p90": 10999
+      },
+      {
+        "d": 4,
+        "p10": -2628,
+        "p50": 1189,
+        "p90": 11580
+      },
+      {
+        "d": 5,
+        "p10": -2917,
+        "p50": 881,
+        "p90": 11968
+      },
+      {
+        "d": 6,
+        "p10": -4257,
+        "p50": 282,
+        "p90": 12924
+      },
+      {
+        "d": 7,
+        "p10": -5347,
+        "p50": 151,
+        "p90": 13507
+      },
+      {
+        "d": 8,
+        "p10": -6133,
+        "p50": -62,
+        "p90": 14799
+      },
+      {
+        "d": 9,
+        "p10": -6216,
+        "p50": -29,
+        "p90": 14477
+      },
+      {
+        "d": 10,
+        "p10": -7167,
+        "p50": -343,
+        "p90": 13937
+      },
+      {
+        "d": 11,
+        "p10": -8414,
+        "p50": -632,
+        "p90": 15071
+      },
+      {
+        "d": 12,
+        "p10": -9228,
+        "p50": -894,
+        "p90": 14875
+      },
+      {
+        "d": 13,
+        "p10": -10277,
+        "p50": -1156,
+        "p90": 14629
+      },
+      {
+        "d": 14,
+        "p10": -10633,
+        "p50": -1667,
+        "p90": 14464
+      },
+      {
+        "d": 15,
+        "p10": -11047,
+        "p50": -1409,
+        "p90": 15057
+      },
+      {
+        "d": 16,
+        "p10": -11820,
+        "p50": -1291,
+        "p90": 15225
+      },
+      {
+        "d": 17,
+        "p10": -12561,
+        "p50": -675,
+        "p90": 16455
+      },
+      {
+        "d": 18,
+        "p10": -13428,
+        "p50": -235,
+        "p90": 16261
+      },
+      {
+        "d": 19,
+        "p10": -13493,
+        "p50": 740,
+        "p90": 16351
+      },
+      {
+        "d": 20,
+        "p10": -14021,
+        "p50": 781,
+        "p90": 16761
+      },
+      {
+        "d": 21,
+        "p10": -14263,
+        "p50": 369,
+        "p90": 17011
+      }
+    ]
+  },
+  "cashout_audit": {
+    "total_cashouts": 14,
+    "total_fees": 7000,
+    "replaceable_count": 8,
+    "replaceable_fee_saved": 4000,
+    "annualized_savings": 16222,
+    "patterns": [
+      {
+        "agent": "Agent Korim",
+        "count": 4,
+        "fee_saved": 500
+      },
+      {
+        "agent": "Agent Nazma",
+        "count": 9,
+        "fee_saved": 3500
+      }
+    ]
+  },
+  "goal_plan": {
+    "target": 53664,
+    "verdict": "unlikely",
+    "p_requested": 0,
+    "feasibility_note_bn": "এই সময়ে এই লক্ষ্য পৌঁছানো কঠিন। নিচের বিকল্পগুলো দেখুন — সিদ্ধান্ত আপনার।",
+    "feasibility_note_en": "This goal is unlikely in the requested time. The options below are more realistic — you decide.",
+    "options": [
+      {
+        "key": "extend_timeline",
+        "monthly_contribution": 500,
+        "months": 36,
+        "p_goal_met": 0,
+        "p_low": 0,
+        "p_high": 0.001917047281252934,
+        "tradeoff_bn": "বেশি সময় লাগবে, তবে মাসিক অংক ছোট ও টেকসই",
+        "tradeoff_en": "Takes longer, but the monthly amount stays small and sustainable"
+      },
+      {
+        "key": "trim_leakage",
+        "monthly_contribution": 500,
+        "months": 36,
+        "p_goal_met": 0,
+        "p_low": 0,
+        "p_high": 0.001917047281252934,
+        "tradeoff_bn": "ক্যাশ-আউট ফি ও এড়ানো যায় এমন খরচ কমিয়ে সেই টাকা জমানো হবে",
+        "tradeoff_en": "Redirects cash-out fees and avoidable spend into the goal"
+      }
+    ]
+  },
+  "categories": [
+    {
+      "category": "cash_out",
+      "total": 75830,
+      "share": 0.3695130983938874
+    },
+    {
+      "category": "rent",
+      "total": 40000,
+      "share": 0.194916575705598
+    },
+    {
+      "category": "food",
+      "total": 27423,
+      "share": 0.13362993138936535
+    },
+    {
+      "category": "family",
+      "total": 20000,
+      "share": 0.097458287852799
+    },
+    {
+      "category": "other",
+      "total": 17770,
+      "share": 0.08659168875721192
+    },
+    {
+      "category": "bills",
+      "total": 9891,
+      "share": 0.048197996257601745
+    },
+    {
+      "category": "transport",
+      "total": 9302,
+      "share": 0.04532784968033682
+    },
+    {
+      "category": "mobile",
+      "total": 5000,
+      "share": 0.02436457196319975
+    }
+  ],
+  "weekly_outflows": [
+    {
+      "isoYear": 2026,
+      "isoWeek": 33,
+      "start": "2026-08-10",
+      "outflow": 5782,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 34,
+      "start": "2026-08-17",
+      "outflow": 4051,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 35,
+      "start": "2026-08-24",
+      "outflow": 505,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 36,
+      "start": "2026-08-31",
+      "outflow": 72,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 37,
+      "start": "2026-09-07",
+      "outflow": 7015,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 38,
+      "start": "2026-09-14",
+      "outflow": 7465,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 39,
+      "start": "2026-09-21",
+      "outflow": 3804,
+      "isLargest": false
+    },
+    {
+      "isoYear": 2026,
+      "isoWeek": 40,
+      "start": "2026-09-28",
+      "outflow": 228,
+      "isLargest": false
+    }
+  ]
+}
