@@ -69,9 +69,9 @@ Sathi's answer: **Empower the customer with foresight, clear trade-offs, and hon
 
 | Capability | How AI & Engineering Are Applied | Why a Simple Rule Is Insufficient |
 | :--- | :--- | :--- |
-| **Shortfall Forecasting** | LightGBM quantile regression (9 quantiles) on leakage-safe features + recurring-stream detection + calibrated path sampling | Fixed rules fail under lumpy income dates and volatile expenses; calibrated probability reflects true risk (Brier 0.024 vs rule 0.053). |
+| **Shortfall Forecasting** | LightGBM quantile regression (9 quantiles) on leakage-safe features + recurring-stream detection + calibrated path sampling | Fixed rules fail under lumpy income dates and volatile expenses. Honest benchmark position (frozen test, docs/eval_report.md T2): the model clearly beats the rule (Brier 0.024 vs 0.053, BSS +0.546) and the forecast band it needs, but only **ties the previous block-bootstrap** on the main test set (Brier 0.0240 vs 0.0236; bootstrap leads PR-AUC 0.410 vs 0.387 and recall at 60% precision). The model's edge is robustness: on the drifted cohort it wins (Brier 0.038 vs 0.041, PR-AUC 0.532 vs 0.410) and it degrades more slowly under feature noise. |
 | **Safe-to-Spend** | Model-based daily budget from forecast paths (P(shortfall) = α by construction); rule formula kept as baseline | Static buffers ignore the user's actual income timing and upcoming obligations. |
-| **Goal Feasibility** | Monte Carlo simulation over historical inflow/outflow distributions with Wilson 95% CI | Simple "save 20%" rules ignore irregular timing and overestimate feasibility, leading to abandoned goals. |
+| **Goal Feasibility** | Monte Carlo simulation over historical inflow/outflow distributions with Wilson 95% CI, **empirically recalibrated** (Platt, fitted on the frozen T6 back-test) | Simple "save 20%" rules ignore irregular timing and overestimate feasibility, leading to abandoned goals. Our own raw simulation was ~3–5× optimistic (stated 10.5% → realised 2.8%); every P(goal met) now ships through the recalibration (ECE 0.099 → 0.020) and never claims certainty. |
 | **Bangla Copilot** | LLM orchestrator for intent routing and natural narration with a strict numeric validator | Translates complex figures into culturally native Bangla while strictly enforcing deterministic math. |
 | **NL Transaction Capture** | Deterministic Bangla/Banglish/English parser (amount + category + merchant) with confirmation step | Typing forms is high-friction on low-end phones; free text is natural but must never guess wrong silently. |
 | **Cash-Out Insights** | Deterministic transaction cluster analysis mapping recurring cash withdrawals to digital merchant rails | Accurately calculates true fee savings and digital retention potential. |
@@ -103,12 +103,12 @@ Sathi's answer: **Empower the customer with foresight, clear trade-offs, and hon
 ```
 
 ### Technology Stack
-- **Web app (`web/`):** Next.js 16 App Router, React 19, TypeScript (strict), Tailwind CSS 4, Prisma (SQLite), z-ai LLM SDK; standalone output for Vercel/self-hosting
-- **Backend factory (repo root):** Python 3.11+, FastAPI, Pydantic v2 — the reference service and the training pipeline
+- **Web app (`web/`) — what the live deployment runs:** Next.js 16 App Router, React 19, TypeScript (strict), Tailwind CSS 4, Prisma (SQLite; optional libSQL/Turso adapter for durable serverless storage), and the **z-ai LLM SDK (`z-ai-web-dev-sdk`) for the deployed chat** (server-side only, wrapped in the fail-closed validator chain). OpenRouter is **not** part of the Vercel deployment.
+- **Backend factory (repo root):** Python 3.11+, FastAPI, Pydantic v2 — the reference service and the training pipeline. Its LLM layer (`llm/pick_model.py`) supports OpenRouter-compatible providers via `LLM_*` env vars for self-hosted runs; it is offline-only and never served by Vercel.
 - **Data & ML:** pandas, NumPy, LightGBM 4.6.0 (quantile loss, 9 quantiles), scikit-learn, SHAP
-- **Storage:** SQLite (WAL mode) — `web/db` for the app, `data/` for the pipeline
+- **Storage:** SQLite (WAL mode) — `web/db` for the app, `data/` for the pipeline; hosted libSQL (Turso) supported for the app on serverless
 - **Native Android Shell:** Capacitor (`web/android`, `com.upay.sathi`) loading the deployed app
-- **CI/CD:** GitHub Actions — `backend-ci.yml` (78 pytest + data verification), `app-ci.yml` (83 TS tests, lint, type-check, build), `android-apk.yml` (release-signed APK + GitHub Release)
+- **CI/CD:** GitHub Actions — `backend-ci.yml` (pytest + data verification), `app-ci.yml` (TS tests, lint, type-check, build), `android-apk.yml` (release-signed APK + GitHub Release)
 
 ### Deploying (Vercel / self-hosted)
 
@@ -116,9 +116,15 @@ The app is serverless-ready: on a fresh or empty database it creates its own sch
 
 1. Import this GitHub repo into Vercel with **Root Directory: `web`**.
 2. Deploy — no environment variables required. Install (bun), build command and framework (Next.js) are auto-detected; `ml-artifacts/` is traced into the functions so model forecasts work.
-3. **How the database works on serverless:** `web/src/lib/db.ts` detects the Vercel environment and redirects the SQLite file to an auto-created writable copy under `/tmp` (the rest of the filesystem is read-only). The data layer's `ensureSchema()` builds the tables on first request — zero-config cold start. Setting `DATABASE_URL` on Vercel is optional; `file:` URLs are redirected to `/tmp` automatically, and remote provider URLs (`libsql://`, `postgres://`, …) pass through untouched.
-4. **Know the trade-off:** data lives per serverless instance and resets on cold starts — fine for a demo. For persistent hosted data, point `DATABASE_URL` at Postgres (change `provider` in `web/prisma/schema.prisma`, run `bun run db:push` once) or self-host:
+3. **Keep every API route in one function group.** Vercel groups routes by their config — a route that alone sets `export const maxDuration` deploys as a *separate* serverless function with its *own* `/tmp`. That once broke the deployed Copilot: every other screen saw the user's data while `/api/copilot` queried an empty database ("copilot temporarily unavailable"). The route configs are now uniform by design (see invariant 10).
+4. **How the database works on serverless:** `web/src/lib/db.ts` detects the Vercel environment and redirects the SQLite file to an auto-created writable copy under `/tmp` (the rest of the filesystem is read-only). `ensureSchema()` builds the tables on first request — zero-config cold start. Setting a `file:` `DATABASE_URL` on Vercel is redirected to `/tmp` automatically.
+5. **Know the trade-off:** `/tmp` is per-instance and resets on cold starts — fine for a demo (one tap re-onboards with demo data), not for real users. **For durable hosted data, use Turso (free tier, SQLite dialect, no schema change):**
+   1. Create a database at [turso.tech](https://turso.tech) → copy its `libsql://…` URL and a database token.
+   2. In Vercel → Settings → Environment Variables, set `DATABASE_URL = libsql://…` and `DATABASE_AUTH_TOKEN = <token>`.
+   3. Redeploy. `db.ts` detects the `libsql://` URL and switches Prisma onto the libSQL driver adapter (`@prisma/adapter-libsql`) — every instance now shares one durable database.
+   Local development is unaffected (`file:` URLs keep using plain SQLite), and the adapter path is verified by `web/scripts/test-libsql-adapter.ts`.
 
+Self-hosting stays as before:
 ```bash
 cd web && bun install && bun run db:push && bun run build
 DATABASE_URL=file:./db/custom.db PORT=3000 bun run start   # standalone server
@@ -136,9 +142,10 @@ The Android shell loads whichever deployment URL you set in `web/capacitor.confi
 4. **Integer Paisa:** Money is strictly integer paisa (`paisa`) throughout the backend, database, and client types.
 5. **Display Strings Only:** The frontend renders read-only `display` strings generated by the server and never performs money arithmetic.
 6. **Evidence Blocks:** All user insights include an `evidence` block with labelled figures (`Data`, `Prediction`, `Assumption`, `Generated`).
-7. **Offline Demo Resilience:** The mobile APK bundles an offline demo with 5 personas — if the backend is unreachable (weak network, provider block), the app retries with backoff, then opens the offline demo mode (same UI language, sample data) and silently reconnects the moment `/api/v1/healthz` answers. It never presents a blank screen.
+7. **Offline Demo Resilience:** The mobile APK bundles an offline demo with 5 personas — if the backend is unreachable (weak network, provider block), the app retries with backoff, then opens the offline demo mode (same UI language, sample data) and silently reconnects the moment `/api/v1/healthz` answers. It never presents a blank screen. (The APK loads the live site by design — offline mode is the *fallback* after load failures, not a bundled copy of the app.)
 8. **No Hand-Typed Metrics:** every published number is generated by `ml/evaluate.py` and served verbatim from the artifacts.
 9. **Leakage-Safe Features:** every model feature is computed strictly before the forecast origin — enforced by tests on both the Python and TypeScript sides.
+10. **One Function Group on Serverless:** all API routes share identical route-level config (no per-route `maxDuration`/`memory`) so Vercel deploys them into a single function with a single `/tmp` database. A lone per-route override splits it into a separate instance with its own empty database — the exact failure that once made the deployed Copilot unavailable while every other screen worked.
 
 ---
 
@@ -170,7 +177,7 @@ Sathi is validated across 5 synthetic personas (see `config/personas.yaml`, port
 ├── config/                      # 7 YAML assumption files
 ├── data_gen/                    # Seeded synthetic generator + demo bundler
 ├── data/                        # Generated parquet panel + ground truth
-├── tests/                       # 78 pytest tests (engines, API, data, forecast)
+├── tests/                       # 80 pytest tests (engines, API, data, forecast)
 ├── context/                     # Architectural specs & working guides
 │   ├── Hackathon Rule Context/  #   Official DIU-CPC × upay hackathon documents
 │   └── context/                 #   architecture, code-standards, ui-context…
@@ -268,14 +275,14 @@ bun run db:push      # create the SQLite schema (fresh DB auto-seeds on first lo
 
 ```bash
 # Backend test suite (root)
-pytest                        # → 78 passed
+pytest                        # → 80 passed
 
 # Backend lint & static analysis
 ruff check . && mypy core api llm
 
 # Web app tests, lint, type-check, build (web/)
 cd web
-bun test                      # → 83 passed (engines, ML parity, CRUD)
+bun test                      # → 84 passed (engines, ML parity, CRUD)
 bun run lint
 bunx tsc --noEmit
 ```
@@ -296,7 +303,7 @@ curl -H "Authorization: Bearer $TOKEN" localhost:3000/api/v1/me/summary    # saf
 curl -H "Authorization: Bearer $TOKEN" localhost:3000/api/v1/me/benchmark  # T1–T7 from the generated eval artifacts
 ```
 
-**Validation highlights** (generated, never hand-typed — `docs/eval_report.md`): forecaster Brier **0.024** vs rule **0.053** (BSS vs rule **+0.546**), pinball improvement **+4.9%** over the best baseline, daily p10–p90 coverage **84.7%** (nominal 80%). In-product classifier (frozen test users): ML Brier **0.056** vs simple-rule **0.066** (BSS **+15%**), PR-AUC **0.978** vs **0.879**. NL parser: **100%** amount / **100%** category on the labelled holdout. The TypeScript LightGBM predictor matches the Python booster **exactly** (9 models × 24 fixture rows, diff 0 — `web/tests/fixtures/lgb-predictions.json`).
+**Validation highlights** (generated, never hand-typed — `docs/eval_report.md`): forecaster Brier **0.024** vs rule **0.053** (BSS vs rule **+0.546**) — and, stated plainly: on the main frozen test the model **ties the previous block-bootstrap** (Brier 0.0240 vs 0.0236; bootstrap leads PR-AUC 0.410 vs 0.387 and recall at 60% precision 0.375 vs 0.236), while winning on the drifted cohort (Brier 0.038 vs 0.041, PR-AUC 0.532) and degrading more slowly under ±10–30% feature noise. Pinball improvement **+4.9%** over the best baseline, daily p10–p90 coverage **84.7%** (nominal 80%). **Rare-class caveat:** shortfall events occur in only **3.1%** of test user-weeks — Brier/PR-AUC values are small by construction, per-persona positives are sparse (shopkeeper 0.0%), and alert cutoffs are chosen on validation user-weeks; alert-level recall/precision carry wide error bars at this base rate. Goal planner: raw simulation was **3–5× optimistic** (stated 10.5% → realised 2.8%; 27.6% → 5.1%); the shipped **Platt recalibration** brings ECE from **0.099 → 0.020** (T6). In-product classifier (frozen test users): ML Brier **0.056** vs simple-rule **0.066** (BSS **+15%**), PR-AUC **0.978** vs **0.879**. NL parser: **100%** amount / **100%** category on the labelled holdout. The TypeScript LightGBM predictor matches the Python booster **exactly** (9 models × 24 fixture rows, diff 0 — `web/tests/fixtures/lgb-predictions.json`).
 
 ---
 
@@ -307,6 +314,7 @@ curl -H "Authorization: Bearer $TOKEN" localhost:3000/api/v1/me/benchmark  # T1�
   - **Updating:** since v6.2.0 the APK is signed with a stable release key, so future versions install directly over the old one — no uninstall, no data loss. (Moving from a pre-v6.2.0 debug build to the release key requires **one final uninstall**.)
   - **Note for Bangladeshi networks:** some providers intermittently block `*.vercel.app`. The app is immune in demo mode and auto-reconnects; for a fully unblocked experience, map a custom domain to the Vercel project (Settings → Domains).
 - **Compliance matrix:** [`docs/HACKATHON_COMPLIANCE.md`](docs/HACKATHON_COMPLIANCE.md) — §13 Product Readiness, §14 Responsible AI & Safety, §15 Evaluation, with an evidence pointer for every line
+- **Build window (T+0 disclosure):** all product code in this repository was authored **2026-10-02 → 2026-10-03**, inside the hackathon's initial development window (T+0 → T+72h per the official guideline). The pushed history contains 13 commits, all dated 2–3 Oct 2026; earlier local iteration was consolidated into `4ae2dde` ("feat(v6.0): refactor monorepo…") during a repository restructure — the consolidated tree is the same work, and no substantially completed solution prepared before T+0 was reused (rule 4.3). Only general-purpose open-source libraries and the documented third-party services in [`docs/third_party.md`](docs/third_party.md) are pre-existing components (rule 4.3 permits these).
 - **Responsible AI:** synthetic data only (no real PII; every ML number labelled SIMULATED); LLM guardrails (numeric grounding, deterministic fallback, no autonomous decisions); model guardrails (leakage-safe features enforced by test, held-out calibration, fail-closed serving); `audit_events` records every capture, forecast and query
 - **Submission Milestone:** demo video + technical report at T+66h
 
@@ -317,4 +325,4 @@ curl -H "Authorization: Bearer $TOKEN" localhost:3000/api/v1/me/benchmark  # T1�
 - **License:** Apache License 2.0 — see [LICENSE](LICENSE) for details.
 - **Academic & Competition Context:** Developed for AI DEV FEST 2026 AI Hackathon by DIU-CPC and upay.
 - **Third-Party Libraries & AI Disclosures:** Documented in [`docs/third_party.md`](docs/third_party.md) per Hackathon Rulebook §4.4.
-- **Design & Code Lineage:** UI/UX inspired by Origin (useorigin.com) design language; engines ported from the Sathi Python reference (core, ML pipeline, LLM fail-closed chain) and the first-version upay Copilot prototype. All data is synthetic.
+- **Design & Code Lineage:** UI/UX inspired by Origin (useorigin.com) design language. All engines (Python reference `core/`+`ml/`+`llm/` and the TypeScript port in `web/src/lib/engine/`) were written for this submission inside the hackathon window (see the T+0 disclosure in §12); the TypeScript side is a faithful port of the Python reference developed alongside it in this repository. All data is synthetic.
