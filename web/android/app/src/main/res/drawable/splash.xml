@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sathi launch background — the app's cream canvas (#F6F4EE) instead of
+     the template's plain white, so launch/loading never flashes harsh white. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#F6F4EE" />
+</shape>
