@@ -2,8 +2,8 @@
 
 Enables offline operation and airplane mode testing in the mobile app.
 Uses the EXACT same service layer as the online FastAPI endpoints.
-Output: ../public/demo/{persona}.json and ../public/demo/users.json (the
-Next.js app's offline demo bundles in the repo root).
+Output: web/public/demo/{persona}.json and web/public/demo/users.json
+(the Next.js app's offline demo bundles).
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ from ml.inference import load_latest_version
 
 BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / "data"
-OUTPUT_DIR = BASE_DIR.parent / "public" / "demo"
+OUTPUT_DIR = BASE_DIR / "web" / "public" / "demo"
 
 
 def generate_bundle() -> None:

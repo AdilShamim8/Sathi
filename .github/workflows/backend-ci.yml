@@ -1,0 +1,44 @@
+name: Backend CI & Test Suite
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run Python Tests & Validation
+    runs-on: ubuntu-latest
+    env:
+      # Python-format URL (guard: a repo-level Next.js-style DATABASE_URL
+      # variable must never leak into the backend suite)
+      DATABASE_URL: sqlite:///./data/sathi.db
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run Pytest Test Suite
+        run: |
+          pytest -v --durations=10
+
+      - name: Verify Seeded Data Generation
+        run: |
+          python -m data_gen.generate --seed 20261003
+
+      - name: Verify Offline Demo Bundle
+        run: |
+          python -m data_gen.demo_bundle

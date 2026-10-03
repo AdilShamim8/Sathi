@@ -39,7 +39,7 @@ export async function GET() {
               objective: "Daily irregular net-flow quantiles; wallet paths give P(shortfall) before the next income, trough day, daily p10/p50/p90 bands and the model-based safe-to-spend",
               inputs: "Only the user's own transactions dated on or before the forecast origin — no persona label, persona configuration, ground truth or user id is ever used as a feature",
               calibration: "split-conformal widening (CQR) + within-week path correlation fitted on held-out calibration users only; P(shortfall) Platt-recalibrated",
-              trained_by: "ml/ pipeline (python -m ml.train); artifacts in ml-artifacts/forecast/ — the TypeScript predictor is bit-identical to the Python booster (tests/fixtures/lgb-predictions.json)",
+              trained_by: "ml/ pipeline (python -m ml.train); artifacts in web/ml-artifacts/forecast/ — the TypeScript predictor is bit-identical to the Python booster (web/tests/fixtures/lgb-predictions.json)",
             }
           : {
               architecture: "Day-of-month seasonal baseline + seeded stationary block bootstrap (5-day blocks, 400 paths)",

@@ -1,74 +1,82 @@
 #!/usr/bin/env bash
-# Package the final GitHub-ready zip: sathi-v5.1.0.zip
-# Production-only tree: the Next.js app (runtime, serves ml-artifacts/),
-# the ml/ offline Python factory, the Android shell, docs + tests.
-# Excludes: reference material, sandbox tooling, runtime DBs, build output.
+# Package the final GitHub-ready zip: sathi-v6.0.0.zip
+# Template layout: Python backend factory at the repo root (api/, core/,
+# llm/, ml/, config/, context/, data/, data_gen/, tests/) + the deployable
+# Next.js app in web/ (+ android shell, ml-artifacts, docs, screenshots).
+#
+# The zip is produced with `git archive HEAD` — it contains EXACTLY the
+# committed tree, so the zip and the GitHub push are byte-identical.
+# Excluded by .gitignore/.gitattributes: node_modules, .next, runtime DBs
+# (data/sathi.db, web/db/*.db), python caches, build output, captures.
 #
 # Runs from anywhere (paths resolved from this script's location).
-# NOTE: docs/screenshots are copied from download/ui-*.png when present
-# (maintainer's machine); without them the zip is still complete — the
-# screenshots are documentation-only.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-STAGE=$(mktemp -d /tmp/sathi-stage-XXXXXX)
-mkdir -p "$STAGE/sathi"
+VERSION="6.0.0"
+OUT="download/sathi-v${VERSION}.zip"
 
-# ---- app source + config + license ----
-cp -r src prisma public android .github docs tests scripts "$STAGE/sathi/"
-cp README.md LICENSE package.json bun.lock tsconfig.json next.config.ts tailwind.config.ts \
-   postcss.config.mjs components.json eslint.config.mjs .env.example .gitignore \
-   capacitor.config.json "$STAGE/sathi/"
-mkdir -p "$STAGE/sathi/db" && touch "$STAGE/sathi/db/.gitkeep"
-
-# ---- model artifacts (trained boosters, served by the TS app) ----
-cp -r ml-artifacts "$STAGE/sathi/"
-
-# ---- UI screenshots (hackathon documentation; maintainer machine only) ----
-if ls download/ui-*.png >/dev/null 2>&1; then
-  mkdir -p "$STAGE/sathi/docs/screenshots"
-  cp download/ui-*.png "$STAGE/sathi/docs/screenshots/"
-else
-  echo "NOTE: download/ui-*.png not found — skipping screenshot copy (docs-only)"
+# ---- sanity: clean tree so the zip matches the repo exactly ----
+if [ -n "$(git status --porcelain)" ]; then
+  echo "ERROR: working tree not clean — commit or stash first." >&2
+  git status --short | head -20 >&2
+  exit 1
 fi
 
-# ---- the offline Python ML pipeline (ml/) ----
-cp -r ml "$STAGE/sathi/"
-# non-production reference material / agent configs / stale nested CI (belt & braces:
-# these are not in the working tree anymore either)
-rm -rf "$STAGE/sathi/ml/context" "$STAGE/sathi/ml/CLAUDE.md" \
-       "$STAGE/sathi/ml/.github" "$STAGE/sathi/ml/.claude"
-# runtime / cache artifacts (regenerated on demand)
-rm -rf "$STAGE/sathi/ml/data/sathi.db"
-rm -rf "$STAGE/sathi/ml/tmp"
-rm -rf "$STAGE/sathi/ml/.pytest_cache"
-find "$STAGE/sathi/ml" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
-find "$STAGE/sathi/ml" -name "*.pyc" -delete 2>/dev/null || true
-find "$STAGE/sathi/ml" -name "*.db" -delete 2>/dev/null || true
-
-# ---- runtime/junk exclusions ----
-rm -rf "$STAGE/sathi/public/demo" 2>/dev/null || true   # noop if absent
-mkdir -p "$STAGE/sathi/public/demo"
-cp public/demo/*.json "$STAGE/sathi/public/demo/" 2>/dev/null || true
-# verification capture intermediates (not needed in the repo)
-rm -rf "$STAGE/sathi/scripts/diagrams/captures"
-
-# sanity: no node_modules / .next / .git anywhere
-find "$STAGE/sathi" -name "node_modules" -type d -exec rm -rf {} + 2>/dev/null || true
-find "$STAGE/sathi" -name ".next" -type d -exec rm -rf {} + 2>/dev/null || true
-find "$STAGE/sathi" -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
-rm -f "$STAGE/sathi/next-env.d.ts" "$STAGE/sathi/tsconfig.tsbuildinfo"
-
-echo "---- staged tree (top level) ----"
-ls -la "$STAGE/sathi/"
-echo "---- sizes ----"
-du -sh "$STAGE/sathi"/* | sort -rh | head -12
-
-OUT="$ROOT/download/sathi-v5.1.0.zip"
+mkdir -p download
 rm -f "$OUT"
-(cd "$STAGE" && zip -r -q "$OUT" sathi)
-echo "---- zip created ----"
-ls -la "$OUT"
-unzip -l "$OUT" | tail -3
-rm -rf "$STAGE"
+git archive --format=zip --prefix="sathi/" -o "$OUT" HEAD
+
+# ---- report ----
+FILES=$(unzip -l "$OUT" | tail -1 | awk '{print $2}')
+SIZE=$(du -h "$OUT" | cut -f1)
+echo "packaged: $OUT ($SIZE, $FILES files)"
+
+# capture the listing ONCE (grepping a file avoids pipefail/SIGPIPE issues)
+LISTING=$(mktemp)
+unzip -l "$OUT" > "$LISTING"
+trap 'rm -f "$LISTING"' EXIT
+
+# ---- spot-verify the template layout inside the zip ----
+CHECKS=(
+  "sathi/Makefile"
+  "sathi/requirements.txt"
+  "sathi/sathi_config.py"
+  "sathi/api/main.py"
+  "sathi/core/money.py"
+  "sathi/ml/train.py"
+  "sathi/config/fees.yaml"
+  "sathi/context/CONTEXT.md"
+  "sathi/data/transactions.parquet"
+  "sathi/tests/test_core_money.py"
+  "sathi/web/package.json"
+  "sathi/web/src/app/page.tsx"
+  "sathi/web/prisma/schema.prisma"
+  "sathi/web/ml-artifacts/forecast/latest.json"
+  "sathi/web/tests/sathi-ml.test.ts"
+  "sathi/web/android/gradlew"
+  "sathi/web/public/demo/garment_worker.json"
+  "sathi/.github/workflows/backend-ci.yml"
+  "sathi/.github/workflows/app-ci.yml"
+  "sathi/.github/workflows/android-apk.yml"
+  "sathi/.gitattributes"
+  "sathi/LICENSE"
+  "sathi/README.md"
+  "sathi/docs/HACKATHON_COMPLIANCE.md"
+  "sathi/docs/screenshots/ui-01-home.png"
+)
+MISSING=0
+for f in "${CHECKS[@]}"; do
+  if ! grep -q " $f\$" "$LISTING"; then
+    echo "MISSING: $f" >&2
+    MISSING=1
+  fi
+done
+[ "$MISSING" -eq 0 ] && echo "template-layout checklist: ${#CHECKS[@]}/${#CHECKS[@]} present ✓" || exit 1
+
+# ---- junk scan: nothing regenerable/private may ship ----
+JUNK=$(grep -cE "node_modules|\.next/|sathi\.db|custom\.db|__pycache__|\.pytest_cache|captures/|\.env$" "$LISTING" || true)
+[ "$JUNK" -eq 0 ] && echo "junk scan: clean ✓" || { echo "ERROR: $JUNK junk entries found" >&2; exit 1; }
+
+echo "OK — $OUT is GitHub-upload-ready (identical to the committed tree)."

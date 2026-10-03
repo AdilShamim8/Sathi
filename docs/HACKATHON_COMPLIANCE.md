@@ -2,7 +2,7 @@
 
 > **Purpose.** This document maps every line of the hackathon's **§13 Product Readiness**, **§14 Responsible AI & Safety**, and **§15 Evaluation Framework** to concrete, checkable evidence inside this repository — written to be read by a judge or a senior reviewer, and re-verified by the commands in §6.
 >
-> **Status:** v5.1 · model `fc-2026-09-30-15d8427d` · 83 TypeScript + 78 Python tests green (both enforced in CI) · all 31 smoke checks passing · owner-scoped product API with full CRUD + reset.
+> **Status:** v6.0 (template layout: Python factory at repo root, Next.js app in `web/`) · model `fc-2026-09-30-15d8427d` · 83 TypeScript + 78 Python tests green (both enforced in CI) · all 31 smoke checks passing · owner-scoped product API with full CRUD + reset.
 
 ---
 
@@ -10,20 +10,20 @@
 
 | # | Requirement | Status | Evidence (where to look) |
 |---|---|---|---|
-| 1 | **User problem is frequent or economically meaningful** | ✅ Covered | Month-end shortfall from income/expense **timing mismatch** is the daily reality of irregular-income MFS users (garment workers, gig riders, remittance households). Habitual agent cash-outs leak 1.5% (min ৳5) per withdrawal. See `README.md` §1, the five personas in `src/lib/engine/sathiPersonas.ts` (ported from `config/personas.yaml`), and `docs/diagrams/architecture.png`. |
+| 1 | **User problem is frequent or economically meaningful** | ✅ Covered | Month-end shortfall from income/expense **timing mismatch** is the daily reality of irregular-income MFS users (garment workers, gig riders, remittance households). Habitual agent cash-outs leak 1.5% (min ৳5) per withdrawal. See `README.md` §1, the five personas in `web/src/lib/engine/sathiPersonas.ts` (ported from `config/personas.yaml`), and `docs/diagrams/architecture.png`. |
 | 2 | **AI adds value beyond a simple deterministic rule** | ✅ Covered | Model Brier **0.024** vs rule baseline **0.053** (skill +54.6%); early-warning **recall 50% vs rule 29%** at the validated 0.15 cutoff. Ablation (T5): removing recurring-stream timing degrades Brier 0.024 → 0.0263 — the model weighs timing, obligations and volatility together in a way rules cannot. `docs/metrics/benchmark.json`, `docs/metrics/eval.json` §T2/T5, served live at `/api/v1/me/benchmark`. |
 | 3 | **There is a clear action after the prediction or recommendation** | ✅ Covered | Every risk surface ends in decisions: **3 action cards with simulated impact** on `/api/forecast` (POST) and the CashFlow view; **3 honest goal options** (Monte Carlo + Wilson 95% CI) on `/api/v1/me/goal-plan`; **cash-out fee audit** naming repeat agents, replaceable withdrawals and avoidable ৳ at the labelled rate. Actions are options with trade-offs — never auto-executed. |
 | 4 | **The business benefit can be measured** | ✅ Covered | (a) Avoidable fees per user — deterministic, auditable (cashout engine); (b) early-warning recall/precision at a fixed cutoff — reported in `eval.json` §T2; (c) plan realism — goal-planner back-test ECE **0.099** over 175 users × 875 goals (§T6); (d) every served prediction is persisted (`ForecastRecord`) so a pilot can score realized outcomes against predicted probabilities. |
-| 5 | **The model can be validated with future real-world data** | ✅ Covered | `ForecastRecord` stores probability, pressure, factors and `model_version` per prediction — the scoring dataset for future outcomes. The full re-training + re-evaluation pipeline is reproducible (`cd ml && make data && make train && make eval`); evaluation splits are **by user**, never by row. Schema: `prisma/schema.prisma`; pipeline: `ml/Makefile`. |
+| 5 | **The model can be validated with future real-world data** | ✅ Covered | `ForecastRecord` stores probability, pressure, factors and `model_version` per prediction — the scoring dataset for future outcomes. The full re-training + re-evaluation pipeline is reproducible (`make data && make train && make eval` from the repo root); evaluation splits are **by user**, never by row. Schema: `web/prisma/schema.prisma`; pipeline: root `Makefile`. |
 | 6 | **Privacy, fairness, explainability, and security can be addressed** | ✅ Covered | See §2 below — each principle has its own evidence row: synthetic-only data (privacy), T3 persona + income-band audit (fairness), SHAP + reason traces + evidence blocks (explainability), injection sanitizer + numeric validation + rate limits (security). |
-| 7 | **The system can integrate into a real digital-service workflow** | ✅ Covered | The `/api/v1/*` surface reproduces the reference backend contract exactly (`{data, evidence}` envelope, paisa ints, bn display strings, HMAC demo tokens, sliding-window rate limits) — the original clients and test-suite run unmodified. Android shell + APK CI at `android/`, `.github/workflows/`. Fail-closed serving means it can run beside an MFS core without a hard model dependency. |
+| 7 | **The system can integrate into a real digital-service workflow** | ✅ Covered | The `/api/v1/*` surface reproduces the reference backend contract exactly (`{data, evidence}` envelope, paisa ints, bn display strings, HMAC demo tokens, sliding-window rate limits) — the original clients and test-suite run unmodified. Android shell + APK CI at `web/android/`, `.github/workflows/`. |
 
 ### Post-Hackathon Pathway — where Sathi stands
 
 | Stage | Outcome | Sathi's position |
 |---|---|---|
 | 1. Competition | Prototype + pitch + evidence | **This repository** — working app, generated metrics, model card, compliance matrix. |
-| 2. Technical review | Model quality, architecture, security, feasibility | **Ready** — model card (`docs/model-card.md`), T1–T7 eval (`docs/eval_report.md`), 65 + 78 tests, bit-identical serving proof (`tests/fixtures/lgb-predictions.json`), layered architecture diagrams (`docs/diagrams/`). |
+| 2. Technical review | Model quality, architecture, security, feasibility | **Ready** — model card (`docs/model-card.md`), T1–T7 eval (`docs/eval_report.md`), 83 + 78 tests, bit-identical serving proof (`web/tests/fixtures/lgb-predictions.json`), layered architecture diagrams (`docs/diagrams/`). |
 | 3. Business review | Customer value, strategic relevance, economics | **Ready** — Track 03 framing (customer innovation & financial independence); measurable levers: fee leakage, shortfall avoidance, savings follow-through. |
 | 4. Controlled validation | Access to suitable governed data | **Designed for it** — synthetic-only now; retraining/evaluation is one command on governed data; predictions already persisted for outcome scoring. |
 | 5. POC | Test with real operational context | **Deployable** — fail-closed serving (rule/bootstrap fallback), reference-compatible API, container/CI assets. |
@@ -36,13 +36,13 @@
 
 | Principle | Minimum expectation | How Sathi implements it | Verification |
 |---|---|---|---|
-| **Privacy** | Use only synthetic/public/self-generated data during the hackathon | Seeded mulberry32 PRNG generators for all personas; documented injected patterns (`src/lib/engine/synthetic.ts`, `ml/data_gen/`); no real PII anywhere; every ML number labelled **"SIMULATED — synthetic data only"**. **v4:** the app is now a local-first personal product — onboarding asks the owner's name, demo data is an explicit opt-in choice, all personal data stays in the device-local SQLite + `localStorage`, raw transactions never leave the device (only the copilot question + already-computed aggregates reach the LLM, fail-closed, 20 s timeout), and a double-confirmed **Reset / delete all data** wipes the owner account completely | `eval.json` `label` field; README §5b + §Responsible AI; `/api/v1/me/benchmark` serves the label verbatim; Settings → Data & privacy in the shipped UI |
+| **Privacy** | Use only synthetic/public/self-generated data during the hackathon | Seeded mulberry32 PRNG generators for all personas; documented injected patterns (`web/src/lib/engine/synthetic.ts`, `data_gen/`); no real PII anywhere; every ML number labelled **"SIMULATED — synthetic data only"**. **v4:** the app is now a local-first personal product — onboarding asks the owner's name, demo data is an explicit opt-in choice, all personal data stays in the device-local SQLite + `localStorage`, raw transactions never leave the device (only the copilot question + already-computed aggregates reach the LLM, fail-closed, 20 s timeout), and a double-confirmed **Reset / delete all data** wipes the owner account completely | `eval.json` `label` field; README §5b + §Responsible AI; `/api/v1/me/benchmark` serves the label verbatim; Settings → Data & privacy in the shipped UI |
 | **Explainability** | Show the main reasons behind important predictions | (a) SHAP global + per-example attributions (T7) — top drivers: user scale 30.7%, income-gap share 22.4%, day-of-month 10.5%; (b) per-transaction **categorizer reason traces** (rule id + bn/en text); (c) **evidence block on every response** — factors, assumptions, model version, config hash; (d) "Why this risk level?" in the CashFlow view | `eval.json` §shap; `/api/v1/me/transactions` reason traces; any `/api/v1/me/*` response's `evidence` block |
 | **Fairness** | Check whether the model behaves differently across relevant groups | T3 fairness audit: Brier / PR-AUC / coverage / reliability **per persona** (garment, gig, remittance, shopkeeper, student) and **per income band** (under-15k, 15k–25k, 25k–40k). Differences are reported, not hidden (e.g. garment worker Brier 0.0296, PR-AUC 0.690 vs overall 0.024 / 0.387 — rare-event base rate differs by cohort) | `eval.json` §shortfall.per_persona / per_income_band; `docs/eval_report.md` §T3 |
-| **Security** | Consider adversarial manipulation, prompt injection, data leakage, access control | 14 prompt-injection patterns (EN + বাংলা) + NFC normalization at the chat boundary; **numeric parity validation** on every LLM draft (Bangla digits + comma normalization); HMAC-signed demo tokens (24 h); per-token sliding-window rate limits; **leakage-safe features enforced by test** (no persona/id/ground-truth/future data — `tests/sathi-ml.test.ts`); no secrets committed | `src/lib/engine/llmSafety.ts`; `src/lib/server/sathiApi.ts`; test suite |
-| **Human oversight** | High-impact actions allow appropriate human review | No money ever moves — actions are **options with quantified trade-offs** the user chooses; low-confidence NL parses require confirmation before saving; every LLM interaction and significant engine decision is appended to `AuditEvent` | `src/app/api/transactions` (confirmation flow); `prisma/schema.prisma` AuditEvent |
+| **Security** | Consider adversarial manipulation, prompt injection, data leakage, access control | 14 prompt-injection patterns (EN + বাংলা) + NFC normalization at the chat boundary; **numeric parity validation** on every LLM draft (Bangla digits + comma normalization); HMAC-signed demo tokens (24 h); per-token sliding-window rate limits; **leakage-safe features enforced by test** (no persona/id/ground-truth/future data — `web/tests/sathi-ml.test.ts`); no secrets committed | `web/src/lib/engine/llmSafety.ts`; `web/src/lib/server/sathiApi.ts`; test suite |
+| **Human oversight** | High-impact actions allow appropriate human review | No money ever moves — actions are **options with quantified trade-offs** the user chooses; low-confidence NL parses require confirmation before saving; every LLM interaction and significant engine decision is appended to `AuditEvent` | `web/src/app/api/transactions` (confirmation flow); `web/prisma/schema.prisma` AuditEvent |
 | **Transparency** | Clearly separate predictions, assumptions, and generated explanations | Every number carries: `method` (model / rule / bootstrap), `model_version`, labelled assumptions, and an `llmEnhanced` flag separating engine output from LLM phrasing; baselines are served **beside** the model, never hidden | `/api/v1/me/summary` (`method`, `rule_safe_to_spend_*`), `/api/v1/me/forecast` (`method`, `model_version`) |
-| **No harmful automation** | Do not autonomously approve/deny consequential financial decisions | The product informs only: it never approves, denies, blocks, or moves money; the LLM cannot alter numbers (validator discards mismatches); goal plans present honest options including "not feasible" | `src/lib/engine/orchestrator.ts` fail-closed path; planner's 3 option types |
+| **No harmful automation** | Do not autonomously approve/deny consequential financial decisions | The product informs only: it never approves, denies, blocks, or moves money; the LLM cannot alter numbers (validator discards mismatches); goal plans present honest options including "not feasible" | `web/src/lib/engine/orchestrator.ts` fail-closed path; planner's 3 option types |
 
 ---
 
@@ -51,7 +51,7 @@
 | Criterion | Weight | What good looks like | Sathi's answer |
 |---|---|---|---|
 | **Problem relevance** | 20% | Solves a real and meaningful customer/business problem | Month-end shortfall + fee leakage for irregular-income MFS users — frequent (monthly cycle), economically meaningful (fees + forced borrowing), and underserved (raw transaction lists). Track 03: customer innovation & financial independence. |
-| **AI/ML depth** | 20% | AI is material to the solution and technically credible | LightGBM 9-quantile direct multi-horizon forecaster; split-conformal widening + within-week correlation ρ=0.4 + Platt recalibration fitted on held-out users only; 30 leakage-safe scale-free features (one global model, all income levels); **bit-identical TypeScript serving** verified against Python lightgbm 4.5.0 on a 24-row × 9-model fixture; full T1–T7 suite. |
+| **AI/ML depth** | 20% | AI is material to the solution and technically credible | LightGBM 9-quantile direct multi-horizon forecaster; split-conformal widening + within-week correlation ρ=0.4 + Platt recalibration fitted on held-out users only; 30 leakage-safe scale-free features (one global model, all income levels); **bit-identical TypeScript serving** verified against the pinned Python lightgbm (4.6.0) on a 24-row × 9-model fixture; full T1–T7 suite. |
 | **Business/customer impact** | 20% | Clear, measurable value and plausible economics | A daily safe-to-spend number; 7-day early warning with recall 50% vs rule 29%; named avoidable fees per user; goal plans with calibrated confidence (back-test ECE 0.099). All four are measurable in a pilot via `ForecastRecord` + audit trail. |
 | **Prototype quality** | 15% | Working end-to-end experience, not only slides | Production Next.js 16 build; 32 endpoints; 83 TS + 78 Python tests (both run in GitHub Actions CI); bilingual UI (7 views) with evidence everywhere; Android APK CI; demo personas login. Verify: §6 commands below. |
 | **Innovation** | 10% | Distinctive insight or differentiated product idea | Focus on **cash-flow timing**, not budgeting; "who computes what" AI split with a numeric-parity fail-closed LLM; model-based safe-to-spend from simulated liquidity paths (Q₀.₁₀ − personal floor) with the rule baseline always visible. |
@@ -64,9 +64,9 @@
 
 | Area | Share | Concrete deliverables (files you can open) |
 |---|---|---|
-| **Cash-flow + Forecast + Safe-to-spend** | **50%** | `src/lib/engine/`: `safeToSpend.ts` (model-based Q₀.₁₀ − floor, + rule), `forecaster.ts` + `lightgbm.ts` + `liquidity.ts` + `panel.ts` (model serving), `recurringStreams.ts` + `cashOnHand.ts` (v2), `simulation.ts` (block bootstrap), `forecast.ts` (baseline + backtest), `ml.ts` (risk classifier + validation). Views: Home hero, CashFlow (day-by-day + WHY + actions). APIs: `/api/summary`, `/api/forecast`, `/api/v1/me/{summary,forecast,benchmark}`. Training/eval: `ml/` (offline Python pipeline) + `ml-artifacts/` (served model). Tests: the majority of `tests/sathi-ml.test.ts` (LightGBM parity, path invariants, leakage, safe-to-spend α-property). |
-| **Explainability + Evidence** | **20%** | Evidence blocks on **every** v1 response (`src/lib/server/sathiApi.ts` evidence builder); categorizer reason traces; SHAP T7 in `eval.json` + `docs/model-card.md`; `/api/v1/me/benchmark` serving **generated artifacts only** (no hand-typed metrics — a merge-commit guarantee); "Why this risk level?" factor list + Model-health panel with reliability chart in the Insights view; `docs/diagrams/ai-layers.png`. |
-| **Goal planning + Scenario simulation** | **15%** | `src/lib/engine/planner.ts` (Monte Carlo, 2,000 paths, common random numbers, Wilson 95% CI, 3 honest option types); `goals.ts` + `simulation.ts` what-if engine; `/api/goals/{analyze,simulate}`, `/api/v1/me/goal-plan`; T6 back-test (175 users, 875 goals, ECE 0.099); Goals view with scenario cards; action simulation on `/api/forecast` POST. |
+| **Cash-flow + Forecast + Safe-to-spend** | **50%** | `web/src/lib/engine/`: `safeToSpend.ts` (model-based Q₀.₁₀ − floor, + rule), `forecaster.ts` + `lightgbm.ts` + `liquidity.ts` + `panel.ts` (model serving), `recurringStreams.ts` + `cashOnHand.ts` (v2), `simulation.ts` (block bootstrap), `forecast.ts` (baseline + backtest), `ml.ts` (risk classifier + validation). Views: Home hero, CashFlow (day-by-day + WHY + actions). APIs: `/api/summary`, `/api/forecast`, `/api/v1/me/{summary,forecast,benchmark}`. Training/eval: `ml/` (offline Python pipeline) + `web/ml-artifacts/` (served model). Tests: the majority of `web/tests/sathi-ml.test.ts` (LightGBM parity, path invariants, leakage, safe-to-spend α-property). |
+| **Explainability + Evidence** | **20%** | Evidence blocks on **every** v1 response (`web/src/lib/server/sathiApi.ts` evidence builder); categorizer reason traces; SHAP T7 in `eval.json` + `docs/model-card.md`; `/api/v1/me/benchmark` serving **generated artifacts only** (no hand-typed metrics — a merge-commit guarantee); "Why this risk level?" factor list + Model-health panel with reliability chart in the Insights view; `docs/diagrams/ai-layers.png`. |
+| **Goal planning + Scenario simulation** | **15%** | `web/src/lib/engine/planner.ts` (Monte Carlo, 2,000 paths, common random numbers, Wilson 95% CI, 3 honest option types); `goals.ts` + `simulation.ts` what-if engine; `/api/goals/{analyze,simulate}`, `/api/v1/me/goal-plan`; T6 back-test (175 users, 875 goals, ECE 0.099); Goals view with scenario cards; action simulation on `/api/forecast` POST. |
 | **Bangla AI / RAG / conversational UX** | **10%** | `nlp.ts` (Bangla/Banglish/EN parser, Bangla digits, word-boundary matching — 100%/100% holdout accuracy); `copilot.ts` (10 intents) + `orchestrator.ts` + `templates.ts` (13 × bn/en); `knowledge.ts` (BM25-lite RAG over 10 cited docs); `/api/v1/chat` + `/api/copilot` with sanitizer → numeric validator → fail-closed fallback; bilingual UI with Bangla digit formatting. |
 | **UI polish / extra features** | **5%** | Origin-inspired design system (cream/ink/leaf, iOS-style shadows, press feedback, Framer Motion), salary bottom-sheet (explicit user ask), EN⇄বাংলা toggle, Capacitor Android shell + APK workflow, persona picker. |
 
@@ -84,21 +84,23 @@
 
 ## 6. Verification log — re-run everything
 
-> Both suites are enforced on every push / PR by GitHub Actions (`.github/workflows/app-ci.yml`):
-> the **app** job runs tests → lint → type-check → build, the **ml** job runs the 78 pytest tests
-> plus seeded-data determinism checks. Green CI on the repo is the standing proof of the claims below.
+> Both suites are enforced on every push / PR by GitHub Actions:
+> `backend-ci.yml` runs the 78 pytest tests plus seeded-data determinism + demo-bundle
+> verification from the repo root; `app-ci.yml` runs the web job (83 TS tests → lint →
+> type-check → build) inside `web/`. Green CI on the repo is the standing proof of the claims below.
 
 ```bash
-# 1. Install & run the product
+# 1. Install & run the product (web/)
+cd web
 bun install && bun run db:push && bun run dev      # → http://localhost:3000
 
-# 2. TypeScript quality gates
+# 2. TypeScript quality gates (web/)
 bun run lint          # ESLint — clean
 bun run test          # 83 tests pass (engines, LightGBM parity, leakage, personas, CRUD)
 bun run build         # production build, 32 API routes
 
-# 3. Python training/evaluation pipeline (ml/)
-cd ml
+# 3. Python backend factory (repo root)
+cd ..
 pip install -r requirements.txt -r requirements-dev.txt
 export DATABASE_URL=sqlite:///./data/sathi.db
 rm -f data/sathi.db          # force fresh dataset load
@@ -117,4 +119,4 @@ curl -s -H "Authorization: Bearer $TOKEN" localhost:3000/api/v1/me/benchmark | h
 python scripts/diagrams/render_diagrams.py    # → docs/diagrams/*.png
 ```
 
-**Latest run (v5.0, this release):** tsc clean · ESLint clean · 83/83 TS tests · 78/78 Python tests · production build compiled (32 routes) · 31/31 endpoint smoke checks green (incl. model-live semantic checks: `safe_to_spend.method = model`, forecast `method = lightgbm-quantile + recurring streams + calibrated paths`, ML Brier < rule) · **UI pixel-identical to the shipped screenshots** — 6/8 views 0.00% bit-identical; views 7–8 identical at 0.00% outside the Next.js dev-tools badge (a dev-mode-only indicator that does not exist in production builds) · all 4 architecture diagrams VLM-verified clean (no overlap, no clipping).
+**Latest run (v6.0, template-layout release):** tsc clean · ESLint clean · 83/83 TS tests (from `web/`) · 78/78 Python tests (from repo root) · production build compiled (32 routes) · cold-start E2E on a fresh SQLite (schema self-created, persona seeded, forecast served with `method = lightgbm-quantile + recurring streams + calibrated paths` from `web/ml-artifacts/`) · all 4 architecture diagrams regenerated deterministically.

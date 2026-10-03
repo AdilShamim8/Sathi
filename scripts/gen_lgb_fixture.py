@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate a LightGBM prediction fixture to validate the TS predictor.
 
-Reads the currently promoted model version from ml-artifacts/forecast/latest.json,
+Reads the currently promoted model version from web/ml-artifacts/forecast/latest.json,
 so the fixture always tracks whatever version the app serves. Paths are
 repo-relative (this script lives in scripts/).
 """
@@ -12,7 +12,7 @@ import lightgbm as lgb
 import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
-FORECAST_DIR = ROOT / "ml-artifacts" / "forecast"
+FORECAST_DIR = ROOT / "web" / "ml-artifacts" / "forecast"
 VERSION = json.loads((FORECAST_DIR / "latest.json").read_text())["version"]
 BASE = FORECAST_DIR / VERSION
 
@@ -38,7 +38,7 @@ for q in (10, 20, 30, 40, 50, 60, 70, 80, 90):
     preds = m.predict(X)
     out["models"][f"q{q}"] = [float(p) for p in preds]
 
-fixture = ROOT / "tests" / "fixtures" / "lgb-predictions.json"
+fixture = ROOT / "web" / "tests" / "fixtures" / "lgb-predictions.json"
 fixture.write_text(json.dumps(out))
 print(f"wrote fixture for {VERSION}: 24 rows x 9 quantile models -> {fixture}")
 print("q50 first 3:", out["models"]["q50"][:3])

@@ -32,41 +32,43 @@ jobs:
 
       # The app shell is a thin Capacitor wrapper that loads the deployed
       # Next.js app (server-rendered UI + API routes). No static export is
-      # needed: capacitor.config.json points at the deployment URL.
+      # needed: web/capacitor.config.json points at the deployment URL.
       - name: Install Capacitor CLI
-        run: npm install --no-save @capacitor/core@6 @capacitor/android@6 @capacitor/cli@6
+        run: npm install -g @capacitor/cli@6 @capacitor/core@6 @capacitor/android@6
 
       - name: Sync Capacitor Android
-        run: npx cap sync android
+        run: |
+          cd web
+          npx cap sync android
 
       - name: Set gradlew executable permission
-        run: chmod +x android/gradlew
+        run: chmod +x web/android/gradlew
 
       - name: Build Android Debug APK
         run: |
-          cd android
+          cd web/android
           ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Prepare APK for Artifact & Release
         run: |
           mkdir -p apk-output
-          cp android/app/build/outputs/apk/debug/app-debug.apk apk-output/sathi-v5.1.0-debug.apk
+          cp web/android/app/build/outputs/apk/debug/app-debug.apk apk-output/sathi-v6.0.0-debug.apk
           ls -la apk-output/
 
       - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: sathi-android-apk
-          path: apk-output/sathi-v5.1.0-debug.apk
+          path: apk-output/sathi-v6.0.0-debug.apk
           retention-days: 30
 
       - name: Create or Update GitHub Release with APK
         if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'v5.1.0' }}
-          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('Sathi Release {0}', github.ref_name) || 'Sathi App Release v5.1.0 (Latest APK)' }}
-          files: apk-output/sathi-v5.1.0-debug.apk
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'v6.0.0' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('Sathi Release {0}', github.ref_name) || 'Sathi App Release v6.0.0 (Latest APK)' }}
+          files: apk-output/sathi-v6.0.0-debug.apk
           generate_release_notes: true
           draft: false
           prerelease: false
