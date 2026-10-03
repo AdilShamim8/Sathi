@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Settings, Check, Database, Trash2, Wallet, Languages, ShieldCheck, AlertTriangle } from "lucide-react";
 import { api } from "./api";
-import { getOpenRouterConfig, setOpenRouterConfig } from "@/lib/engine/openrouterChat";
+import { getOpenRouterConfig, setOpenRouterConfig, testOpenRouterKey, type OpenRouterTestResult } from "@/lib/engine/openrouterChat";
 import { useLang } from "./i18n";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -42,10 +42,23 @@ export function SettingsSheet({
   const [orKey, setOrKey] = useState<string | null>(null);
   const [orModel, setOrModel] = useState<string | null>(null);
   const [orEnabled, setOrEnabled] = useState<boolean | null>(null);
+  const [orTest, setOrTest] = useState<OpenRouterTestResult | null>(null);
+  const [orTesting, setOrTesting] = useState(false);
   const orConfig = getOpenRouterConfig();
   const orOn = orEnabled ?? orConfig.enabled;
   const orKeyValue = orKey ?? orConfig.apiKey;
   const orModelValue = orModel ?? orConfig.model;
+
+  const runOrTest = async () => {
+    setOrTesting(true);
+    setOrTest(null);
+    try {
+      const result = await testOpenRouterKey(orKeyValue, orModelValue || undefined);
+      setOrTest(result);
+    } finally {
+      setOrTesting(false);
+    }
+  };
 
   const saveName = useMutation({
     mutationFn: () => api.updateProfile({ name: (name ?? "").trim() }),
@@ -279,9 +292,25 @@ export function SettingsSheet({
                 />
                 <p className="text-[10px] leading-relaxed text-muted-foreground">
                   {lang === "bn"
-                    ? "মডেটর কখনো টাকা হিসাব করে না — সংখ্যাগুলো অ্যাপের হিসাব থেকে স্লটে বসে যায়।"
+                    ? "মডেল কখনো টাকা হিসাব করে না — সংখ্যাগুলো অ্যাপের হিসাব থেকে স্লটে বসে যায়।"
                     : "The model never computes money — numbers are slotted in from the app's own calculations."}
                 </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={runOrTest}
+                    disabled={orTesting || !orKeyValue}
+                    className="press rounded-xl border border-leafdark/40 px-3 py-1.5 text-[11px] font-semibold text-leafdark transition enabled:hover:bg-leaf/10 disabled:opacity-40"
+                  >
+                    {orTesting
+                      ? (lang === "bn" ? "পরীক্ষা চলছে…" : "Testing…")
+                      : (lang === "bn" ? "কী পরীক্ষা করুন" : "Test key")}
+                  </button>
+                  {orTest && (
+                    <p className={cn("text-[11px] leading-snug", orTest.ok ? "text-leafdark" : "text-tomato")}>
+                      {orTest.reason}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
           </section>

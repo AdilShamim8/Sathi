@@ -4,6 +4,7 @@ import {
   buildEvidence, ok, unauthorized, notFound, badRequest, tooMany,
   LLM_ENABLED, llmBudgetAllowed,
 } from "@/lib/server/sathiApi";
+import { generateViaOpenRouterServer } from "@/lib/server/openRouterServer";
 import { RATE_LIMITS, ESSENTIALS_PER_DAY_TAKA, THRESHOLDS } from "@/lib/engine/sathiConfig";
 import { handleMessage, type OrchestratorContext } from "@/lib/engine/orchestrator";
 import { computeMetrics } from "@/lib/engine/metricsEngine";
@@ -125,10 +126,16 @@ export async function POST(req: NextRequest) {
         });
         const content = completion?.choices?.[0]?.message?.content;
         if (typeof content === "string" && content.trim().length >= 5) return content.trim();
-        return null;
       } catch (err) {
         console.warn("[v1 chat] LLM unavailable, failing closed:", err instanceof Error ? err.message : err);
-        return null;
+      }
+      // Secondary path: deployer's OpenRouter key (SATHI_OPENROUTER_API_KEY).
+      // The orchestrator's slot protocol + number validator still guard the
+      // draft — an uncompliant or hallucinating model never reaches the user.
+      try {
+        return await generateViaOpenRouterServer(systemPrompt, cleanedText);
+      } catch {
+        return null; // fail-closed to the deterministic template
       }
     };
 

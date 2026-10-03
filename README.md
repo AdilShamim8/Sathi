@@ -247,6 +247,8 @@ bun run db:push      # create the SQLite schema (fresh DB auto-seeds on first lo
 |---|---|
 | `DATABASE_URL` | SQLite connection string (preconfigured to `file:../db/custom.db`, relative to `web/prisma/`) |
 | `SATHI_ML_ARTIFACTS` | (optional) override the model artifacts directory; defaults to `./ml-artifacts/forecast` |
+| `SATHI_OPENROUTER_API_KEY` | (optional) deployer's OpenRouter key — server-side fallback so chat replies get AI phrasing on deployments where the primary gateway has no credentials. Never exposed to the client; every draft still passes the fail-closed slot/grounding validators |
+| `SATHI_OPENROUTER_MODEL` | (optional) model for the fallback above; defaults to `openrouter/auto` |
 | (optional) AI gateway credentials | If absent, the copilot runs in deterministic mode — all features still work |
 
 **`.env`** (repo root — the Python backend; copy from `.env.example`): `APP_ENV`, `DATABASE_URL` (python format `sqlite:///./data/sathi.db`), `AUTH_SECRET`, `ALLOWED_ORIGINS`, `LLM_*` (the backend works end to end with `LLM_ENABLED=false`).
@@ -261,7 +263,7 @@ bun run db:push      # create the SQLite schema (fresh DB auto-seeds on first lo
 | :--- | :--- | :--- |
 | **Web Dev Server** | `make web-dev` (or `cd web && bun run dev`) | Start the Next.js app on :3000 |
 | **Web Production Build** | `make web-build` | Standalone build in `web/.next/standalone` (ships `ml-artifacts/`) |
-| **Web Tests / Lint** | `make web-test` / `make web-lint` | 83 TS tests / ESLint + type-check |
+| **Web Tests / Lint** | `make web-test` / `make web-lint` | 95 TS tests / ESLint + type-check |
 | **Backend Dev Server** | `make run` | Reference FastAPI v1 service on :8000 |
 | **Dataset Generation** | `make data` | Seeded synthetic panel (2,000 users + 500 drifted) |
 | **Train / Evaluate** | `make train` / `make eval` | 9-quantile boosters / T1–T7 metrics (offline only) |
@@ -283,7 +285,7 @@ ruff check . && mypy core api llm
 
 # Web app tests, lint, type-check, build (web/)
 cd web
-bun test                      # → 88 passed (engines, ML parity, CRUD, slot protocol, number words)
+bun test                      # → 95 passed (engines, ML parity, CRUD, slot protocol, number words, OpenRouter fallback)
 bun run lint
 bunx tsc --noEmit
 ```

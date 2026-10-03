@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { getUserTransactions, getActiveGoals, getKnowledgeChunks, audit } from "@/lib/server/data";
 import { rateLimit, clientKey, LLM_ENABLED, llmBudgetAllowed } from "@/lib/server/sathiApi";
+import { generateViaOpenRouterServer } from "@/lib/server/openRouterServer";
 import { RATE_LIMITS } from "@/lib/engine/sathiConfig";
 import { answerQuestion } from "@/lib/engine/copilot";
 import { sanitizeInput } from "@/lib/engine/llmSafety";
@@ -72,6 +73,10 @@ export async function POST(req: NextRequest) {
       openingBalance: user.openingBalance,
       salary: { amount: user.salaryAmount, payDay: user.salaryPayDay },
       llmAllowed: LLM_ENABLED && llmBudgetAllowed(),
+      // Secondary server-side draft path (deployer's SATHI_OPENROUTER_API_KEY)
+      // used only when the primary z-ai sdk is unavailable; the result still
+      // passes the same numbersAreGrounded fail-closed validator.
+      llmFallback: (system, user) => generateViaOpenRouterServer(system, user),
     });
 
     await audit(user.id, "assistant_query", {

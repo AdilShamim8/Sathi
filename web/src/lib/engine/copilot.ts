@@ -70,6 +70,9 @@ export interface CopilotContext {
   salary: { amount: number | null; payDay: number | null };
   /** Kill switch / daily budget verdict from the route (default: allowed). */
   llmAllowed?: boolean;
+  /** Secondary server-side draft generator (e.g. OpenRouter via env key) used
+   *  when the primary z-ai sdk is unavailable. Same grounding validator applies. */
+  llmFallback?: (system: string, user: string) => Promise<string | null>;
 }
 
 export async function answerQuestion(question: string, ctx: CopilotContext): Promise<CopilotAnswer> {
@@ -101,9 +104,29 @@ export async function answerQuestion(question: string, ctx: CopilotContext): Pro
 
   // Guardrail check: never invent numbers — verify every ৳ figure in the
   // LLM summary appears in the evidence; otherwise keep deterministic text.
-  const llmSummary = ctx.llmAllowed === false
+  let llmSummary = ctx.llmAllowed === false
     ? null
     : await tryLlmSummary(question, intent, base, knowledgeHits.map((h) => h.chunk.chunkText));
+
+  // Secondary path (deployer's OpenRouter key, server-side): only when the
+  // primary z-ai sdk produced nothing, and still behind the same validator.
+  if (llmSummary === null && ctx.llmAllowed !== false && ctx.llmFallback) {
+    try {
+      const evidenceText = [...base.numbers, ...base.evidence]
+        .map((e) => `- ${e.label}: ${e.value}`)
+        .join("\n");
+      llmSummary = await ctx.llmFallback(
+        [
+          "You are the explanation voice of a financial decision-support copilot inside a mobile wallet (Sathi, Bangladesh).",
+          "Rewrite the draft answer so it is warm, clear and non-judgmental (2-3 sentences). You may answer in the user's language (Bangla, Banglish or English).",
+          "STRICT RULES: never invent or estimate numbers; you may only repeat ৳ amounts that appear verbatim in the evidence list. Never present forecasts as certainty. Never pressure the user to spend. Do not give regulated financial advice. Output only the rewritten summary text.",
+        ].join("\n"),
+        `User question: "${question}"\n\nComputed evidence (the ONLY numbers you may cite):\n${evidenceText || "(no numeric evidence)"}\n\nDraft answer to rewrite: "${base.summary}"`,
+      );
+    } catch {
+      llmSummary = null; // fail-closed — deterministic answer already built
+    }
+  }
   if (llmSummary && numbersAreGrounded(llmSummary, base)) {
     base.summary = llmSummary;
     base.llmEnhanced = true;

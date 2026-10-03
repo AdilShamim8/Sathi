@@ -65,7 +65,7 @@ function AnswerCard({ a }: { a: CopilotAnswer }) {
         <span className="text-[11px] font-medium text-muted-foreground">
           {a.llmEnhanced
             ? (lang === "bn" ? "এআই-ভিত্তিক উত্তর (যাচাইকৃত)" : "AI-grounded answer (validated)")
-            : (lang === "bn" ? "নির্ধারিত উত্তর (এআই অনুপলব্ধ)" : "Deterministic answer (AI unavailable)")}
+            : (lang === "bn" ? "নির্ধারিত উত্তর (এআই ব্যবহৃত হয়নি)" : "Deterministic answer (AI not used)")}
         </span>
       </div>
 
@@ -282,6 +282,11 @@ export function CopilotView() {
             {lang === "bn"
               ? "কোপাইলট সাময়িকভাবে অনুপলব্ধ। উপরের ডেটা স্ক্রিনগুলো এখনো কাজ করছে — একটু পরে আবার চেষ্টা করুন।"
               : "The copilot is temporarily unavailable. Your data screens above still work — please try again in a moment."}
+            {ask.error ? (
+              <p className="mt-1 text-[12px] font-medium">
+                {ask.error.message || `Request failed`}
+              </p>
+            ) : null}
           </div>
         )}
         <div ref={bottomRef} />

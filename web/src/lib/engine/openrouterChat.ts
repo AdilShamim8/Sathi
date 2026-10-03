@@ -83,7 +83,7 @@ export async function enhanceWithOpenRouter(params: {
 
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), params.timeoutMs ?? 15000);
+    const timer = setTimeout(() => controller.abort(), params.timeoutMs ?? 20000);
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       signal: controller.signal,
@@ -100,7 +100,11 @@ export async function enhanceWithOpenRouter(params: {
           { role: "user", content: params.question },
         ],
         temperature: 0.2,
-        max_tokens: 250,
+        // 900 (was 250): openrouter/auto routes to reasoning models whose
+        // hidden chain-of-thought consumed the whole 250-token ceiling and
+        // returned content:null (finish_reason "length") — the app then
+        // silently fell back to the deterministic answer.
+        max_tokens: 900,
       }),
     });
     clearTimeout(timer);
@@ -115,6 +119,72 @@ export async function enhanceWithOpenRouter(params: {
     return rendered;
   } catch {
     return null; // offline / timeout / CORS — deterministic answer stands
+  }
+}
+
+/* ---------------- key diagnostics (Settings “Test key”) ---------------- */
+
+export interface OpenRouterTestResult {
+  ok: boolean;
+  reason: string;
+}
+
+/**
+ * Minimal live probe used by the Settings sheet so the user can see WHY the
+ * optional enhancement is (not) working instead of a silent fallback.
+ * Costs one tiny completion on the user's own key.
+ */
+export async function testOpenRouterKey(
+  apiKey = getOpenRouterConfig().apiKey,
+  model = getOpenRouterConfig().model || DEFAULT_MODEL,
+): Promise<OpenRouterTestResult> {
+  if (!apiKey) return { ok: false, reason: "No key entered." };
+  const facts = [{ key: "f1_amount", value: "৳123" }];
+  const system = [
+    "You are testing a financial copilot's NUMBER SAFETY protocol.",
+    "Reply with ONE short sentence that refers to the amount ONLY through the slot token {{f1}}.",
+    "NEVER write digits or number words yourself. SLOTS: {{f1}} = ৳123",
+  ].join("\n");
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "https://sathi.app",
+        "X-Title": "Sathi Copilot",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: "How much can I spend?" },
+        ],
+        temperature: 0,
+        max_tokens: 900,
+      }),
+    });
+    clearTimeout(timer);
+    if (resp.status === 401) return { ok: false, reason: "Key rejected (401) — check or regenerate it at openrouter.ai." };
+    if (resp.status === 402) return { ok: false, reason: "Key has no credits (402) — top up or pick a :free model." };
+    if (resp.status === 429) return { ok: false, reason: "Rate limited (429) — free keys allow ~50 requests/day; wait a moment." };
+    if (resp.status === 404) return { ok: false, reason: `Model “${model}” not found (404) — pick another model.` };
+    if (!resp.ok) return { ok: false, reason: `OpenRouter returned HTTP ${resp.status}.` };
+    const data = (await resp.json()) as { choices?: { message?: { content?: string } }[]; model?: string };
+    const content = data.choices?.[0]?.message?.content;
+    if (!content || content.trim().length < 5) {
+      return { ok: false, reason: `Model ${data.model ?? model} returned no text (reasoning model ran out of tokens) — try another model.` };
+    }
+    const rendered = renderSlotsLocal(content.trim(), facts);
+    if (rendered === null) {
+      return { ok: false, reason: `Model ${data.model ?? model} ignored the number-safety protocol — try a stronger model.` };
+    }
+    return { ok: true, reason: `Key + model ${data.model ?? model} work — AI answers will appear in the Copilot when it validates.` };
+  } catch {
+    return { ok: false, reason: "Could not reach openrouter.ai — check your connection." };
   }
 }
 
