@@ -6,7 +6,13 @@ import { sanitizeInput } from "@/lib/engine/llmSafety";
 import { render } from "@/lib/engine/templates";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+
+// NOTE: no route-specific `maxDuration` here, deliberately. Vercel groups
+// routes into serverless functions by config — a lone `maxDuration = 60`
+// on this route deployed it as a SEPARATE function with its own /tmp,
+// so the copilot queried an empty database while every other route saw
+// the user's data ("copilot temporarily unavailable" on the live site).
+// All routes must share one function group and one database file.
 
 /**
  * AI Copilot question endpoint.
