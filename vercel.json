@@ -1,6 +1,0 @@
-{
-  "buildCommand": "bun run build",
-  "installCommand": "bun install && bunx prisma generate",
-  "framework": "nextjs",
-  "outputDirectory": ".next"
-}

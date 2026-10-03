@@ -6,8 +6,10 @@
  */
 const { execSync } = require('child_process');
 
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'file:../db/custom.db';
+
 try {
-  execSync('prisma generate', { stdio: 'inherit', shell: true });
+  execSync('prisma generate', { stdio: 'inherit', shell: true, env: process.env });
 } catch (err) {
   console.warn('[postinstall] prisma generate failed — continuing anyway. Run `npx prisma generate` manually if needed.');
   console.warn(err.message || err);

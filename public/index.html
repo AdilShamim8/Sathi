@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="bn" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>সাথী · Sathi — AI Financial Copilot</title>
+  <meta name="description" content="সাথী (Sathi) — Intelligent Irregular-Flow Financial Intelligence for Bangladesh MFS Users">
+  <meta name="theme-color" content="#0F172A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090D16;
+      --card-bg: rgba(22, 30, 46, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-green: #10B981;
+      --accent-green-glow: rgba(16, 185, 129, 0.2);
+      --accent-emerald: #059669;
+      --accent-blue: #3B82F6;
+      --accent-amber: #F59E0B;
+      --accent-red: #EF4444;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --nav-bg: rgba(15, 23, 42, 0.92);
+      --font-bengali: 'Hind Siliguri', 'Inter', sans-serif;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .light {
+      --bg: #F8FAFC;
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --card-border: rgba(0, 0, 0, 0.06);
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --nav-bg: rgba(255, 255, 255, 0.92);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-bengali);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-bottom: 74px;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Safe area handling for mobile notch */
+    header {
+      padding-top: max(12px, env(safe-area-inset-top));
+      padding-bottom: 12px;
+      padding-left: 16px;
+      padding-right: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #10B981, #0284C7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+      box-shadow: 0 4px 12px var(--accent-green-glow);
+    }
+    .logo-text h1 {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .logo-text span {
+      font-size: 11px;
+      color: var(--accent-green);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-pill:hover, .btn-pill:active {
+      background: rgba(255, 255, 255, 0.12);
+      transform: scale(0.98);
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+    }
+
+    /* Persona Selector */
+    .persona-scroll {
+      display: flex;
+      overflow-x: auto;
+      padding: 12px 16px;
+      gap: 10px;
+      scrollbar-width: none;
+    }
+    .persona-scroll::-webkit-scrollbar { display: none; }
+    .persona-chip {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .persona-chip.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2));
+      border-color: var(--accent-green);
+      color: var(--text-main);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+    }
+    .persona-chip .avatar {
+      font-size: 14px;
+    }
+
+    /* Container */
+    .app-content {
+      padding: 8px 16px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Hero Wallet Card */
+    .wallet-hero {
+      background: linear-gradient(145deg, rgba(16, 185, 129, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%), var(--card-bg);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .wallet-hero::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, var(--accent-green-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .balance-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .balance-val {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      letter-spacing: -0.02em;
+    }
+    .currency-symbol {
+      color: var(--accent-green);
+      margin-right: 4px;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--card-border);
+    }
+    .metric-item {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .metric-val {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+    }
+    .metric-val.green { color: var(--accent-green); }
+    .metric-val.amber { color: var(--accent-amber); }
+    .metric-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Action Buttons */
+    .action-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .action-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 12px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .action-btn:active {
+      transform: scale(0.95);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .action-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .action-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* Tab navigation bottom bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-around;
+      padding-top: 8px;
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+      z-index: 100;
+    }
+    .nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+      flex: 1;
+      padding: 4px 0;
+      transition: all 0.2s;
+    }
+    .nav-tab.active {
+      color: var(--accent-green);
+    }
+    .nav-tab svg {
+      width: 22px;
+      height: 22px;
+    }
+    .nav-tab span {
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    /* Views */
+    .view-panel {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .view-panel.active {
+      display: flex;
+    }
+
+    /* Transactions list */
+    .txn-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .txn-item:last-child { border-bottom: none; }
+    .txn-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .txn-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .txn-desc {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .txn-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .txn-amount {
+      font-size: 14px;
+      font-weight: 700;
+      font-family: var(--font-sans);
+    }
+    .txn-amount.pos { color: var(--accent-green); }
+    .txn-amount.neg { color: var(--text-main); }
+
+    /* MFS Fee Optimizer Table */
+    .fee-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 8px;
+      border: 1px solid var(--card-border);
+    }
+    .fee-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 12px;
+    }
+    .fee-badge {
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .fee-badge.cheapest {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      border: 1px solid var(--accent-green);
+    }
+
+    /* Copilot Chat */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .chat-bubble {
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 85%;
+    }
+    .chat-bubble.assistant {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .chat-bubble.user {
+      background: #2563EB;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .quick-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .chat-input-bar {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .chat-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 13px;
+    }
+    .chat-input:focus { outline: none; border-color: var(--accent-green); }
+    .btn-send {
+      background: var(--accent-green);
+      border: none;
+      border-radius: 12px;
+      padding: 0 16px;
+      color: #0F172A;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-sheet {
+      background: #111827;
+      width: 100%;
+      max-width: 550px;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 24px 20px max(24px, env(safe-area-inset-bottom)) 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+      animation: slideUp 0.25s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .input-field {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: white;
+      font-family: inherit;
+      font-size: 14px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+    }
+    .btn-submit {
+      width: 100%;
+      background: var(--accent-green);
+      color: #090D16;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header>
+    <div class="logo-badge">
+      <div class="logo-icon">সা</div>
+      <div class="logo-text">
+        <h1 id="appTitle">সাথী</h1>
+        <span id="appSubtitle">AI ফাইন্যান্সিয়াল কোপাইলট</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-pill" id="langToggleBtn" onclick="toggleLanguage()">
+        <span class="status-dot"></span>
+        <span id="langLabel">English</span>
+      </button>
+      <button class="btn-pill" onclick="openModal('txnModal')">
+        <span>+</span> <span id="addTxnLabel">লেনদেন</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Personas Selector -->
+  <div class="persona-scroll" id="personaList">
+    <div class="persona-chip active" onclick="selectPersona('garment_worker')">
+      <span class="avatar">👗</span>
+      <span class="p-name" data-bn="পোশাক শ্রমিক (নাসরিন)" data-en="Garment Worker (Nasrin)">পোশাক শ্রমিক (নাসরিন)</span>
+    </div>
+    <div class="persona-chip" onclick="selectPersona('gig_driver')">
+      <span class="avatar">🛵</span>
+      <span class="p-name" data-bn="রাইডার (রফিক)" data-en="Gig Driver (Rafiq)">রাইডার (রফিক)</span>
+    </div>
+    <div class="persona-chip" onclick="selectPersona('remittance')">
+      <span class="avatar">🏡</span>
+      <span class="p-name" data-bn="প্রবাসী পরিবার (আমেনা)" data-en="Remittance (Amena)">প্রবাসী পরিবার (আমেনা)</span>
+    </div>
+    <div class="persona-chip" onclick="selectPersona('shopkeeper')">
+      <span class="avatar">🏪</span>
+      <span class="p-name" data-bn="দোকানি (আবুল)" data-en="Shopkeeper (Abul)">দোকানি (আবুল)</span>
+    </div>
+    <div class="persona-chip" onclick="selectPersona('student')">
+      <span class="avatar">🎓</span>
+      <span class="p-name" data-bn="শিক্ষার্থী (তানভীর)" data-en="Student (Tanveer)">শিক্ষার্থী (তানভীর)</span>
+    </div>
+  </div>
+
+  <!-- Main Views Container -->
+  <main class="app-content">
+
+    <!-- VIEW: HOME -->
+    <section class="view-panel active" id="view-home">
+      <!-- Wallet Card -->
+      <div class="card wallet-hero">
+        <div class="hero-top">
+          <div>
+            <div class="balance-label" id="lblBalance">বর্তমান ব্যালেন্স</div>
+            <div class="balance-val"><span class="currency-symbol">৳</span><span id="valBalance">14,250</span></div>
+          </div>
+          <div class="btn-pill" style="background: rgba(16, 185, 129, 0.15); border-color: var(--accent-green); color: var(--accent-green);">
+            <span class="status-dot"></span> <span id="lblSafeStatus">নিরাপদ</span>
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <div class="metric-label" id="lblSafeSpend">🛡️ নিরাপদ খরচ সীমা (আজ)</div>
+            <div class="metric-val green"><span class="currency-symbol">৳</span><span id="valSafeSpend">1,120</span></div>
+            <div class="metric-sub" id="lblSafeSub">জরুরি খরচ সুরক্ষিত</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label" id="lblRunway">⏳ চলমান রানওয়ে</div>
+            <div class="metric-val amber"><span id="valRunway">19</span> <span id="lblDays">দিন</span></div>
+            <div class="metric-sub" id="lblRunwaySub">বেতন আসা পর্যন্ত</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="action-row">
+        <button class="action-btn" onclick="switchTab('copilot')">
+          <div class="action-icon" style="background: rgba(16, 185, 129, 0.15); color: #10B981;">💬</div>
+          <div class="action-title" id="actCopilot">পরামর্শ নিন</div>
+        </button>
+        <button class="action-btn" onclick="switchTab('cashflow')">
+          <div class="action-icon" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6;">📈</div>
+          <div class="action-title" id="actForecast">পূর্বাভাস</div>
+        </button>
+        <button class="action-btn" onclick="switchTab('goals')">
+          <div class="action-icon" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B;">🎯</div>
+          <div class="action-title" id="actGoals">লক্ষ্যসমূহ</div>
+        </button>
+        <button class="action-btn" onclick="switchTab('insights')">
+          <div class="action-icon" style="background: rgba(168, 85, 247, 0.15); color: #A855F7;">💡</div>
+          <div class="action-title" id="actCashout">ক্যাশআউট</div>
+        </button>
+      </div>
+
+      <!-- Live AI Advice Preview -->
+      <div class="card" style="border-left: 4px solid var(--accent-green);">
+        <div class="section-title">
+          <span>✨</span> <span id="lblAiTipTitle">সাথীর তাৎক্ষণিক আর্থিক পরামর্শ</span>
+        </div>
+        <p id="lblAiTipContent" style="font-size: 13px; color: var(--text-muted); margin-top: 6px; line-height: 1.5;">
+          নাসরিন, আপনার পরবর্তী বেতন আসতে আরও ১৯ দিন বাকি। আগামী সপ্তাহে বাড়িভাড়া ৳৫,০০০ পরিশোধ করতে হবে। আজ ৳১,১২০ এর বেশি খরচ না করাই নিরাপদ।
+        </p>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">
+            <span>📋</span> <span id="lblRecentTxn">সাম্প্রতিক লেনদেন</span>
+          </div>
+          <button class="btn-pill" onclick="switchTab('transactions')"><span id="lblSeeAll">সব দেখুন</span> →</button>
+        </div>
+        <div id="recentTxnList">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: TRANSACTIONS -->
+    <section class="view-panel" id="view-transactions">
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">
+            <span>📋</span> <span id="lblAllTxn">সকল লেনদেন খতিয়ান</span>
+          </div>
+          <button class="btn-pill" onclick="openModal('txnModal')">+ <span id="btnAddTxn2">নতুন যোগ করুন</span></button>
+        </div>
+        <div id="fullTxnList">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: CASH FLOW / FORECAST -->
+    <section class="view-panel" id="view-cashflow">
+      <div class="card">
+        <div class="section-title">
+          <span>📈</span> <span id="lblForecastTitle">৩০ দিনের পূর্বাভাস (Quantile Simulation)</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="lblForecastDesc">
+          লাইটজিবিএম (LightGBM) ৯-কোয়ান্টাইল বুস্টার এবং ব্লু-লক বুটস্ট্র্যাপ ভিত্তিক ব্যালেন্স সিমুলেশন।
+        </p>
+        <div style="background: rgba(0,0,0,0.25); border-radius: 12px; padding: 14px; margin-top: 14px;">
+          <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;">
+            <span style="color:var(--accent-green);">● ৯০তম কোয়ান্টাইল (উচ্চ আয়): ৳১৯,২০০</span>
+            <span style="color:var(--text-main);">● মধ্যমা (P50): ৳১৪,২৫০</span>
+          </div>
+          <div style="font-size:12px; color:var(--accent-amber); margin-bottom:12px;">
+            <span>● ১০তম কোয়ান্টাইল (নিম্ন সীমা): ৳৬,৩০০</span>
+          </div>
+          <div style="height: 120px; display:flex; align-items:flex-end; gap:6px; padding-top:20px;">
+            <div style="flex:1; background:rgba(16,185,129,0.3); height:60%; border-radius:4px;"></div>
+            <div style="flex:1; background:rgba(16,185,129,0.4); height:75%; border-radius:4px;"></div>
+            <div style="flex:1; background:rgba(16,185,129,0.6); height:90%; border-radius:4px;"></div>
+            <div style="flex:1; background:rgba(16,185,129,0.4); height:70%; border-radius:4px;"></div>
+            <div style="flex:1; background:rgba(239,68,68,0.4); height:35%; border-radius:4px;" title="বাড়িভাড়া কর্তন"></div>
+            <div style="flex:1; background:rgba(16,185,129,0.5); height:55%; border-radius:4px;"></div>
+            <div style="flex:1; background:rgba(16,185,129,0.7); height:85%; border-radius:4px;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-top:6px;">
+            <span>আজ</span>
+            <span>দিন ৭</span>
+            <span>দিন ১৫</span>
+            <span>দিন ২১</span>
+            <span>দিন ৩০</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: GOALS -->
+    <section class="view-panel" id="view-goals">
+      <div class="card">
+        <div class="section-title">
+          <span>🎯</span> <span id="lblGoalsHead">সঞ্চয় লক্ষ্যমাত্রা (Micro-Goals)</span>
+        </div>
+        <div style="margin-top:14px; display:flex; flex-direction:column; gap:12px;" id="goalsContainer">
+          <!-- Goal Item 1 -->
+          <div style="background:rgba(255,255,255,0.03); border:1px solid var(--card-border); border-radius:14px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:700; font-size:14px;" id="g1Title">🎁 ঈদের কেনাকাটা ও উপহার</div>
+                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;" id="g1Sub">লক্ষ্য: ৳৫,০০০ · জমেছে ৳৩,২০০</div>
+              </div>
+              <div style="font-size:14px; font-weight:700; color:var(--accent-green);">৬৪%</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:10px; overflow:hidden;">
+              <div style="background:var(--accent-green); width:64%; height:100%;"></div>
+            </div>
+          </div>
+          <!-- Goal Item 2 -->
+          <div style="background:rgba(255,255,255,0.03); border:1px solid var(--card-border); border-radius:14px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:700; font-size:14px;" id="g2Title">🏥 জরুরি আপদকালীন তহবিল</div>
+                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;" id="g2Sub">লক্ষ্য: ৳১০,০০০ · জমেছে ৳৪,৫০০</div>
+              </div>
+              <div style="font-size:14px; font-weight:700; color:var(--accent-blue);">৪৫%</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:10px; overflow:hidden;">
+              <div style="background:var(--accent-blue); width:45%; height:100%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: COPILOT -->
+    <section class="view-panel" id="view-copilot">
+      <div class="card">
+        <div class="section-title">
+          <span>💬</span> <span id="lblChatTitle">সাথী এআই কোপাইলট</span>
+        </div>
+        <div class="chat-container" id="chatContainer">
+          <div class="chat-bubble assistant" id="initialBotMsg">
+            আসসালামু আলাইকুম! আমি আপনার সাথী। আপনার বাজেট, ক্যাশআউট চার্জ বা জরুরি খরচ নিয়ে যেকোনো প্রশ্ন করতে পারেন।
+          </div>
+        </div>
+        <div class="quick-chips">
+          <div class="quick-chip" onclick="askQuick('আজ কি ২,০০০ টাকা খরচ করা যাবে?')">💸 আজ ২,০০০ টাকা খরচ হবে?</div>
+          <div class="quick-chip" onclick="askQuick('বিকাশ নাকি নগদ ক্যাশআউট সস্তা?')">📱 কোন ক্যাশআউট সস্তা?</div>
+          <div class="quick-chip" onclick="askQuick('ঈদের জন্য কীভাবে সঞ্চয় করব?')">🎁 সঞ্চয়ের উপায় কী?</div>
+        </div>
+        <div class="chat-input-bar">
+          <input type="text" class="chat-input" id="chatInput" placeholder="আপনার প্রশ্ন বাংলায় বা ইংরেজিতে লিখুন...">
+          <button class="btn-send" onclick="sendChat()" id="btnSend">পাঠান</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: INSIGHTS -->
+    <section class="view-panel" id="view-insights">
+      <div class="card">
+        <div class="section-title">
+          <span>💡</span> <span id="lblMfsTitle">এমএফএস ক্যাশআউট ফি তুলনামূলক হিসাব (৳১,০০০)</span>
+        </div>
+        <div class="fee-card">
+          <div class="fee-row">
+            <span>Upay (ইউটিলিটি ও অ্যাপ রেট):</span>
+            <span class="fee-badge cheapest">৳৮.০০ (সবচেয়ে সাশ্রয়ী)</span>
+          </div>
+          <div class="fee-row">
+            <span>Nagad (অ্যাপ ক্যাশআউট):</span>
+            <span>৳১২.৫০</span>
+          </div>
+          <div class="fee-row">
+            <span>bKash (প্রিয় এজেন্ট):</span>
+            <span>৳১৪.৯০</span>
+          </div>
+          <div class="fee-row">
+            <span>Rocket (এটিএম/এজেন্ট):</span>
+            <span>৳৯.০০ / ৳১৮.০০</span>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--accent-green); margin-top:10px;" id="lblMfsTip">
+          💡 সাথী টিপ: ইউপে বা নির্ধারিত প্রিয় এজেন্টে ক্যাশআউট করলে মাসে গড়ে ৳২৫০-৳৪০০ টাকা সাশ্রয় হবে।
+        </p>
+      </div>
+    </section>
+
+    <!-- VIEW: SETTINGS -->
+    <section class="view-panel" id="view-settings">
+      <div class="card">
+        <div class="section-title">
+          <span>⚙️</span> <span id="lblSettings">সেটিংস ও প্রোফাইল</span>
+        </div>
+        <div style="margin-top:14px; display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <label style="font-size:12px; color:var(--text-muted);" id="lblSalarySet">মাসিক বেতন (BDT):</label>
+            <input type="number" id="inpSalary" class="input-field" value="16500">
+          </div>
+          <div>
+            <label style="font-size:12px; color:var(--text-muted);" id="lblSalaryDay">বেতন আসার দিন (মাসের তারিখ):</label>
+            <input type="number" id="inpPayDay" class="input-field" value="7">
+          </div>
+          <button class="btn-submit" onclick="saveSettings()" id="btnSaveSet">সেটিংস সংরক্ষণ করুন</button>
+          <div style="font-size:11px; color:var(--text-muted); text-align:center; margin-top:8px;" id="lblCloudStatus">
+            সার্ভার স্ট্যাটাস: লোকাল ইঞ্জিন সক্রিয় (অফলাইন মোড)
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <div class="nav-tab active" onclick="switchTab('home')" id="tab-home">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span id="navHome">হোম</span>
+    </div>
+    <div class="nav-tab" onclick="switchTab('transactions')" id="tab-transactions">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      <span id="navTxn">লেনদেন</span>
+    </div>
+    <div class="nav-tab" onclick="switchTab('cashflow')" id="tab-cashflow">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      <span id="navFlow">পূর্বাভাস</span>
+    </div>
+    <div class="nav-tab" onclick="switchTab('goals')" id="tab-goals">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+      <span id="navGoals">লক্ষ্য</span>
+    </div>
+    <div class="nav-tab" onclick="switchTab('copilot')" id="tab-copilot">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+      <span id="navChat">সহযোগী</span>
+    </div>
+  </nav>
+
+  <!-- Add Transaction Modal -->
+  <div class="modal-overlay" id="txnModal" onclick="if(event.target===this) closeModal('txnModal')">
+    <div class="modal-sheet">
+      <h3 style="margin-bottom:14px; font-size:17px; font-weight:700;" id="lblModalTitle">নতুন লেনদেন যোগ করুন</h3>
+      <label style="font-size:12px; color:var(--text-muted);" id="lblInpDesc">বিবরণ / খাত:</label>
+      <input type="text" id="inpTxnDesc" class="input-field" placeholder="যেমন: কাঁচাবাজার, ওষুধ, যাতায়াত...">
+      <label style="font-size:12px; color:var(--text-muted);" id="lblInpAmt">পরিমাণ (BDT ৳):</label>
+      <input type="number" id="inpTxnAmt" class="input-field" placeholder="যেমন: ৫০০">
+      <label style="font-size:12px; color:var(--text-muted);" id="lblInpType">ধরণ:</label>
+      <select id="inpTxnType" class="input-field" style="background:#1F2937;">
+        <option value="expense" id="optExpense">খরচ (Expense)</option>
+        <option value="income" id="optIncome">আয় (Income)</option>
+      </select>
+      <button class="btn-submit" onclick="submitNewTxn()" id="btnSubmitTxn">সংরক্ষণ করুন</button>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentLang = 'bn';
+    let currentPersona = 'garment_worker';
+    let balance = 14250;
+    let safeSpend = 1120;
+    let runway = 19;
+
+    const personasData = {
+      garment_worker: {
+        balance: 14250, safeSpend: 1120, runway: 19,
+        txns: [
+          { desc: 'ওভারটাইম বোনাস (MFS)', amt: 2500, type: 'income', date: 'আজ' },
+          { desc: 'মুদি বাজার (চাল, ডাল, তেল)', amt: -850, type: 'expense', date: 'গতকাল' },
+          { desc: 'ওষুধ ও ফার্মেসি', amt: -320, type: 'expense', date: '২ দিন আগে' },
+          { desc: 'মোবাইল রিচার্জ', amt: -100, type: 'expense', date: '৩ দিন আগে' }
+        ],
+        tipBn: 'নাসরিন, আপনার পরবর্তী বেতন আসতে আরও ১৯ দিন বাকি। আগামী সপ্তাহে বাড়িভাড়া ৳৫,০০০ পরিশোধ করতে হবে। আজ ৳১,১২০ এর বেশি খরচ না করাই নিরাপদ।',
+        tipEn: 'Nasrin, 19 days remaining until next salary. House rent ৳5,000 due next week. Keep today’s spending under ৳1,120 to stay safe.'
+      },
+      gig_driver: {
+        balance: 8900, safeSpend: 750, runway: 12,
+        txns: [
+          { desc: 'পাঠাও রাইড ট্রিপ আয়', amt: 1450, type: 'income', date: 'আজ' },
+          { desc: 'অকটেন ও বাইক সার্ভিস', amt: -600, type: 'expense', date: 'আজ' },
+          { desc: 'রাস্তার খাবার ও চা', amt: -150, type: 'expense', date: 'গতকাল' },
+          { desc: 'ইনস্যুরেন্স প্রিমিয়াম', amt: -400, type: 'expense', date: '৪ দিন আগে' }
+        ],
+        tipBn: 'রফিক, আজ বৃষ্টির কারণে ট্রিপ বেশি মিলতে পারে। তেলের খরচের পর প্রতিদিন অন্তত ৳৪০০ সঞ্চয় তহবিলে সরিয়ে রাখুন।',
+        tipEn: 'Rafiq, ride demand is high today. After fuel expenses, tuck away at least ৳400 into your savings reserve.'
+      },
+      remittance: {
+        balance: 38400, safeSpend: 2800, runway: 26,
+        txns: [
+          { desc: 'সৌদি আরব রেমিট্যান্স', amt: 25000, type: 'income', date: '৩ দিন আগে' },
+          { desc: 'স্কুল বেতন ও কোচিং', amt: -3500, type: 'expense', date: 'গতকাল' },
+          { desc: 'বিদ্যুৎ ও গ্যাস বিল', amt: -1800, type: 'expense', date: '৪ দিন আগে' }
+        ],
+        tipBn: 'আমেনা, এই মাসের রেমিট্যান্সের ৩০% সরাসরি সেভিংস একাউন্টে জমা রাখুন যাতে আকস্মিক খরচে কোনো ঝুঁকি না থাকে।',
+        tipEn: 'Amena, lock 30% of this month’s remittance into high-yield savings to maintain your buffer for emergencies.'
+      },
+      shopkeeper: {
+        balance: 22100, safeSpend: 1650, runway: 18,
+        txns: [
+          { desc: 'দোকানের ক্যাশ বিক্রি', amt: 6400, type: 'income', date: 'আজ' },
+          { desc: 'পাইকারি আড়ত মাল ক্রয়', amt: -4800, type: 'expense', date: 'গতকাল' },
+          { desc: 'দোকান ভাড়া কিস্তি', amt: -2000, type: 'expense', date: '৩ দিন আগে' }
+        ],
+        tipBn: 'আবুল ভাই, বকেয়া বাকি খাতার ৳৩,০০০ আদায় হলে আপনার চলতি মূলধনের ঝুঁকি সম্পূর্ণ কেটে যাবে।',
+        tipEn: 'Abul, collecting ৳3,000 from outstanding customer credits will completely eliminate current liquidity risk.'
+      },
+      student: {
+        balance: 4300, safeSpend: 350, runway: 14,
+        txns: [
+          { desc: 'টিউশনি সম্মানী', amt: 3000, type: 'income', date: '২ দিন আগে' },
+          { desc: 'মেস মিল চার্জ', amt: -1200, type: 'expense', date: 'গতকাল' },
+          { desc: 'ফটোকপি ও বই খাতা', amt: -250, type: 'expense', date: '৩ দিন আগে' }
+        ],
+        tipBn: 'তানভীর, মেস খরচের পর আপনার হাতখরচ দৈনিক ৳৩৫০ এর মধ্যে রাখলে মাস শেষে পরীক্ষার ফি পরিশোধ সহজ হবে।',
+        tipEn: 'Tanveer, keeping personal expenses under ৳350/day will ensure you comfortably pay your exam fee at month end.'
+      }
+    };
+
+    function selectPersona(key) {
+      currentPersona = key;
+      document.querySelectorAll('.persona-chip').forEach(el => el.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      const p = personasData[key];
+      balance = p.balance;
+      safeSpend = p.safeSpend;
+      runway = p.runway;
+      renderWallet();
+      renderTxns(p.txns);
+      renderTip();
+    }
+
+    function renderWallet() {
+      document.getElementById('valBalance').innerText = balance.toLocaleString();
+      document.getElementById('valSafeSpend').innerText = safeSpend.toLocaleString();
+      document.getElementById('valRunway').innerText = runway;
+    }
+
+    function renderTip() {
+      const p = personasData[currentPersona];
+      document.getElementById('lblAiTipContent').innerText = currentLang === 'bn' ? p.tipBn : p.tipEn;
+    }
+
+    function renderTxns(list) {
+      const recentEl = document.getElementById('recentTxnList');
+      const fullEl = document.getElementById('fullTxnList');
+      let html = '';
+      list.forEach(t => {
+        const isPos = t.type === 'income';
+        html += `
+          <div class="txn-item">
+            <div class="txn-left">
+              <div class="txn-icon">${isPos ? '📥' : '📤'}</div>
+              <div>
+                <div class="txn-desc">${t.desc}</div>
+                <div class="txn-meta">${t.date}</div>
+              </div>
+            </div>
+            <div class="txn-amount ${isPos ? 'pos' : 'neg'}">
+              ${isPos ? '+' : ''}৳${Math.abs(t.amt).toLocaleString()}
+            </div>
+          </div>
+        `;
+      });
+      recentEl.innerHTML = html;
+      fullEl.innerHTML = html;
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
+      const tabEl = document.getElementById('tab-' + name);
+      if (tabEl) tabEl.classList.add('active');
+      const viewEl = document.getElementById('view-' + name);
+      if (viewEl) viewEl.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'bn' ? 'en' : 'bn';
+      document.getElementById('langLabel').innerText = currentLang === 'bn' ? 'English' : 'বাংলা';
+      document.documentElement.lang = currentLang;
+
+      if (currentLang === 'en') {
+        document.getElementById('appTitle').innerText = 'Sathi';
+        document.getElementById('appSubtitle').innerText = 'AI Financial Copilot';
+        document.getElementById('lblBalance').innerText = 'Current Balance';
+        document.getElementById('lblSafeStatus').innerText = 'Safe';
+        document.getElementById('lblSafeSpend').innerText = '🛡️ Safe-to-Spend (Today)';
+        document.getElementById('lblSafeSub').innerText = 'Bills & savings secured';
+        document.getElementById('lblRunway').innerText = '⏳ Spending Runway';
+        document.getElementById('lblDays').innerText = 'days';
+        document.getElementById('lblRunwaySub').innerText = 'until next income';
+        document.getElementById('actCopilot').innerText = 'Copilot';
+        document.getElementById('actForecast').innerText = 'Forecast';
+        document.getElementById('actGoals').innerText = 'Goals';
+        document.getElementById('actCashout').innerText = 'Cashout';
+        document.getElementById('lblAiTipTitle').innerText = 'Instant AI Guidance';
+        document.getElementById('lblRecentTxn').innerText = 'Recent Transactions';
+        document.getElementById('lblSeeAll').innerText = 'See all';
+        document.getElementById('addTxnLabel').innerText = 'Add';
+        document.getElementById('navHome').innerText = 'Home';
+        document.getElementById('navTxn').innerText = 'Ledger';
+        document.getElementById('navFlow').innerText = 'Forecast';
+        document.getElementById('navGoals').innerText = 'Goals';
+        document.getElementById('navChat').innerText = 'Copilot';
+        document.getElementById('initialBotMsg').innerText = 'Hello! I am Sathi, your personal financial copilot. Ask me anything about safe spending, bill dates, or MFS cashouts.';
+        document.getElementById('chatInput').placeholder = 'Ask in English or বাংলা...';
+        document.getElementById('btnSend').innerText = 'Send';
+      } else {
+        document.getElementById('appTitle').innerText = 'সাথী';
+        document.getElementById('appSubtitle').innerText = 'AI ফাইন্যান্সিয়াল কোপাইলট';
+        document.getElementById('lblBalance').innerText = 'বর্তমান ব্যালেন্স';
+        document.getElementById('lblSafeStatus').innerText = 'নিরাপদ';
+        document.getElementById('lblSafeSpend').innerText = '🛡️ নিরাপদ খরচ সীমা (আজ)';
+        document.getElementById('lblSafeSub').innerText = 'জরুরি খরচ সুরক্ষিত';
+        document.getElementById('lblRunway').innerText = '⏳ চলমান রানওয়ে';
+        document.getElementById('lblDays').innerText = 'দিন';
+        document.getElementById('lblRunwaySub').innerText = 'বেতন আসা পর্যন্ত';
+        document.getElementById('actCopilot').innerText = 'পরামর্শ নিন';
+        document.getElementById('actForecast').innerText = 'পূর্বাভাস';
+        document.getElementById('actGoals').innerText = 'লক্ষ্যসমূহ';
+        document.getElementById('actCashout').innerText = 'ক্যাশআউট';
+        document.getElementById('lblAiTipTitle').innerText = 'সাথীর তাৎক্ষণিক আর্থিক পরামর্শ';
+        document.getElementById('lblRecentTxn').innerText = 'সাম্প্রতিক লেনদেন';
+        document.getElementById('lblSeeAll').innerText = 'সব দেখুন';
+        document.getElementById('addTxnLabel').innerText = 'লেনদেন';
+        document.getElementById('navHome').innerText = 'হোম';
+        document.getElementById('navTxn').innerText = 'লেনদেন';
+        document.getElementById('navFlow').innerText = 'পূর্বাভাস';
+        document.getElementById('navGoals').innerText = 'লক্ষ্য';
+        document.getElementById('navChat').innerText = 'সহযোগী';
+        document.getElementById('initialBotMsg').innerText = 'আসসালামু আলাইকুম! আমি আপনার সাথী। আপনার বাজেট, ক্যাশআউট চার্জ বা জরুরি খরচ নিয়ে যেকোনো প্রশ্ন করতে পারেন।';
+        document.getElementById('chatInput').placeholder = 'আপনার প্রশ্ন বাংলায় বা ইংরেজিতে লিখুন...';
+        document.getElementById('btnSend').innerText = 'পাঠান';
+      }
+
+      document.querySelectorAll('.p-name').forEach(el => {
+        el.innerText = currentLang === 'bn' ? el.getAttribute('data-bn') : el.getAttribute('data-en');
+      });
+      renderTip();
+    }
+
+    function askQuick(text) {
+      document.getElementById('chatInput').value = text;
+      sendChat();
+    }
+
+    function sendChat() {
+      const inp = document.getElementById('chatInput');
+      const text = inp.value.trim();
+      if (!text) return;
+
+      const container = document.getElementById('chatContainer');
+      container.innerHTML += `<div class="chat-bubble user">${text}</div>`;
+      inp.value = '';
+
+      let reply = '';
+      if (text.includes('২,০০০') || text.includes('2000') || text.includes('খরচ') || text.includes('spend')) {
+        reply = currentLang === 'bn'
+          ? `আপনার আজকের নিরাপদ খরচ সীমা ৳${safeSpend.toLocaleString()}। তাই এখনই ৳২,০০০ খরচ করলে আপনার বাড়িভাড়া বা জরুরি রিজার্ভে টান পড়তে পারে। পারলে এই খরচটি কিস্তিতে বা বেতন আসার পর করুন।`
+          : `Your safe-to-spend limit today is ৳${safeSpend.toLocaleString()}. Spending ৳2,000 right now will dip into your emergency buffer. Consider deferring until salary arrives.`;
+      } else if (text.includes('বিকাশ') || text.includes('নগদ') || text.includes('ক্যাশআউট') || text.includes('cashout')) {
+        reply = currentLang === 'bn'
+          ? `সবচেয়ে সাশ্রয়ী ক্যাশআউট চার্জ Upay অ্যাপে (প্রতি হাজারে ৳৮) এবং নগদে (প্রতি হাজারে ৳১২.৫০)। বিকাশে প্রিয় এজেন্ট ব্যবহার করলে চার্জ ৳১৪.৯০।`
+          : `Most economical cashout: Upay app (৳8/thousand) and Nagad (৳12.50/thousand). For bKash, make sure to use your Favorite Agent (৳14.90).`;
+      } else {
+        reply = currentLang === 'bn'
+          ? `আপনার প্রশ্নটি সাথী নোট করেছে। আপনার চলমান ব্যালেন্স ৳${balance.toLocaleString()} ও রানওয়ে ${runway} দিন সুরক্ষিত রাখতে আমরা নিয়মিত হিসাব আপডেট রাখছি।`
+          : `Sathi has analyzed your request. Your balance ৳${balance.toLocaleString()} and ${runway}-day runway remain safe and tracked.`;
+      }
+
+      setTimeout(() => {
+        container.innerHTML += `<div class="chat-bubble assistant">${reply}</div>`;
+        container.scrollTop = container.scrollHeight;
+      }, 350);
+    }
+
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function submitNewTxn() {
+      const desc = document.getElementById('inpTxnDesc').value.trim() || 'সাধারণ লেনদেন';
+      const amt = parseFloat(document.getElementById('inpTxnAmt').value) || 0;
+      const type = document.getElementById('inpTxnType').value;
+      if (amt <= 0) return alert('অনুগ্রহ করে সঠিক টাকার পরিমাণ লিখুন');
+
+      const isInc = type === 'income';
+      const signedAmt = isInc ? amt : -amt;
+      balance += signedAmt;
+      safeSpend = Math.max(200, Math.round(balance / Math.max(1, runway)));
+
+      personasData[currentPersona].txns.unshift({
+        desc: desc,
+        amt: signedAmt,
+        type: type,
+        date: currentLang === 'bn' ? 'এইমাত্র' : 'Just now'
+      });
+
+      renderWallet();
+      renderTxns(personasData[currentPersona].txns);
+      closeModal('txnModal');
+      document.getElementById('inpTxnDesc').value = '';
+      document.getElementById('inpTxnAmt').value = '';
+    }
+
+    function saveSettings() {
+      const s = document.getElementById('inpSalary').value;
+      alert(currentLang === 'bn' ? `বেতন সেটিংস সংরক্ষিত: ৳${s}` : `Salary settings updated: ৳${s}`);
+    }
+
+    // Auto-detect cloud backend
+    fetch('/api/v1/healthz')
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          const el = document.getElementById('lblCloudStatus');
+          if (el) el.innerText = 'সার্ভার স্ট্যাটাস: ক্লাউড ব্যাকএন্ডের সাথে সংযুক্ত (অনলাইন)';
+        }
+      })
+      .catch(() => {
+        // Runs cleanly offline with local state
+      });
+
+    // Initial render
+    renderWallet();
+    renderTxns(personasData.garment_worker.txns);
+  </script>
+</body>
+</html>
