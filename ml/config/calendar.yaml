@@ -1,0 +1,19 @@
+# Calendar for the synthetic window: income windows are derived from persona
+# configs; festival days shift spending (seasonality injection).
+# ASSUMPTION FESTIVAL_DAYS: approximate public festival dates inside the
+# synthetic window; used only as a spending-multiplier signal.
+calendar:
+  festival_days:
+    - "2026-03-19"   # Eid al-Fitr (approximate)
+    - "2026-03-20"
+    - "2026-03-21"
+    - "2026-05-27"   # Eid al-Adha (approximate)
+    - "2026-05-28"
+    - "2026-04-14"   # Pohela Boishakh
+  # Eid days (first day); garment wages carry an Eid bonus a week before.
+  eid_days:
+    - "2026-03-19"
+    - "2026-05-27"
+  # Spending multiplier on festival days and the 3 days before Eid.
+  festival_spend_multiplier: 1.8
+  festival_lead_days: 3

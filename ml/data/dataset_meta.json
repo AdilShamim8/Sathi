@@ -1,0 +1,19 @@
+{
+  "seed": 20261003,
+  "as_of_date": "2026-09-30",
+  "n_users": 2000,
+  "n_transactions": 945464,
+  "n_drifted_users": 500,
+  "injected_patterns": [
+    "salary (base + overtime, occasionally late) and rent/bill clusters on fixed days",
+    "Eid bonuses paid a week before Eid",
+    "rent paid in cash via same-day cash-out (garment worker)",
+    "festival spending spikes",
+    "month-end squeeze via front-loaded spending",
+    "discretionary spend cut when the wallet runs low",
+    "Poisson shocks with lognormal amounts",
+    "hidden cash pocket spent at a user-specific rate (cash_truth.parquet)",
+    "repeat small cash-outs to the same agent followed by digital-capable merchant payments"
+  ],
+  "transactions_hash": "98cb948f588d1e355c9b93b5a05bd9eafcd17684eda23e8952001e5cca59f6f5"
+}

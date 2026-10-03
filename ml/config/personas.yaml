@@ -1,0 +1,189 @@
+# Persona parameters for the synthetic generator (data_gen/).
+# Every number is an ASSUMPTION, documented in docs/assumptions.md.
+# Money is integer paisa (100 paisa = ৳1). All day rules are Asia/Dhaka.
+#
+# Common shape per persona:
+#   income_streams: recurring inflows (salary, remittance, daily earnings ...)
+#   obligations:    fixed outflows on day-of-month windows (rent, bills, family);
+#                   type cash_out = paid in cash via a same-day withdrawal
+#   daily_spend:    variable everyday spending (food, transport, other);
+#                   low_balance = spend cut when wallet < below_days x mean
+#   cash:           hidden cash pocket; spent with a time constant in days
+#   cashout:        habitual cash-withdrawal behavior + digital-substitution injection
+#   shock:          Poisson(rate_per_month) events, lognormal(mean, sigma) amounts
+#
+# Persona config is generator input only. Models never read it (no leakage).
+personas:
+  garment_worker:                       # hero persona ("Rina")
+    label_bn: "পোশাক শ্রমিক"
+    label_en: "Garment worker"
+    weight: 0.20
+    age_band: "25-34"
+    region: "dhaka"
+    income_band: "15k-25k"
+    history_months: [10, 12]
+    start_balance_paisa: 200000         # ৳2,000
+    income_streams:
+      - type: salary_in
+        amount_paisa: 1355000           # ৳13,550 gross, grade-7 RMG wage (Dec 2023 gazette)
+        basic_paisa: 740000             # ৳7,400 basic (Eid bonus base)
+        overtime: {mean_paisa: 260000, std_paisa: 90000}   # OT ~N(৳2,600, ৳900), floored at 0
+        eid_bonus_frac: [0.6, 1.0]      # each Eid bonus <= basic, paid a week before Eid
+        day_of_month: 7
+        day_jitter: 2
+        late_prob: 0.10                 # ~10% of months the wage is ~5 days late
+        late_days: 5
+        amount_jitter_frac: 0.0
+    obligations:
+      - {kind: rent,    type: cash_out,   amount_paisa: 500000, day: 8,  jitter: 1, category: rent}
+      - {kind: bills,   type: bill_pay,   amount_paisa: 90000,  day: 10, jitter: 2, category: utilities}
+      - {kind: mobile,  type: recharge,   amount_paisa: 40000,  day: 11, jitter: 2, category: mobile}
+      - {kind: family,  type: send_money, amount_paisa: 150000, day: 10, jitter: 1, category: family}
+    daily_spend:
+      mean_paisa: 9000                  # ~৳90/day digital food+transport; cash-outs fund the rest
+      std_frac: 0.40
+      skip_prob: 0.10
+      categories: {food: 0.55, transport: 0.25, other: 0.20}
+      frontload: {start_day: 7, end_day: 14, share: 0.60}   # 60% of spend right after payday
+      low_balance: {below_days: 5, factor: 0.6}
+    cash: {spend_days: [3, 8]}
+    cashout:
+      per_month: [5, 8]
+      amount_paisa: [70000, 150000]     # ৳700-1,500, ~৳1,000 typical
+      same_agent_prob: 0.80
+      digital_follow_prob: 0.40         # 40% followed by a digital-capable merchant payment
+    shock: {rate_per_month: 0.25, mean_paisa: 160000, sigma: 0.8}
+
+  remittance_household:
+    label_bn: "রেমিট্যান্স-নির্ভর পরিবার"
+    label_en: "Remittance household"
+    weight: 0.20
+    age_band: "35-44"
+    region: "sylhet"
+    income_band: "25k-40k"
+    history_months: [10, 12]
+    start_balance_paisa: 500000
+    income_streams:
+      - type: remittance_in
+        amount_paisa: 2700000           # ৳27,000
+        interval_days: 33               # lumpy, irregular
+        interval_jitter: 8
+        amount_jitter_frac: 0.20
+    obligations:
+      - {kind: rent,   type: send_money, amount_paisa: 800000, day: 5, jitter: 2, category: rent}
+      - {kind: bills,  type: bill_pay,   amount_paisa: 250000, day: 9, jitter: 3, category: utilities}
+      - {kind: mobile, type: recharge,   amount_paisa: 40000,  day: 12, jitter: 4, category: mobile}
+    daily_spend:
+      mean_paisa: 15000
+      std_frac: 0.40
+      skip_prob: 0.08
+      categories: {food: 0.60, transport: 0.15, other: 0.25}
+      frontload: {start_day: 1, end_day: 10, share: 0.45}   # mild front-load after remittance
+      low_balance: {below_days: 5, factor: 0.6}
+    cash: {spend_days: [4, 10]}
+    cashout:
+      per_month: [4, 6]
+      amount_paisa: [120000, 200000]
+      same_agent_prob: 0.70
+      digital_follow_prob: 0.30
+    shock: {rate_per_month: 0.25, mean_paisa: 300000, sigma: 0.8}
+
+  gig_driver:
+    label_bn: "গিগ চালক"
+    label_en: "Gig driver"
+    weight: 0.20
+    age_band: "18-24"
+    region: "dhaka"
+    income_band: "15k-25k"
+    history_months: [10, 12]
+    start_balance_paisa: 150000
+    income_streams:
+      - type: cash_in                    # daily earnings cashed into wallet
+        daily_mean_paisa: 110000         # ~৳1,100/day
+        daily_std_frac: 0.45
+        workday_prob: 0.82               # ~6 days/week; rainy/off days dip
+    obligations:
+      - {kind: rent,   type: send_money, amount_paisa: 450000, day: 6, jitter: 2, category: rent}
+      - {kind: bike,   type: send_money, amount_paisa: 150000, day: 20, jitter: 2, category: business}
+      - {kind: mobile, type: recharge,   amount_paisa: 30000,  day: 15, jitter: 5, category: mobile}
+    daily_spend:
+      mean_paisa: 50000                  # fuel + food, daily
+      std_frac: 0.35
+      skip_prob: 0.05
+      categories: {transport: 0.50, food: 0.40, other: 0.10}
+      frontload: null
+      low_balance: {below_days: 3, factor: 0.7}
+    cash: {spend_days: [2, 5]}
+    cashout:
+      per_month: [6, 10]
+      amount_paisa: [50000, 120000]
+      same_agent_prob: 0.60
+      digital_follow_prob: 0.35
+    shock: {rate_per_month: 0.30, mean_paisa: 250000, sigma: 0.9}   # breakdowns, fines
+
+  student:
+    label_bn: "শিক্ষার্থী"
+    label_en: "Student"
+    weight: 0.20
+    age_band: "18-24"
+    region: "rajshahi"
+    income_band: "under-15k"
+    history_months: [5, 8]               # shorter history (low-data case)
+    start_balance_paisa: 100000
+    income_streams:
+      - type: cash_in                    # family support
+        amount_paisa: 700000             # ৳7,000
+        day_of_month: 3
+        day_jitter: 3
+        skip_prob: 0.08                  # occasionally a month is skipped
+        amount_jitter_frac: 0.20
+    obligations:
+      - {kind: mobile, type: recharge, amount_paisa: 30000, day: 8, jitter: 6, category: mobile}
+    daily_spend:
+      mean_paisa: 13000                  # ~৳130/day
+      std_frac: 0.50
+      skip_prob: 0.25
+      categories: {food: 0.60, transport: 0.20, other: 0.20}
+      frontload: {start_day: 3, end_day: 9, share: 0.45}
+      low_balance: {below_days: 5, factor: 0.6}
+    cash: {spend_days: [3, 7]}
+    cashout:
+      per_month: [1, 3]
+      amount_paisa: [30000, 80000]
+      same_agent_prob: 0.50
+      digital_follow_prob: 0.25
+    shock: {rate_per_month: 0.20, mean_paisa: 80000, sigma: 0.8}
+
+  shopkeeper:
+    label_bn: "ছোট ব্যবসায়ী"
+    label_en: "Small shopkeeper"
+    weight: 0.20
+    age_band: "35-44"
+    region: "chattogram"
+    income_band: "25k-40k"
+    history_months: [10, 12]
+    start_balance_paisa: 500000
+    income_streams:
+      - type: cash_in                    # daily sales received into the wallet
+        daily_mean_paisa: 260000         # ~৳2,600/day digital sales
+        daily_std_frac: 0.55
+        workday_prob: 0.88
+    obligations:
+      - {kind: supplier, type: send_money, amount_paisa: 1100000, every_days: 7, category: business, partial: true}
+      - {kind: rent,     type: send_money, amount_paisa: 1000000, day: 4, jitter: 2, category: rent}
+      - {kind: bills,    type: bill_pay,   amount_paisa: 180000, day: 11, jitter: 3, category: utilities}
+    daily_spend:
+      mean_paisa: 50000                  # household food/transport
+      std_frac: 0.35
+      skip_prob: 0.08
+      categories: {food: 0.55, transport: 0.20, other: 0.25}
+      frontload: null
+      low_balance: {below_days: 3, factor: 0.7}
+    cash: {spend_days: [3, 7]}
+    cashout:
+      per_month: [6, 10]                 # cash-heavy business
+      amount_paisa: [150000, 350000]
+      hour: 20                           # withdraws the day's sales at closing to restock
+      same_agent_prob: 0.75
+      digital_follow_prob: 0.30
+    shock: {rate_per_month: 0.30, mean_paisa: 500000, sigma: 0.9}
