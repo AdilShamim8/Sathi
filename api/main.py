@@ -26,19 +26,21 @@ from api.repositories import goals as goals_repo
 from api.repositories import transactions as tx_repo
 from api.repositories import users as users_repo
 from api.schemas.common import Envelope, ErrorBody, ErrorEnvelope
-from api.schemas.extended import (ChatData, ChatRequest, DemoLoginRequest,
-                                  DemoLoginResponse, DemoUserItem,
-                                  ForecastData, GoalPlanData, GoalPlanRequest,
-                                  ParseAmountData, ParseAmountRequest)
+from api.schemas.extended import (ActionsData, ChatData, ChatRequest, DemoLoginRequest,
+                                  DemoLoginResponse, DemoUserItem, ForecastData,
+                                  GoalPlanData, GoalPlanRequest, ParseAmountData,
+                                  ParseAmountRequest, UserInputsData, UserInputsRequest)
 from api.schemas.me import (BenchmarkComparisonOut, CategoryTrace,
                             CounterpartyOut, GoalCreateRequest, GoalRecord,
                             GoalsData, SummaryData, TransactionItem,
                             TransactionsData)
+from api.services.actions_service import get_actions
 from api.services.cashout_service import get_cashout_insights
 from api.services.convert import row_to_txn
 from api.services.evidence import as_of_date, build_evidence
 from api.services.forecast_service import get_forecast
 from api.services.goal_service import create_goal_plan
+from api.services.inputs_service import get_inputs, update_inputs
 from api.services.summary_service import get_summary
 from core.amounts import parse_amount
 from core.categorizer import categorize
@@ -273,6 +275,66 @@ def get_user_forecast(user_id: str = Depends(get_current_user_id)):
     return Envelope(data=data, evidence=evidence)
 
 
+# --- User Inputs (liquidity corrections: cash on hand, income day, rent) ---
+@app.get("/v1/me/inputs", response_model=Envelope[UserInputsData])
+def get_user_inputs(user_id: str = Depends(get_current_user_id)):
+    """Current user-declared liquidity inputs (defaults when never set)."""
+    conn = _app_state["conn"]
+    cfg = _app_state["cfg"]
+    data = get_inputs(conn, user_id)
+    evidence = build_evidence(
+        cfg,
+        n_transactions=tx_repo.count_for_user(conn, user_id),
+        labels={"user_inputs": "Data", "cash_on_hand": "Data"},
+        forecast_version=_app_state["forecast_version"],
+    )
+    return Envelope(data=data, evidence=evidence)
+
+
+@app.post("/v1/me/inputs", response_model=Envelope[UserInputsData])
+def post_user_inputs(req: UserInputsRequest, user_id: str = Depends(get_current_user_id)):
+    """Correct the liquidity estimates: cash on hand, income day, rent, other
+    liquid funds. A declared cash amount decays forward at the observed daily
+    cash burn, so it never overstates liquidity as it ages."""
+    conn = _app_state["conn"]
+    cfg = _app_state["cfg"]
+    if not any(v is not None for v in (
+        req.cash_on_hand_taka, req.income_day, req.rent_amount_taka,
+        req.rent_confirmed, req.other_liquid_taka,
+    )):
+        raise ValidationFailedError(
+            message_bn="অন্তত একটি ইনপুট দিন।",
+            message_en="Provide at least one input field.",
+        )
+    data = update_inputs(conn, user_id, req)
+    evidence = build_evidence(
+        cfg,
+        n_transactions=tx_repo.count_for_user(conn, user_id),
+        labels={"user_inputs": "Data", "cash_on_hand": "Data",
+                "decay": "Assumption"},
+        forecast_version=_app_state["forecast_version"],
+    )
+    return Envelope(data=data, evidence=evidence)
+
+
+# --- Counterfactual Actions ---
+@app.get("/v1/me/actions")
+def get_user_actions(user_id: str = Depends(get_current_user_id)):
+    """Ranked candidate actions with counterfactual shortfall-probability
+    deltas, recomputed over the same simulated liquidity paths."""
+    conn = _app_state["conn"]
+    cfg = _app_state["cfg"]
+    data = get_actions(conn, cfg, user_id)
+    evidence = build_evidence(
+        cfg,
+        n_transactions=tx_repo.count_for_user(conn, user_id),
+        labels={"actions": "Prediction", "delta_shortfall_prob": "Prediction",
+                "fee_tariff": "Assumption"},
+        forecast_version=_app_state["forecast_version"],
+    )
+    return {"data": data.model_dump(), "evidence": evidence.model_dump()}
+
+
 @app.post("/v1/me/goal-plan", response_model=Envelope[GoalPlanData])
 def plan_user_goal(req: GoalPlanRequest, user_id: str = Depends(get_current_user_id)):
     conn = _app_state["conn"]
@@ -416,8 +478,9 @@ def chat_endpoint(req: ChatRequest, user_id: str = Depends(get_current_user_id))
 # --- Empirical Benchmark (AI vs Rule Baseline) ---
 @app.get("/v1/me/benchmark", response_model=BenchmarkComparisonOut)
 @app.get("/v1/benchmark", response_model=BenchmarkComparisonOut)
-def get_benchmark_comparison():
-    """Empirical proof comparing ML quantile forecaster against rule baselines."""
+def get_benchmark_comparison(user_id: str = Depends(get_current_user_id)):
+    """Empirical proof comparing ML quantile forecaster against rule baselines.
+    Scoped to a verified token (global metrics only; no personal data)."""
     return load_benchmark_metrics()
 
 

@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, BookOpen, Sparkles, AlertTriangle, Trash2, X } from "lucide-react";
 import { api } from "./api";
+import { enhanceWithOpenRouter, getOpenRouterConfig } from "@/lib/engine/openrouterChat";
 import { SectionTitle } from "./bits";
 import type { CopilotAnswer } from "@/lib/engine/domain";
 import { cn } from "@/lib/utils";
@@ -158,8 +159,26 @@ export function CopilotView() {
     setInput("");
     try {
       const answer = await ask.mutateAsync(q.trim());
+
+      // OPTIONAL online enhancement (user's own OpenRouter key, mission 14):
+      // the deterministic answer always exists first; the external model only
+      // rephrases it through validated slot tokens and any failure is silent.
+      const or = getOpenRouterConfig();
+      let final = answer;
+      if (or.enabled && or.apiKey) {
+        const enhanced = await enhanceWithOpenRouter({
+          question: q.trim(),
+          deterministicSummary: answer.summary,
+          numbers: answer.numbers,
+          locale: lang,
+        });
+        if (enhanced) {
+          final = { ...answer, summary: enhanced, llmEnhanced: true };
+        }
+      }
+
       setTurns((t) => {
-        const next = [...t, { question: q.trim(), answer, at: new Date().toISOString() }];
+        const next = [...t, { question: q.trim(), answer: final, at: new Date().toISOString() }];
         saveHistory(next);
         return next;
       });

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Settings, Check, Database, Trash2, Wallet, Languages, ShieldCheck, AlertTriangle } from "lucide-react";
 import { api } from "./api";
+import { getOpenRouterConfig, setOpenRouterConfig } from "@/lib/engine/openrouterChat";
 import { useLang } from "./i18n";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -33,7 +34,18 @@ export function SettingsSheet({
 
   const [name, setName] = useState<string | null>(null);
   const [balance, setBalance] = useState<string | null>(null);
+  const [cashOnHand, setCashOnHand] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+
+  // Optional online AI chat (user's own OpenRouter key, device-local).
+  const { data: inputsData } = useQuery({ queryKey: ["inputs"], queryFn: api.inputs, enabled: open });
+  const [orKey, setOrKey] = useState<string | null>(null);
+  const [orModel, setOrModel] = useState<string | null>(null);
+  const [orEnabled, setOrEnabled] = useState<boolean | null>(null);
+  const orConfig = getOpenRouterConfig();
+  const orOn = orEnabled ?? orConfig.enabled;
+  const orKeyValue = orKey ?? orConfig.apiKey;
+  const orModelValue = orModel ?? orConfig.model;
 
   const saveName = useMutation({
     mutationFn: () => api.updateProfile({ name: (name ?? "").trim() }),
@@ -54,6 +66,18 @@ export function SettingsSheet({
       await qc.invalidateQueries({ queryKey: ["summary"] });
       await qc.invalidateQueries({ queryKey: ["forecast"] });
       await qc.invalidateQueries({ queryKey: ["salary"] });
+    },
+    onError: (e: Error) => toast({ title: "Could not save", description: e.message, variant: "destructive" }),
+  });
+
+  const saveCashOnHand = useMutation({
+    mutationFn: () => api.updateInputs({ cashOnHandTaka: parseInt(cashOnHand ?? "0", 10) || 0 }),
+    onSuccess: async () => {
+      toast({ title: lang === "bn" ? "নগদ সংরক্ষিত" : "Cash on hand saved" });
+      setCashOnHand(null);
+      await qc.invalidateQueries({ queryKey: ["summary"] });
+      await qc.invalidateQueries({ queryKey: ["forecast"] });
+      await qc.invalidateQueries({ queryKey: ["inputs"] });
     },
     onError: (e: Error) => toast({ title: "Could not save", description: e.message, variant: "destructive" }),
   });
@@ -153,6 +177,35 @@ export function SettingsSheet({
             </p>
           </section>
 
+          {/* cash on hand right now (user correction, decays at observed burn) */}
+          <section>
+            <label className="text-xs font-medium text-muted-foreground" htmlFor="set-cash">
+              {lang === "bn" ? "এখন হাতে নগদ (৳)" : "Cash in hand right now (৳)"}
+            </label>
+            <div className="mt-1 flex gap-2">
+              <input
+                id="set-cash"
+                value={cashOnHand ?? (inputsData ? String(inputsData.cashOnHandTaka ?? "") : "")}
+                onChange={(e) => setCashOnHand(e.target.value.replace(/[^\d]/g, "").slice(0, 8))}
+                inputMode="numeric"
+                placeholder="0"
+                className="nums min-w-0 flex-1 rounded-xl border border-input bg-background px-3 py-2.5 text-sm font-semibold outline-none transition focus:border-leafdark focus:ring-2 focus:ring-leaf/20"
+              />
+              <button
+                onClick={() => saveCashOnHand.mutate()}
+                disabled={saveCashOnHand.isPending || cashOnHand === null || cashOnHand.trim() === ""}
+                className="press rounded-xl bg-ink px-3.5 text-sm font-semibold text-leaf shadow-ios transition enabled:hover:opacity-90 disabled:opacity-40"
+              >
+                {saveCashOnHand.isPending ? "…" : <Check className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+              {lang === "bn"
+                ? "আপনার ঘোষণা ১৪ দিন প্রযোজ্য, তারপর পর্যবেক্ষিত নগদ খরচের হারে কমতে থাকে — তাই পুরনো ঘোষণা কখনো বাড়তি স্বাচ্ছন্দ্য দেখায় না"
+                : "Your declaration holds for 14 days, then decays at your observed cash-burn rate — a stale entry never overstates your liquidity"}
+            </p>
+          </section>
+
           {/* salary + language */}
           <section className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/80">
             <button
@@ -173,6 +226,64 @@ export function SettingsSheet({
                 {lang === "en" ? "বাংলা করুন" : "Switch to English"}
               </button>
             </div>
+          </section>
+
+          {/* OPTIONAL online AI chat — user's own OpenRouter key */}
+          <section className="rounded-2xl border border-border/80 bg-secondary/30 p-3.5">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-leafdark" />
+              <p className="text-sm font-semibold">
+                {lang === "bn" ? "অনলাইন এআই চ্যাট (ঐচ্ছিক)" : "Online AI chat (optional)"}
+              </p>
+              <button
+                role="switch"
+                aria-checked={orOn}
+                onClick={() => { setOrEnabled(!orOn); setOpenRouterConfig({ enabled: !orOn }); }}
+                className={cn(
+                  "press ml-auto h-6 w-11 rounded-full border transition",
+                  orOn ? "border-leafdark bg-leaf/60" : "border-border bg-background",
+                )}
+              >
+                <span
+                  className={cn(
+                    "block h-4.5 w-4.5 rounded-full bg-card shadow transition-transform",
+                    "h-[18px] w-[18px]",
+                    orOn ? "translate-x-[22px]" : "translate-x-[3px]",
+                  )}
+                />
+              </button>
+            </div>
+            <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">
+              {lang === "bn"
+                ? "ছাড়াই সব কাজ করে। চালু করলে আপনার নিজের OpenRouter কী দিয়ে উত্তর আরও প্রাঞ্জল হয় — কী শুধু এই ডিভাইসে থাকে ও সরাসরি openrouter.ai-তে যায়। ব্যর্থ হলে নির্ধারিত উত্তরই থাকে।"
+                : "Everything works without it. When on, your own OpenRouter key makes replies more fluent — the key stays on this device and goes only to openrouter.ai. Any failure falls back to the deterministic answer."}
+            </p>
+            {orOn && (
+              <div className="mt-2.5 space-y-2">
+                <input
+                  type="password"
+                  value={orKeyValue}
+                  onChange={(e) => setOrKey(e.target.value.trim())}
+                  onBlur={() => setOpenRouterConfig({ apiKey: orKeyValue })}
+                  placeholder="sk-or-v1-…"
+                  aria-label="OpenRouter API key"
+                  className="min-w-0 flex-1 rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none transition focus:border-leafdark focus:ring-2 focus:ring-leaf/20"
+                />
+                <input
+                  value={orModelValue}
+                  onChange={(e) => setOrModel(e.target.value.trim())}
+                  onBlur={() => setOpenRouterConfig({ model: orModelValue })}
+                  placeholder="openrouter/auto"
+                  aria-label="OpenRouter model"
+                  className="min-w-0 flex-1 rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none transition focus:border-leafdark focus:ring-2 focus:ring-leaf/20"
+                />
+                <p className="text-[10px] leading-relaxed text-muted-foreground">
+                  {lang === "bn"
+                    ? "মডেটর কখনো টাকা হিসাব করে না — সংখ্যাগুলো অ্যাপের হিসাব থেকে স্লটে বসে যায়।"
+                    : "The model never computes money — numbers are slotted in from the app's own calculations."}
+                </p>
+              </div>
+            )}
           </section>
 
           {/* data & privacy */}

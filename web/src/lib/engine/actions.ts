@@ -6,6 +6,7 @@
 import type { ActionCard, Goal, Txn, SpendingIntelligence, ShortfallRiskResult, SafeToSpendResult } from "./domain";
 import { categoryLabel } from "./domain";
 import { estimateMonthlyCapacity } from "./analytics";
+import { cashoutFee } from "./cashout";
 import { simulateGoal } from "./goals";
 import { calculateSafeToSpend, upcomingCommitments } from "./safeToSpend";
 
@@ -99,27 +100,33 @@ export function buildActionCards(params: {
 
   // Action 3 — batch cash-outs to cut fee leakage
   if (intel.cashOut.count >= 3) {
-    const freed = Math.round(intel.cashOut.total * 0.04); // ~4% fee saving on batched withdrawals
+    // Tariff-grounded saving (config/fees.yaml: 1.5% with a ৳5 minimum):
+    // batching N withdrawals into 2 keeps only 2 fees on the same total.
+    const avgAmount = Math.round(intel.cashOut.total / intel.cashOut.count);
+    const feeNow = intel.cashOut.count * cashoutFee(avgAmount);
+    const freed = Math.max(0, feeNow - 2 * cashoutFee(Math.round(intel.cashOut.total / 2)));
     const sim = activeGoal
       ? simulateGoal({ goal: activeGoal, txns, anchor, extraMonthlySavings: freed })
       : null;
-    cards.push({
-      id: "batch_cashouts",
-      titleEn: "Batch your cash-outs",
-      titleBn: "ক্যাশ-আউট একত্র করুন",
-      description: `You cashed out ${intel.cashOut.count} times (${fmt(intel.cashOut.total)}) in 30 days. Batching into 1–2 larger withdrawals saves repeated fees — roughly ${fmt(freed)} a month.`,
-      rationale: "Each agent cash-out can carry a fee and removes the digital spending record that powers insights. Fewer, larger withdrawals reduce both.",
-      category: "cashflow",
-      simulated: {
-        freedMonthly: freed,
-        shortfallProbBefore: risk.probability,
-        shortfallProbAfter: projRisk(freed),
-        safeToSpendAfter: Math.round(sts.safeToSpendTotal + (freed * 7) / 30),
-        goalMonthsSaved: sim?.monthsSaved ?? null,
-        goalGapAfter: sim?.projectedGap ?? null,
-      },
-      tradeoff: "You carry a bit more cash at once — plan the withdrawal around your weekly bazar run.",
-    });
+    if (freed >= 5) {
+      cards.push({
+        id: "batch_cashouts",
+        titleEn: "Batch your cash-outs",
+        titleBn: "ক্যাশ-আউট একত্র করুন",
+        description: `You cashed out ${intel.cashOut.count} times (${fmt(intel.cashOut.total)}) in 30 days. Batching into 1–2 larger withdrawals saves repeated fees — roughly ${fmt(freed)} a month.`,
+        rationale: `Each agent cash-out carries ${fmt(cashoutFee(avgAmount))} at the illustrative tariff; fewer, larger withdrawals pay fewer minimums.`,
+        category: "cashflow",
+        simulated: {
+          freedMonthly: freed,
+          shortfallProbBefore: risk.probability,
+          shortfallProbAfter: projRisk(freed),
+          safeToSpendAfter: Math.round(sts.safeToSpendTotal + (freed * 7) / 30),
+          goalMonthsSaved: sim?.monthsSaved ?? null,
+          goalGapAfter: sim?.projectedGap ?? null,
+        },
+        tradeoff: "You carry a bit more cash at once — plan the withdrawal around your weekly bazar run.",
+      });
+    }
   }
 
   return cards;

@@ -8,7 +8,7 @@
  * handlers under /api/v1/*, envelope-shaped: { data, evidence }.
  */
 
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
@@ -26,7 +26,10 @@ import type { Txn } from "@/lib/engine/domain";
 /* ---------------- auth: demo-login tokens ---------------- */
 
 const TOKEN_TTL_MS = 24 * 3600 * 1000;
-const DEMO_SECRET = process.env.SATHI_JWT_SECRET || "sathi-demo-secret-do-not-use-in-prod";
+// When the env secret is unset, derive a random per-instance secret instead
+// of shipping a shared constant (tokens then simply re-issue after a cold
+// start — the demo login flow handles that).
+const DEMO_SECRET = process.env.SATHI_JWT_SECRET || randomBytes(32).toString("hex");
 
 /** Mint a signed demo token: base64(payload).signature. */
 export function mintDemoToken(userId: string): string {
@@ -79,6 +82,24 @@ export function clientKey(req: NextRequest, route: string): string {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   return `${route}:${ip}`;
 }
+
+/* ---------------- LLM kill switch + daily budget ---------------- */
+
+/** Env-driven kill switch: set SATHI_LLM_ENABLED=false to disable every LLM
+ * call (both chat surfaces fall back to deterministic templates). */
+export const LLM_ENABLED = process.env.SATHI_LLM_ENABLED !== "false";
+
+/** Per-instance daily LLM call budget (SATHI_LLM_DAILY_CAP, default 1000).
+ * Serverless instances are ephemeral; the provider dashboard limit remains
+ * the real cap — this is defense in depth. */
+export function llmBudgetAllowed(cap = Number(process.env.SATHI_LLM_DAILY_CAP ?? 1000)): boolean {
+  const day = new Date().toISOString().slice(0, 10);
+  const used = llmSpend.get(day) ?? 0;
+  if (used >= cap) return false;
+  llmSpend.set(day, used + 1);
+  return true;
+}
+const llmSpend = new Map<string, number>();
 
 /* ---------------- persona user resolution ---------------- */
 

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { getUserTransactions, getActiveGoals, getKnowledgeChunks, audit } from "@/lib/server/data";
+import { rateLimit, clientKey, LLM_ENABLED, llmBudgetAllowed } from "@/lib/server/sathiApi";
+import { RATE_LIMITS } from "@/lib/engine/sathiConfig";
 import { answerQuestion } from "@/lib/engine/copilot";
 import { sanitizeInput } from "@/lib/engine/llmSafety";
 import { render } from "@/lib/engine/templates";
@@ -21,6 +23,12 @@ export const dynamic = "force-dynamic";
  */
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit (same window as the v1 chat surface) + LLM kill switch /
+    // daily budget — the deterministic answer still flows when the LLM is off.
+    if (!rateLimit(clientKey(req, "copilot"), RATE_LIMITS.chat_per_window, RATE_LIMITS.window_s * 1000)) {
+      return NextResponse.json({ error: "Too many questions — try again in a minute." }, { status: 429 });
+    }
+
     const body = (await req.json()) as { question?: string };
     const question = (body.question ?? "").trim();
     if (question.length < 2 || question.length > 800) {
@@ -63,6 +71,7 @@ export async function POST(req: NextRequest) {
       anchor,
       openingBalance: user.openingBalance,
       salary: { amount: user.salaryAmount, payDay: user.salaryPayDay },
+      llmAllowed: LLM_ENABLED && llmBudgetAllowed(),
     });
 
     await audit(user.id, "assistant_query", {

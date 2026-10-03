@@ -68,6 +68,8 @@ export interface CopilotContext {
   anchor: Date;
   openingBalance: number;
   salary: { amount: number | null; payDay: number | null };
+  /** Kill switch / daily budget verdict from the route (default: allowed). */
+  llmAllowed?: boolean;
 }
 
 export async function answerQuestion(question: string, ctx: CopilotContext): Promise<CopilotAnswer> {
@@ -99,7 +101,9 @@ export async function answerQuestion(question: string, ctx: CopilotContext): Pro
 
   // Guardrail check: never invent numbers — verify every ৳ figure in the
   // LLM summary appears in the evidence; otherwise keep deterministic text.
-  const llmSummary = await tryLlmSummary(question, intent, base, knowledgeHits.map((h) => h.chunk.chunkText));
+  const llmSummary = ctx.llmAllowed === false
+    ? null
+    : await tryLlmSummary(question, intent, base, knowledgeHits.map((h) => h.chunk.chunkText));
   if (llmSummary && numbersAreGrounded(llmSummary, base)) {
     base.summary = llmSummary;
     base.llmEnhanced = true;

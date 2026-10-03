@@ -4,6 +4,7 @@ import {
   buildEvidence, ok, unauthorized, notFound,
 } from "@/lib/server/sathiApi";
 import { personaUserForecast } from "@/lib/server/userForecast";
+import { getUserInputs, effectiveCashOnHand } from "@/lib/server/userInputs";
 import { ESSENTIALS_PER_DAY_TAKA, THRESHOLDS } from "@/lib/engine/sathiConfig";
 import { computeMetrics, monthlyTotals, weeklyOutflows } from "@/lib/engine/metricsEngine";
 import { calculateSafeToSpend, upcomingCommitments, modelStatus } from "@/lib/engine/safeToSpend";
@@ -48,20 +49,31 @@ export async function GET(req: NextRequest) {
     const recurringIn = recurringAll.filter((r) => r.direction === "in");
     const commitments14 = upcomingCommitments(recurringOut, anchor, 14);
 
-    // Physical cash-on-hand estimate from recent cash-out rhythm.
-    const recent = txns.filter((t) => t.direction === "out" && t.category === "cash_out" &&
-      new Date(t.timestamp).getTime() > anchor.getTime() - 21 * 24 * 3600 * 1000);
-    const trailingCashoutTotal = recent.reduce((s, t) => s + t.amount, 0);
-    const dailyCashBurn = trailingCashoutTotal / 21;
+    // Physical cash-on-hand: behavioral estimate corrected by any user
+    // declaration (POST /v1/me/inputs), decaying at the observed burn.
+    const inputs = await getUserInputs(user.id);
+    const eff = effectiveCashOnHand(txns, anchor, inputs.cashOnHandTaka, inputs.cashOnHandUpdatedAt);
+    const otherLiquid = inputs.otherLiquidTaka ?? 0;
+    const dailyCashBurn = Math.max(0, eff.cashTaka) / 21;
 
-    // Core safe-to-spend (taka engine → paisa output) — the RULE baseline.
+    // Core safe-to-spend (taka engine -> paisa output) - the RULE baseline,
+    // computed over TOTAL liquidity: wallet + effective cash + other liquid.
     const s2s = calculateSafeToSpend({
       walletBalance: balance,
       upcomingCommitments: commitments14,
       dailyEssentials: Math.max(ESSENTIALS_PER_DAY_TAKA, Math.round(metrics.monthlySpend / 30)),
       horizonDays: 14,
       monthlySavingsTarget: 0,
+      cashOnHand: eff.cashTaka,
+      otherLiquid,
     });
+    const liquidity_basis = {
+      wallet_balance_paisa: balance * 100,
+      cash_on_hand_paisa: eff.cashTaka * 100,
+      other_liquid_paisa: otherLiquid * 100,
+      total_liquid_paisa: (Math.max(0, balance) + Math.max(0, eff.cashTaka) + Math.max(0, otherLiquid)) * 100,
+      cash_source: eff.source,
+    };
 
     // Model-based safe-to-spend (ML handoff): Q_0.10 of the simulated minimum
     // wallet balance before the next income, minus the personal floor. The
@@ -185,6 +197,7 @@ export async function GET(req: NextRequest) {
       balance_paisa: balance * 100,
       balance_display: formatTaka(balance, "bn"),
       confidence,
+      liquidity_basis,
       safe_to_spend: {
         safe_to_spend_total_paisa: safeTotalPaisa,
         safe_to_spend_total_display: formatTaka(safeTotalPaisa / 100, "bn"),
@@ -212,14 +225,18 @@ export async function GET(req: NextRequest) {
         model_version: modelVersion,
       },
       cash_on_hand: {
-        estimated_cash_paisa: Math.round(trailingCashoutTotal * 0.3) * 100,
-        estimated_cash_display: formatTaka(Math.round(trailingCashoutTotal * 0.3), "bn"),
-        trailing_cashout_total_paisa: trailingCashoutTotal * 100,
-        trailing_cashout_total_display: formatTaka(trailingCashoutTotal, "bn"),
+        estimated_cash_paisa: eff.cashTaka * 100,
+        estimated_cash_display: formatTaka(eff.cashTaka, "bn"),
+        trailing_cashout_total_paisa: eff.cashTaka * 100,
+        trailing_cashout_total_display: formatTaka(eff.cashTaka, "bn"),
         daily_cash_burn_paisa: Math.round(dailyCashBurn) * 100,
         daily_cash_burn_display: formatTaka(Math.round(dailyCashBurn), "bn"),
         days_of_cash_remaining: dailyCashBurn > 0 ? Math.round(balance / dailyCashBurn) : null,
         confidence,
+        effective_cash_paisa: eff.cashTaka * 100,
+        effective_cash_display: formatTaka(eff.cashTaka, "bn"),
+        other_liquid_paisa: otherLiquid * 100,
+        source: eff.source,
       },
       recurring: {
         inflows: recurringIn.map((r) => ({

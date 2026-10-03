@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { getUserTransactions, getActiveGoals, getInsights, insertInsights } from "@/lib/server/data";
 import { computeAll } from "@/lib/server/compute";
+import { getUserInputs, effectiveCashOnHand } from "@/lib/server/userInputs";
 import { generateInsights } from "@/lib/engine/insights";
 import { MODEL_VERSION, type FinancialSummary } from "@/lib/engine/domain";
 
@@ -16,7 +17,15 @@ export async function GET() {
     const goals = await getActiveGoals(user.id);
     const salary = { amount: user.salaryAmount, payDay: user.salaryPayDay };
 
-    const { intel, cash, fc, risk, sts } = computeAll(txns, anchor, user.openingBalance, salary);
+    // User-corrected liquidity (POST /api/inputs): effective cash-on-hand
+    // (declaration decayed at the observed burn) + other declared liquid funds.
+    const inputs = await getUserInputs(user.id);
+    const eff = effectiveCashOnHand(txns, anchor, inputs.cashOnHandTaka, inputs.cashOnHandUpdatedAt);
+
+    const { intel, cash, fc, risk, sts } = computeAll(txns, anchor, user.openingBalance, salary, 7, {
+      cashOnHand: eff.cashTaka,
+      otherLiquid: inputs.otherLiquidTaka ?? 0,
+    });
 
     // Insights regenerate whenever they were cleared (any data mutation) —
     // but only once the user actually has history to analyse.

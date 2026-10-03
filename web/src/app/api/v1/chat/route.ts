@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   userIdFromRequest, ensurePersonaUser, personaTxns, rateLimit, clientKey,
   buildEvidence, ok, unauthorized, notFound, badRequest, tooMany,
+  LLM_ENABLED, llmBudgetAllowed,
 } from "@/lib/server/sathiApi";
 import { RATE_LIMITS, ESSENTIALS_PER_DAY_TAKA, THRESHOLDS } from "@/lib/engine/sathiConfig";
 import { handleMessage, type OrchestratorContext } from "@/lib/engine/orchestrator";
@@ -102,29 +103,20 @@ export async function POST(req: NextRequest) {
     };
 
     // ---- LLM draft generator (z-ai sdk, server-side) ----
+    // The system prompt is the SLOT PROTOCOL built by the orchestrator: the
+    // model may only reference numbers via {{fK}} tokens; trusted values are
+    // substituted app-side and validated (fail-closed) afterwards.
+    const llmAllowed = LLM_ENABLED && llmBudgetAllowed();
     const generateDraft = async (
       cleanedText: string,
-      intent: string,
-      ctx: OrchestratorContext,
-      loc: "bn" | "en",
+      _intent: string,
+      systemPrompt: string,
+      _loc: "bn" | "en",
     ): Promise<string | null> => {
+      if (!llmAllowed) return null;
       try {
         const { default: ZAI } = await import("z-ai-web-dev-sdk");
         const zai = await ZAI.create();
-        const langName = loc === "bn" ? "Bangla (বাংলা)" : "English";
-        const contextLines = Object.entries(ctx)
-          .map(([k, v]) => `- ${k}: ${v}`)
-          .join("\n");
-        const systemPrompt = [
-          `You are Sathi (সাথী), an empathetic and certified AI financial copilot for mobile wallet users in Bangladesh.`,
-          `Respond politely and conversationally in ${langName}.`,
-          `Keep your response concise (2-3 sentences max). Refer to figures naturally (e.g. "৳2,000", "about 35%") — never mention field names like safe_to_spend or daily_safe_budget.`,
-          `CRITICAL SAFETY RULE: You must ONLY reference the exact numerical figures provided in the verified context below.`,
-          `Never invent ungrounded numbers or make unauthorized investment guarantees.`,
-          ``,
-          `VERIFIED CONTEXT:`,
-          contextLines,
-        ].join("\n");
         const completion = await zai.chat.completions.create({
           messages: [
             { role: "system", content: systemPrompt },

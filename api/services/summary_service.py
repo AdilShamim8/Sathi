@@ -24,6 +24,7 @@ from api.schemas.me import (
 from api.services import convert
 from api.services.evidence import as_of_date, build_evidence
 from api.services.forecast_service import user_forecast
+from api.services.inputs_service import effective_cash_on_hand, get_inputs
 from core.cash_on_hand import estimate_cash_on_hand
 from core.categorizer import categorize
 from core.formatting import format_date, format_probability, format_taka, to_bangla_digits
@@ -72,18 +73,31 @@ def get_summary(conn: sqlite3.Connection, cfg, forecast_version: str,
     # Dynamic Recurring obligations detection directly from transaction patterns
     rec_summary = detect_recurring_patterns(txns, as_of)
 
-    # Physical Cash-on-Hand estimation from recent cash-outs
+    # Physical Cash-on-Hand estimation from recent cash-outs, corrected by any
+    # user declaration (POST /v1/me/inputs) that decays at the observed burn.
     coh_estimate = estimate_cash_on_hand(txns, as_of)
+    inputs = get_inputs(conn, user_id)
+    effective_cash, cash_source = effective_cash_on_hand(
+        txns, as_of, inputs.cash_on_hand_paisa, inputs.cash_on_hand_as_of)
+    other_liquid = inputs.other_liquid_paisa or 0
 
-    # Core Safe-to-Spend output
+    # Core Safe-to-Spend output over TOTAL liquidity:
+    #   wallet + effective cash-on-hand + other user-declared liquid funds
     s2s = safe_to_spend_rule(
         wallet_balance_paisa=balance,
-        estimated_cash_paisa=coh_estimate.estimated_cash_paisa,
+        estimated_cash_paisa=effective_cash + other_liquid,
         upcoming_commitments_paisa=rec_summary.upcoming_commitments_14d_paisa,
         daily_essential_paisa=essentials,
         horizon_days=14,
         monthly_savings_target_paisa=0,
     )
+    liquidity_basis = {
+        "wallet_balance_paisa": int(balance),
+        "cash_on_hand_paisa": int(effective_cash),
+        "other_liquid_paisa": int(other_liquid),
+        "total_liquid_paisa": int(max(0, balance) + max(0, effective_cash) + max(0, other_liquid)),
+        "cash_source": cash_source,
+    }
 
     # Categories: outflow totals per category (the "where does money go" view).
     totals: dict[str, int] = {}
@@ -216,6 +230,10 @@ def get_summary(conn: sqlite3.Connection, cfg, forecast_version: str,
         days_of_cash_remaining=coh_estimate.days_of_cash_remaining,
         confidence=coh_estimate.confidence,
         last_cashout_date=coh_estimate.last_cashout_date,
+        effective_cash_paisa=int(effective_cash),
+        effective_cash_display=format_taka(int(effective_cash), "bn"),
+        other_liquid_paisa=int(other_liquid),
+        source=cash_source,
     )
 
     rec_out = RecurringSummaryOut(
@@ -275,6 +293,7 @@ def get_summary(conn: sqlite3.Connection, cfg, forecast_version: str,
         safe_to_spend=safe_to_spend_out,
         cash_on_hand=cash_on_hand_out,
         recurring=rec_out,
+        liquidity_basis=liquidity_basis,
         metrics=MetricsOut(
             monthly_income_paisa=metrics.monthly_income_paisa,
             monthly_income_display=format_taka(metrics.monthly_income_paisa, "bn"),

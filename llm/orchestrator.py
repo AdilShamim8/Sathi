@@ -14,10 +14,10 @@ from dataclasses import dataclass
 from typing import Any
 
 from api.config import Settings
-from core.formatting import format_probability, format_taka, to_bangla_digits
+from core.formatting import format_probability, format_taka, to_bangla_digits, to_english_digits
 from llm.render import render
 from llm.sanitizer import sanitize_input
-from llm.validator import validate_numbers
+from llm.validator import extract_number_words, validate_numbers
 
 
 @dataclass(frozen=True)
@@ -32,7 +32,66 @@ class OrchestratorResponse:
     refusal: bool = False
 
 
-# Keyword intent matcher for deterministic routing & fallback
+# ---------------------------------------------------------------------
+# Slot-based narration (mission: LLM emits placeholders, app inserts values)
+# ---------------------------------------------------------------------
+_SLOT_RE = re.compile(r"\{\{\s*f(\d+)\s*\}\}")
+_BARE_DIGIT_RE = re.compile(r"\d")
+
+
+def build_facts(ctx: dict[str, Any], locale: str) -> list[tuple[str, str]]:
+    """Flatten the verified context into ordered (key, formatted value) facts.
+
+    The LLM may ONLY reference these values through {{fK}} slot tokens; the
+    application substitutes the trusted, pre-formatted string itself.
+    """
+    facts: list[tuple[str, str]] = []
+    for k, v in ctx.items():
+        if isinstance(v, bool) or v is None:
+            continue
+        if isinstance(v, (int, float)):
+            if k.endswith("_paisa"):
+                facts.append((k, format_taka(int(v), locale)))
+            elif "prob" in k:
+                facts.append((k, format_probability(float(v), locale)))
+            else:
+                s = str(int(v))
+                facts.append((k, to_bangla_digits(s) if locale == "bn" else s))
+        elif isinstance(v, str) and v:
+            facts.append((k, v))
+    return facts
+
+
+def render_slots(draft: str, facts: list[tuple[str, str]]) -> str | None:
+    """Validate a slot-token draft and substitute trusted values.
+
+    Fails (returns None) when the draft references an unknown slot id, or
+    contains any bare digit or number word outside slot tokens. Fail-closed:
+    the caller then uses the reviewed deterministic template.
+    """
+    if not draft:
+        return None
+    out: list[str] = []
+    pos = 0
+    for m in _SLOT_RE.finditer(draft):
+        idx = int(m.group(1))
+        if idx < 1 or idx > len(facts):
+            return None
+        out.append(draft[pos:m.start()])
+        out.append(facts[idx - 1][1])
+        pos = m.end()
+    out.append(draft[pos:])
+    rendered = "".join(out).strip()
+    # The residual (non-slot) text must be number-free: no digits at all
+    # (Bangla or English — the strict slot protocol) and no number words.
+    residual = _SLOT_RE.sub(" ", draft)
+    if _BARE_DIGIT_RE.search(to_english_digits(residual)):
+        return None
+    if extract_number_words(residual):
+        return None
+    if len(rendered) < 5:
+        return None
+    return rendered
 _INTENT_PATTERNS = [
     ("greeting", re.compile(r"(hello|hi|hey|assalamu|salam|সালাম|হ্যালো|নমস্কার|কেমন|আদাব)", re.IGNORECASE)),
     ("safe_spend", re.compile(r"(নিরাপদ|বাজেট|কত খরচ|safe to spend|can i spend|budget|daily|প্রতিদিন|খরচ করতে পারব)", re.IGNORECASE)),
@@ -85,6 +144,9 @@ def handle_message(
                     allowed_numbers.add(v // 100)
                     allowed_numbers.add(round(v / 100, 2))
 
+    # Facts for slot-based narration: the LLM writes {{fK}} tokens only.
+    facts = build_facts(context_data, locale)
+
     # 1. If LLM is disabled or kill switch active, render template directly
     if not settings.llm_enabled or settings.llm_provider == "none":
         template_name, template_vars = _resolve_template_vars(intent, context_data, locale)
@@ -99,12 +161,27 @@ def handle_message(
             fallback_used=True,
         )
 
-    # 2. OpenRouter LLM generation (when enabled, validated against ground truth)
-    draft_reply, draft_is_generated = _generate_draft(cleaned_text, intent, context_data, locale, settings)
+    # 2. OpenRouter LLM generation via the SLOT PROTOCOL: the model writes
+    #    {{fK}} placeholders; the app substitutes trusted values. Any free
+    #    digit or number word in the draft fails closed to the template.
+    draft_reply, draft_is_generated = _generate_draft(cleaned_text, intent, context_data, locale, settings, facts)
 
-    # 3. Numeric validation
-    val_res = validate_numbers(draft_reply, allowed_numbers)
-    if not val_res.passed:
+    if draft_is_generated and draft_reply:
+        rendered = render_slots(draft_reply, facts)
+        if rendered is not None:
+            # Defense in depth: the substituted text must still be numerically
+            # grounded in the verified context.
+            val_res = validate_numbers(rendered, allowed_numbers)
+            if val_res.passed:
+                return OrchestratorResponse(
+                    reply=rendered,
+                    intent=intent,
+                    evidence_labels={"narrative": "Generated text"},
+                    allowed_numbers=sorted(list(allowed_numbers)),
+                    generated_text=True,
+                    validator_passed=True,
+                    fallback_used=False,
+                )
         # Fail closed! Use reviewed template instead
         template_name, template_vars = _resolve_template_vars(intent, context_data, locale)
         reply = render(template_name, locale=locale, **template_vars)
@@ -118,14 +195,17 @@ def handle_message(
             fallback_used=True,
         )
 
+    # 3. Template path (LLM unavailable / disabled)
+    template_name, template_vars = _resolve_template_vars(intent, context_data, locale)
+    reply = render(template_name, locale=locale, **template_vars)
     return OrchestratorResponse(
-        reply=draft_reply,
+        reply=reply,
         intent=intent,
-        evidence_labels={"narrative": "Generated text" if draft_is_generated else "Data"},
+        evidence_labels={"narrative": "Data"},
         allowed_numbers=sorted(list(allowed_numbers)),
-        generated_text=draft_is_generated,
+        generated_text=False,
         validator_passed=True,
-        fallback_used=False,
+        fallback_used=True,
     )
 
 
@@ -195,6 +275,7 @@ def _call_openrouter(
     ctx: dict[str, Any],
     locale: str,
     settings: Settings,
+    facts: list[tuple[str, str]] | None = None,
 ) -> str | None:
     if not settings.llm_api_key or not settings.llm_enabled:
         return None
@@ -203,20 +284,35 @@ def _call_openrouter(
         import httpx
 
         lang_name = "Bangla (বাংলা)" if locale == "bn" else "English"
-        context_lines = []
-        for k, v in ctx.items():
-            if not str(k).endswith("_raw"):
-                context_lines.append(f"- {k}: {v}")
-        context_str = "\n".join(context_lines)
 
-        system_prompt = (
-            f"You are Sathi (সাথী), an empathetic and certified AI financial copilot for mobile wallet users in Bangladesh. "
-            f"Respond politely and conversationally in {lang_name}. "
-            f"Keep your response concise (2-3 sentences max). "
-            f"CRITICAL SAFETY RULE: You must ONLY reference the exact numerical figures provided in the verified context below. "
-            f"Never invent ungrounded numbers or make unauthorized investment guarantees.\n\n"
-            f"VERIFIED CONTEXT:\n{context_str}"
-        )
+        if facts:
+            # SLOT PROTOCOL — the only permitted way for the model to use a
+            # number. App code substitutes the trusted value afterwards.
+            slot_lines = "\n".join(f"{{{{f{i + 1}}}}} = {k} = {v}" for i, (k, v) in enumerate(facts))
+            system_prompt = (
+                f"You are Sathi (সাথী), an empathetic AI financial copilot for mobile wallet users in Bangladesh. "
+                f"Respond warmly and conversationally in {lang_name}, 2-3 sentences.\n"
+                f"NUMBER SAFETY — SLOT PROTOCOL (mandatory):\n"
+                f"- Refer to EVERY number ONLY through its slot token, exactly as written: {{{{f1}}}}, {{{{f2}}}}, ...\n"
+                f"- NEVER write digits yourself (0-9 or ০-৯) and NEVER write number words (e.g. five thousand, পাঁচ হাজার).\n"
+                f"- Do not mention field names like safe_to_spend_paisa. Use the slot token where the value belongs.\n"
+                f"- If no slot fits, speak qualitatively (e.g. 'a few days').\n"
+                f"SLOTS (verified values, inserted by the app):\n{slot_lines}"
+            )
+        else:
+            context_lines = []
+            for k, v in ctx.items():
+                if not str(k).endswith("_raw"):
+                    context_lines.append(f"- {k}: {v}")
+            context_str = "\n".join(context_lines)
+            system_prompt = (
+                f"You are Sathi (সাথী), an empathetic and certified AI financial copilot for mobile wallet users in Bangladesh. "
+                f"Respond politely and conversationally in {lang_name}. "
+                f"Keep your response concise (2-3 sentences max). "
+                f"CRITICAL SAFETY RULE: You must ONLY reference the exact numerical figures provided in the verified context below. "
+                f"Never invent ungrounded numbers or make unauthorized investment guarantees.\n\n"
+                f"VERIFIED CONTEXT:\n{context_str}"
+            )
 
         headers = {
             "Authorization": f"Bearer {settings.llm_api_key}",
@@ -255,10 +351,11 @@ def _generate_draft(
     ctx: dict[str, Any],
     locale: str,
     settings: Settings,
+    facts: list[tuple[str, str]] | None = None,
 ) -> tuple[str, bool]:
     """Generate draft via OpenRouter if active, otherwise fall back to template."""
     if settings.llm_enabled and settings.llm_provider in ("openai-compatible", "openrouter"):
-        llm_reply = _call_openrouter(user_text, intent, ctx, locale, settings)
+        llm_reply = _call_openrouter(user_text, intent, ctx, locale, settings, facts)
         if llm_reply:
             return llm_reply, True
 

@@ -3,9 +3,12 @@ import {
   userIdFromRequest, ensurePersonaUser, personaTxns, buildEvidence, ok, unauthorized, notFound,
 } from "@/lib/server/sathiApi";
 import { personaUserForecast } from "@/lib/server/userForecast";
+import { personaActions } from "@/lib/server/personaActions";
+import { getUserInputs, effectiveCashOnHand } from "@/lib/server/userInputs";
 import { THRESHOLDS, SIMULATION_CONFIG, bandRisk } from "@/lib/engine/sathiConfig";
 import { simulateBalancePaths, shortfallStats, dailyQuantiles, percentile } from "@/lib/engine/simulation";
 import { estimateCashOnHand } from "@/lib/engine/analytics";
+import { safeToSpendFromPaths } from "@/lib/engine/safeToSpend";
 import { formatTaka, formatProbability, formatDate } from "@/lib/engine/formatting";
 import { addDays, dayIso, fromDay } from "@/lib/engine/timeutils";
 import { MODEL_VERSION } from "@/lib/engine/domain";
@@ -46,6 +49,8 @@ export async function GET(req: NextRequest) {
     let method: string;
     let modelVersion: string;
     let dailyPoints: { date: string; p10_paisa: number; p10_display: string; p50_paisa: number; p50_display: string; p90_paisa: number; p90_display: string }[];
+
+    let dailyFallbackPathsPaisa: number[][] | null = null;
 
     if (fc) {
       startBalancePaisa = fc.paths[0]?.[0] ?? 0;
@@ -99,6 +104,7 @@ export async function GET(req: NextRequest) {
         nPaths: SIMULATION_CONFIG.n_paths,
         seed: daySeed,
       });
+      dailyFallbackPathsPaisa = paths.map((p) => p.map((v) => v * 100));
       const daysToIncomeFallback = cash.daysToNextIncome ?? horizon;
       const stats = shortfallStats(paths, essentials, Math.min(daysToIncomeFallback, horizon));
       startBalancePaisa = startBalance * 100;
@@ -130,6 +136,50 @@ export async function GET(req: NextRequest) {
 
     const riskLevel = bandRisk(pShortfall);
 
+    // --- mission contract: actionable output, not just a probability -------
+    // Safe-to-spend + daily allowance from the SAME paths (Q10 of the minimum
+    // balance over the shortfall window, minus the personal floor).
+    const windowDays = fc ? fc.windowDays : Math.min(daysToIncome ?? horizon, horizon);
+    const floorPaisa = fc ? fc.floorPaisa : THRESHOLDS.essentials_per_day_paisa;
+    const safeToSpendPaisa = fc
+      ? fc.safeToSpendPaisa
+      : safeToSpendFromPaths(
+          dailyFallbackPathsPaisa ?? [],
+          floorPaisa,
+          0.1,
+        );
+    const dailyAllowancePaisa = Math.trunc(safeToSpendPaisa / Math.max(windowDays, 1));
+
+    // Liquidity basis: wallet + user-corrected cash-on-hand + other liquid.
+    const inputs = await getUserInputs(user.id);
+    const eff = effectiveCashOnHand(txns, anchor, inputs.cashOnHandTaka, inputs.cashOnHandUpdatedAt);
+    const otherLiquid = inputs.otherLiquidTaka ?? 0;
+    const liquidity_basis = {
+      wallet_balance_paisa: startBalancePaisa,
+      cash_on_hand_paisa: eff.cashTaka * 100,
+      other_liquid_paisa: otherLiquid * 100,
+      total_liquid_paisa: Math.max(0, startBalancePaisa) + eff.cashTaka * 100 + otherLiquid * 100,
+      cash_source: eff.source,
+    };
+
+    // Top action (counterfactual engine over the same paths).
+    let top_action: Record<string, unknown> | null = null;
+    try {
+      const { actions } = personaActions(user, txns);
+      if (actions.length) {
+        const best = actions[0]!;
+        top_action = {
+          action_id: best.action_id,
+          title_bn: best.title_bn,
+          title_en: best.title_en,
+          delta_shortfall_prob: best.delta_shortfall_prob,
+          shortfall_prob_after: best.shortfall_prob_after,
+        };
+      }
+    } catch {
+      top_action = null; // never let the action engine break the forecast
+    }
+
     const data = {
       horizon_days: horizon,
       as_of_date: asOf,
@@ -144,6 +194,13 @@ export async function GET(req: NextRequest) {
       confidence,
       method,
       model_version: modelVersion,
+      // Mission contract additions:
+      safe_to_spend_paisa: safeToSpendPaisa,
+      safe_to_spend_display: formatTaka(safeToSpendPaisa / 100, "bn"),
+      daily_allowance_paisa: dailyAllowancePaisa,
+      daily_allowance_display: formatTaka(dailyAllowancePaisa / 100, "bn"),
+      liquidity_basis,
+      top_action,
       days: dailyPoints,
     };
 
@@ -156,6 +213,10 @@ export async function GET(req: NextRequest) {
         start_balance: "Data",
         trough_date: "Prediction",
         daily_quantiles: "Prediction",
+        safe_to_spend: "Prediction",
+        daily_allowance: "Prediction",
+        liquidity_basis: "Data",
+        top_action: "Prediction",
       },
       forecastVersion: modelVersion,
       extraAssumptions: [

@@ -49,6 +49,19 @@ CREATE TABLE IF NOT EXISTS user_goals (
     created_at                   TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_goals_user ON user_goals(user_id);
+-- User-submitted liquidity inputs (mission P0: POST /v1/me/inputs). A user
+-- declaration (cash on hand, income day, rent) corrects the behavioral
+-- estimates; the estimator decays the declared cash with observed burn.
+CREATE TABLE IF NOT EXISTS user_inputs (
+    user_id            TEXT PRIMARY KEY REFERENCES users(user_id),
+    cash_on_hand_paisa INTEGER,
+    cash_on_hand_as_of TEXT,
+    income_day         INTEGER,
+    rent_amount_paisa  INTEGER,
+    rent_confirmed     INTEGER NOT NULL DEFAULT 0,
+    other_liquid_paisa INTEGER,
+    updated_at         TEXT NOT NULL
+);
 -- LLM spend counter (architecture §4.2). Resets on redeploy; the provider
 -- dashboard hard limit is the real cap.
 CREATE TABLE IF NOT EXISTS llm_spend (

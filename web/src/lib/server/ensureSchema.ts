@@ -101,6 +101,18 @@ const DDL: string[] = [
     "modelVersion" TEXT NOT NULL,
     CONSTRAINT "ForecastRecord_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
   )`,
+  `CREATE TABLE IF NOT EXISTS "UserInput" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL UNIQUE,
+    "cashOnHandTaka" INTEGER,
+    "cashOnHandUpdatedAt" DATETIME,
+    "incomeDay" INTEGER,
+    "rentAmountTaka" INTEGER,
+    "rentConfirmed" BOOLEAN NOT NULL DEFAULT 0,
+    "otherLiquidTaka" INTEGER,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "UserInput_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
   `CREATE INDEX IF NOT EXISTS "Transaction_userId_timestamp_idx" ON "Transaction"("userId", "timestamp")`,
   `CREATE INDEX IF NOT EXISTS "Goal_userId_status_idx" ON "Goal"("userId", "status")`,
   `CREATE INDEX IF NOT EXISTS "Insight_userId_generatedAt_idx" ON "Insight"("userId", "generatedAt")`,

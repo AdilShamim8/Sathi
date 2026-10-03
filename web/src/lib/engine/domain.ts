@@ -134,6 +134,10 @@ export interface SafeToSpendResult {
   safetyBuffer: number;
   proratedSavings: number;
   walletBalance: number;
+  /** Physical cash-on-hand included in total liquidity. */
+  cashOnHand: number;
+  /** Other user-declared liquid funds included in total liquidity. */
+  otherLiquid: number;
   horizonDays: number;
   status: "comfortable" | "cautious" | "tight" | "deficit";
   statusLabelEn: string;

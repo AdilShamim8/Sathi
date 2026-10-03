@@ -10,9 +10,9 @@ import { applyRate, takaToPaisa, paisaToTaka } from "../src/lib/engine/money";
 import { categorize } from "../src/lib/engine/categorizer";
 import { simulateBalancePaths, shortfallStats, percentile } from "../src/lib/engine/simulation";
 import { planGoal, wilson, calibrate } from "../src/lib/engine/planner";
-import { sanitizeInput, validateNumbers, extractNumbers } from "../src/lib/engine/llmSafety";
+import { extractNumberWords, sanitizeInput, validateNumbers, extractNumbers } from "../src/lib/engine/llmSafety";
 import { render } from "../src/lib/engine/templates";
-import { detectIntent, handleMessage } from "../src/lib/engine/orchestrator";
+import { renderSlots,  detectIntent, handleMessage } from "../src/lib/engine/orchestrator";
 import { formatTaka, toBanglaDigits, toEnglishDigits, formatProbability } from "../src/lib/engine/formatting";
 import { detectCashoutPatterns } from "../src/lib/engine/cashout";
 import { addMonths, dhakaYmd, isoWeek } from "../src/lib/engine/timeutils";
@@ -271,15 +271,65 @@ describe("orchestrator (fail-closed pipeline)", () => {
     expect(res.generatedText).toBe(false);
     expect(res.reply).not.toContain("৯,৯৯৯");
   });
-  test("accepts a grounded LLM draft", async () => {
+  test("accepts a grounded slot-token LLM draft", async () => {
+    const res = await handleMessage({
+      userMessage: "how much can I safely spend?",
+      locale: "en",
+      contextData: { balance: 5000, safe_to_spend: 2000, daily_safe_budget: 150 },
+      generateDraft: async () => "You can safely spend {{f2}} — about {{f3}} per day.",
+    });
+    expect(res.generatedText).toBe(true);
+    expect(res.fallbackUsed).toBe(false);
+    // Trusted values substituted, no residual slot tokens.
+    expect(res.reply).toContain("2000");
+    expect(res.reply).not.toContain("{{f");
+  });
+  test("rejects a bare-digit draft even when grounded (slot protocol)", async () => {
     const res = await handleMessage({
       userMessage: "how much can I safely spend?",
       locale: "en",
       contextData: { balance: 5000, safe_to_spend: 2000, daily_safe_budget: 150 },
       generateDraft: async () => "You can safely spend ৳2,000 — about ৳150 per day.",
     });
-    expect(res.generatedText).toBe(true);
-    expect(res.fallbackUsed).toBe(false);
+    expect(res.validatorPassed).toBe(false);
+    expect(res.fallbackUsed).toBe(true);
+    expect(res.generatedText).toBe(false);
+  });
+  test("rejects number-word hallucinations in EN and BN", async () => {
+    const en = await handleMessage({
+      userMessage: "how much can I safely spend?",
+      locale: "en",
+      contextData: { balance: 5000, safe_to_spend: 2000 },
+      generateDraft: async () => "You can safely spend twenty five thousand taka today.",
+    });
+    expect(en.validatorPassed).toBe(false);
+    expect(en.fallbackUsed).toBe(true);
+
+    const bn = await handleMessage({
+      userMessage: "আমি কত টাকা খরচ করতে পারব?",
+      locale: "bn",
+      contextData: { balance: 5000, safe_to_spend: 2000 },
+      generateDraft: async () => "আপনি আজ পাঁচ হাজার টাকা খরচ করতে পারেন।",
+    });
+    expect(bn.validatorPassed).toBe(false);
+    expect(bn.fallbackUsed).toBe(true);
+  });
+  test("renderSlots contract: ids validated, digits and words rejected", () => {
+    const facts = [
+      { key: "balance", value: "৳৫,০০০" },
+      { key: "safe_to_spend", value: "৳২,০০০" },
+    ];
+    expect(renderSlots("আপনার ব্যালেন্স {{f1}}।", facts)).toBe("আপনার ব্যালেন্স ৳৫,০০০।");
+    expect(renderSlots("{{f9}} টাকা", facts)).toBeNull(); // unknown slot id
+    expect(renderSlots("আপনার ব্যালেন্স ৫,০০০ টাকা।", facts)).toBeNull(); // bare digits
+    expect(renderSlots("পরে আবার দেখুন।", facts)).toBe("পরে আবার দেখুন।"); // number-free is fine
+  });
+  test("extractNumberWords parses EN and BN verbal figures", () => {
+    expect([...extractNumberWords("five thousand taka")]).toEqual([5000]);
+    expect([...extractNumberWords("পাঁচ হাজার টাকা")]).toEqual([5000]);
+    expect([...extractNumberWords("দুই লাখ")]).toEqual([200000]);
+    expect([...extractNumberWords("twenty five hundred")]).toEqual([2500]);
+    expect([...extractNumberWords("no numbers here")]).toEqual([]);
   });
 });
 

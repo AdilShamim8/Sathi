@@ -65,6 +65,29 @@ def get_forecast(conn: sqlite3.Connection, cfg, user_id: str) -> tuple[ForecastD
         n_tx = len(_user_tx(conn, user_id))
     start_balance = int(paths[0, 0])
 
+    # --- liquidity basis: wallet + user-corrected cash + other liquid funds ---
+    from api.services.inputs_service import effective_cash_on_hand, get_inputs
+    from api.services.convert import row_to_txn
+    tx_rows = conn.execute(
+        "SELECT * FROM transactions WHERE user_id = ? ORDER BY ts", (user_id,)).fetchall()
+    txns = [row_to_txn(r) for r in tx_rows]
+    inputs = get_inputs(conn, user_id)
+    eff_cash, cash_source = effective_cash_on_hand(
+        txns, origin, inputs.cash_on_hand_paisa, inputs.cash_on_hand_as_of)
+    other_liquid = inputs.other_liquid_paisa or 0
+    liquidity_basis = {
+        "wallet_balance_paisa": start_balance,
+        "cash_on_hand_paisa": int(eff_cash),
+        "other_liquid_paisa": int(other_liquid),
+        "total_liquid_paisa": int(max(0, start_balance) + max(0, eff_cash) + max(0, other_liquid)),
+        "cash_source": cash_source,
+    }
+
+    # --- safe-to-spend + daily allowance (mission contract) ---
+    safe_total = int(f.safe_to_spend_paisa) if f is not None else None
+    window = int(f.window_days) if f is not None else horizon
+    daily_allowance = int(safe_total / max(window, 1)) if safe_total is not None else None
+
     trough_date_str = None
     if trough is not None and trough > 0:
         trough_date_str = format_date(origin + dt.timedelta(days=int(trough)), "bn")
@@ -88,6 +111,28 @@ def get_forecast(conn: sqlite3.Connection, cfg, user_id: str) -> tuple[ForecastD
             p90_paisa=q90, p90_display=format_taka(q90, "bn"),
         ))
 
+    # --- top action (counterfactual engine, same simulated paths) ---
+    top_action = None
+    try:
+        from api.services.actions_service import get_actions
+        acts = get_actions(conn, cfg, user_id)
+        if acts.actions:
+            best = acts.actions[0]
+            top_action = {
+                "action_id": best.action_id,
+                "title_bn": best.title_bn,
+                "title_en": best.title_en,
+                "delta_shortfall_prob": best.delta_shortfall_prob,
+                "shortfall_prob_after": best.shortfall_prob_after,
+            }
+    except Exception:
+        top_action = None  # never let the action engine break the forecast
+
+    days_to_income = int(f.days_to_income) if f is not None else None
+    next_income_date = None
+    if days_to_income is not None and 1 <= days_to_income <= 90:
+        next_income_date = (origin + dt.timedelta(days=days_to_income)).isoformat()
+
     data = ForecastData(
         horizon_days=horizon,
         as_of_date=origin.isoformat(),
@@ -99,6 +144,16 @@ def get_forecast(conn: sqlite3.Connection, cfg, user_id: str) -> tuple[ForecastD
         trough_date=trough_date_str,
         confidence=confidence,
         days=daily_points,
+        days_to_next_income=days_to_income,
+        next_income_date=next_income_date,
+        safe_to_spend_paisa=safe_total,
+        safe_to_spend_display=format_taka(safe_total, "bn") if safe_total is not None else None,
+        daily_allowance_paisa=daily_allowance,
+        daily_allowance_display=format_taka(daily_allowance, "bn") if daily_allowance is not None else None,
+        liquidity_basis=liquidity_basis,
+        top_action=top_action,
+        method="lightgbm-quantile + recurring streams + calibrated paths" if f is not None else "none",
+        model_version=load_latest_version() if f is not None else None,
     )
     evidence = build_evidence(
         cfg,
@@ -108,6 +163,10 @@ def get_forecast(conn: sqlite3.Connection, cfg, user_id: str) -> tuple[ForecastD
             "start_balance": "Data",
             "trough_date": "Prediction",
             "daily_quantiles": "Prediction",
+            "safe_to_spend": "Prediction",
+            "daily_allowance": "Prediction",
+            "liquidity_basis": "Data",
+            "top_action": "Prediction",
         },
         forecast_version=load_latest_version(),
     )

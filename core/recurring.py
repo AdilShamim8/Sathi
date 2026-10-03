@@ -52,12 +52,18 @@ def detect_recurring_patterns(
 ) -> RecurringSummary:
     """Detect recurring income and expense patterns from transaction history.
 
-    Algorithms:
-      1. Group transactions by (direction, counterparty_category, approximate_amount_bin).
-      2. Check intervals between consecutive occurrences. If median interval is ~28-32 days
-         or ~6-8 days with standard deviation <= 4 days and count >= 2, classify as recurring.
+    Signals (same family as the ML stream detector `detect_streams`):
+      1. Group by (direction, counterparty_id, category, approximate amount bin)
+         — the counterparty is the primary key, the category/amount bin only
+         keep merchants with unstable ids from fragmenting.
+      2. Median interval must fall in a weekly (5-9), fortnightly (12-16) or
+         monthly (25-35) window; with >=3 gaps the gaps must also be stable
+         (MAD <= max(3 days, 25% of the period)) and amounts stable
+         (MAD <= 35% of the median) — an explicit stability test.
       3. Project next occurrence date relative to as_of_date.
       4. Sum obligations due within the next 14 days for safe-to-spend computation.
+
+    No persona/generator labels or hardcoded salary schedules are read.
     """
     if not txns:
         return RecurringSummary(
@@ -75,20 +81,24 @@ def detect_recurring_patterns(
     # Sort transactions chronologically
     sorted_tx = sorted(txns, key=lambda t: t.ts)
 
-    # Grouping key: direction + category + approximate rounded amount (±15%)
-    clusters: dict[tuple[str, str, int], list[tuple[Txn, dt.date]]] = defaultdict(list)
+    # Grouping key: direction + counterparty (primary) + category + bucketed
+    # amount. Counterparty-first grouping is the real recurring signal; the
+    # category and amount bin only stop unstable merchant ids from fragmenting
+    # a true stream.
+    clusters: dict[tuple[str, str, str, int], list[tuple[Txn, dt.date]]] = defaultdict(list)
 
     for t in sorted_tx:
         direction = "inflow" if t.is_inflow else "outflow"
         cat = categorize(t).category.value
-        # Bucket amount into 10% log-like intervals or rough 500 taka bins to cluster similar amounts
+        cp = (t.counterparty_id or "")[:48]
+        # Bucket amount into rough bins to cluster similar amounts
         # For small amounts (< ৳500), bucket by 100 taka
         amt = t.amount_paisa
         if amt < 50_000:
             amt_bucket = (amt // 10_000) * 10_000
         else:
             amt_bucket = (amt // 50_000) * 50_000
-        clusters[(direction, cat, amt_bucket)].append((t, dhaka_date(t.ts)))
+        clusters[(direction, cat, cp, amt_bucket)].append((t, dhaka_date(t.ts)))
 
     recurring_inflows: list[RecurringItem] = []
     recurring_outflows: list[RecurringItem] = []
@@ -97,7 +107,7 @@ def detect_recurring_patterns(
 
     fourteen_days_later = as_of_date + dt.timedelta(days=14)
 
-    for (direction, cat, _), items in clusters.items():
+    for (direction, cat, _, _), items in clusters.items():
         if len(items) < 2:
             continue
 
@@ -108,16 +118,25 @@ def detect_recurring_patterns(
 
         median_interval = sorted(intervals)[len(intervals) // 2]
         is_monthly = 25 <= median_interval <= 35
+        is_fortnightly = 12 <= median_interval <= 16
         is_weekly = 5 <= median_interval <= 9
 
-        if not (is_monthly or is_weekly):
+        if not (is_monthly or is_fortnightly or is_weekly):
+            continue
+
+        amounts = [t.amount_paisa for t, _ in items]
+        median_amount = sorted(amounts)[len(amounts) // 2]
+
+        # Stability test (explicit, same spirit as detect_streams): with
+        # enough observations the gaps must be regular and the amounts stable.
+        if len(intervals) >= 3 and _mad([float(g) for g in intervals]) > max(3.0, 0.25 * median_interval):
+            continue
+        if len(amounts) >= 3 and _mad([float(a) for a in amounts]) > 0.35 * median_amount:
             continue
 
         # Validated recurring cluster!
-        periodicity = "monthly" if is_monthly else "weekly"
-        interval_days = 30 if is_monthly else 7
-        amounts = [t.amount_paisa for t, _ in items]
-        median_amount = sorted(amounts)[len(amounts) // 2]
+        periodicity = "monthly" if is_monthly else ("fortnightly" if is_fortnightly else "weekly")
+        interval_days = 30 if is_monthly else (14 if is_fortnightly else 7)
         doms = [d.day for d in dates]
         expected_dom = sorted(doms)[len(doms) // 2] if is_monthly else None
 
@@ -182,13 +201,14 @@ def detect_recurring_patterns(
             if as_of_date <= next_date <= fourteen_days_later:
                 upcoming_14d_paisa += median_amount
 
-    # Total monthly calculations
+    # Total monthly calculations (weekly x4, fortnightly x2)
+    _per_month = {"weekly": 4, "fortnightly": 2, "monthly": 1}
     monthly_inflow = sum(
-        it.amount_paisa * (4 if it.periodicity == "weekly" else 1)
+        it.amount_paisa * _per_month[it.periodicity]
         for it in recurring_inflows
     )
     monthly_outflow = sum(
-        it.amount_paisa * (4 if it.periodicity == "weekly" else 1)
+        it.amount_paisa * _per_month[it.periodicity]
         for it in recurring_outflows
     )
 

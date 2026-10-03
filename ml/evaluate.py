@@ -198,6 +198,32 @@ def _best_f1_cutoff(y: np.ndarray, p: np.ndarray) -> float:
     return round(cut, 2)
 
 
+def _recall_at_precision_cutoff(y: np.ndarray, p: np.ndarray, min_precision: float = 0.60) -> float | None:
+    """Validation-chosen operating point: maximize recall subject to
+    precision >= min_precision. Returns None when NO threshold reaches the
+    precision floor — reported honestly instead of overfitting the test set.
+    """
+    best_rec, cut = -1.0, None
+    for c in np.arange(0.05, 0.96, 0.01):
+        pr = p >= c
+        tp, fp = int((pr & y).sum()), int((pr & ~y).sum())
+        if tp == 0:
+            continue
+        precision = tp / (tp + fp)
+        recall = tp / max(int(y.sum()), 1)
+        if precision >= min_precision and recall > best_rec:
+            best_rec, cut = recall, float(c)
+    return round(cut, 2) if cut is not None else None
+
+
+def _ece_from_bins(bins: list[dict]) -> float | None:
+    """Weighted expected calibration error from reliability bins."""
+    n = sum(b["n"] for b in bins)
+    if not n:
+        return None
+    return float(sum(b["n"] * abs(b["mean_predicted"] - b["observed"]) for b in bins) / n)
+
+
 def score_shortfall(df: pd.DataFrame, base_rate: float, cutoffs: dict[str, float]) -> dict:
     y = df["label"].to_numpy(dtype=bool)
     res: dict = {"n": len(df), "base_rate": float(y.mean()) if len(y) else None, "methods": {}}
@@ -252,15 +278,51 @@ def shortfall_eval(fc, cfg, tx, us, splits, festival, as_of, seed) -> tuple[dict
                (("model", "p_model"), ("bootstrap", "p_bootstrap"))}
     cutoffs["rule"] = 0.5
     base = float(yv.mean())
+
+    # Mission operating point: recall-oriented threshold chosen on VALIDATION
+    # only (max recall s.t. precision >= 0.60), then applied untouched to the
+    # frozen test set. When the precision floor is unreachable at this base
+    # rate, that is reported as-is — the test set is never tuned on.
+    rp_cutoffs = {m: _recall_at_precision_cutoff(yv, val[c].to_numpy())
+                  for m, c in (("model", "p_model"), ("bootstrap", "p_bootstrap"))}
+    yt = test["label"].to_numpy(dtype=bool)
+    operating_point: dict = {}
+    for m, col in (("model", "p_model"), ("bootstrap", "p_bootstrap")):
+        c0 = rp_cutoffs[m]
+        if c0 is None:
+            operating_point[m] = {
+                "recall_oriented_cutoff": None,
+                "note": (f"no validation threshold reaches precision >= 0.60 at base rate "
+                         f"{base:.3f}; recall >= 0.80 @ precision >= 0.60 is not attainable "
+                         "for any method at this class balance — stated, not tuned away"),
+            }
+            continue
+        p = test[col].to_numpy(dtype=float)
+        pr = p >= c0
+        tp, fp, fn = int((pr & yt).sum()), int((pr & ~yt).sum()), int((~pr & yt).sum())
+        rec = tp / (tp + fn) if (tp + fn) else None
+        prec = tp / (tp + fp) if (tp + fp) else None
+        operating_point[m] = {
+            "recall_oriented_cutoff": c0,
+            "recall": rec,
+            "precision": prec,
+            "target_recall_0_80_at_precision_0_60_met": bool(rec is not None and rec >= 0.80 and prec is not None and prec >= 0.60),
+        }
+
+    rel_model = reliability(test)
+    rel_boot = reliability(test, "p_bootstrap")
     result = {
         "event": "end-of-day wallet balance below the personal floor within the lead window",
         "lead_days": lead, "floor_days": int(cfg.section("thresholds")["shortfall_floor_days"]),
         "n_val": len(val), "base_rate_val": base, "cutoffs_from_val": cutoffs,
+        "operating_point_validation_chosen": operating_point,
         "overall": score_shortfall(test, base, cutoffs),
         "per_persona": {k: score_shortfall(g, base, cutoffs) for k, g in test.groupby("persona")},
         "per_income_band": {k: score_shortfall(g, base, cutoffs) for k, g in test.groupby("income_band")},
-        "reliability_model": reliability(test),
-        "reliability_bootstrap": reliability(test, "p_bootstrap"),
+        "reliability_model": rel_model,
+        "reliability_bootstrap": rel_boot,
+        "ece_model": _ece_from_bins(rel_model),
+        "ece_bootstrap": _ece_from_bins(rel_boot),
     }
     return result, test
 
@@ -289,8 +351,13 @@ def robustness_eval(fc, cfg, tx, us, splits, festival, as_of, seed, cutoffs, bas
         rows.append({"name": name, "n": sc["n"], "base_rate": sc["base_rate"],
                      "brier_model": sc["methods"]["model"]["brier"],
                      "brier_bootstrap": sc["methods"]["bootstrap"]["brier"],
+                     "brier_rule": sc["methods"]["rule"]["brier"],
                      "brier_skill_vs_base_rate": sc["methods"]["model"]["brier_skill_vs_base_rate"],
+                     "brier_skill_vs_rule": sc["methods"]["model"].get("brier_skill_vs_rule"),
                      "pr_auc_model": sc["methods"]["model"]["pr_auc"],
+                     "pr_auc_bootstrap": sc["methods"]["bootstrap"]["pr_auc"],
+                     "recall_at_precision_0_6_model": sc["methods"]["model"]["recall_at_precision_0_6"],
+                     "recall_at_precision_0_6_bootstrap": sc["methods"]["bootstrap"]["recall_at_precision_0_6"],
                      "coverage_p10_p90": float(np.mean((y >= q[:, 0]) & (y <= q[:, -1])))})
 
     for noise in (0.0, 0.1, 0.2, 0.3):
@@ -492,7 +559,11 @@ def planner_backtest(cfg, panels, seed: int, as_of: dt.date) -> dict:
 
 # --------------------------------------------------------------------- T7
 def shap_eval(fc, panels, festival, as_of, seed, persona_of) -> dict:
-    import shap
+    try:
+        import shap
+    except ModuleNotFoundError:
+        return {"note": "shap not installed in this environment; interpretability "
+                        "section skipped (install shap to reproduce T7)"}
     first = as_of - dt.timedelta(days=60 + HORIZON)
     rows = full_horizon_rows(panels, festival, first, as_of, HORIZON, 14)
     rng = np.random.default_rng(seed)

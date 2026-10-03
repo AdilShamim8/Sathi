@@ -33,6 +33,7 @@ export function computeAll(
   openingBalance: number,
   salary: { amount: number | null; payDay: number | null },
   horizonDays = 7,
+  opts?: { cashOnHand?: number; otherLiquid?: number },
 ): FullComputation {
   const intel = computeSpendingIntelligence(txns, anchor);
   const cash = estimateCashOnHand(txns, anchor, openingBalance, salary);
@@ -46,6 +47,10 @@ export function computeAll(
     dailyEssentials: cash.dailyEssentials,
     horizonDays,
     monthlySavingsTarget: capacity > 0 ? Math.round(capacity * 0.3) : 0,
+    // Mission P0: liquidity = wallet + effective cash-on-hand + other liquid
+    // (user-corrected; POST /api/inputs). Risk stays wallet-based (conservative).
+    cashOnHand: opts?.cashOnHand ?? 0,
+    otherLiquid: opts?.otherLiquid ?? 0,
   });
 
   // Sathi block bootstrap: refine the trough evidence with a simulated

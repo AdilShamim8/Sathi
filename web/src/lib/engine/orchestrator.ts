@@ -13,8 +13,8 @@
  */
 
 import type { Locale } from "./formatting";
-import { formatTaka, formatProbability } from "./formatting";
-import { sanitizeInput, validateNumbers } from "./llmSafety";
+import { formatTaka, formatProbability, toBanglaDigits, toEnglishDigits } from "./formatting";
+import { sanitizeInput, validateNumbers, extractNumberWords } from "./llmSafety";
 import {
   render, templateVarsSafeSpend, templateVarsForecastRisk, templateVarsForecastSafe,
   templateVarsGoal, templateVarsIncomeSpend,
@@ -55,6 +55,85 @@ export function detectIntent(text: string): SathiIntent {
     if (re.test(text)) return intent;
   }
   return "general";
+}
+
+/* ---------------- slot-based narration (mission P0) ----------------
+ * The LLM may ONLY reference numbers through {{fK}} slot tokens. The app
+ * substitutes trusted, pre-formatted values; any bare digit or number word
+ * in the draft fails closed to the reviewed template. */
+const SLOT_RE = /\{\{\s*f(\d+)\s*\}\}/g;
+const BARE_DIGIT_RE = /\d/;
+
+export interface Fact {
+  key: string;
+  value: string;
+}
+
+/** Flatten the verified context into ordered formatted facts (the LLM's slots). */
+export function buildFacts(ctx: OrchestratorContext, locale: Locale): Fact[] {
+  const facts: Fact[] = [];
+  for (const [k, v] of Object.entries(ctx)) {
+    if (typeof v === "boolean" || v === null || v === undefined) continue;
+    if (typeof v === "number" && Number.isFinite(v)) {
+      if (k.endsWith("_paisa")) {
+        facts.push({ key: k, value: formatTaka(v / 100, locale) });
+      } else if (k.includes("prob")) {
+        facts.push({ key: k, value: formatProbability(v, locale) });
+      } else {
+        const s = String(Math.round(v));
+        facts.push({ key: k, value: locale === "bn" ? toBanglaDigits(s) : s });
+      }
+    } else if (typeof v === "string" && v.length) {
+      facts.push({ key: k, value: v });
+    }
+  }
+  return facts;
+}
+
+/** Build the slot-protocol system prompt the LLM must follow. */
+export function slotSystemPrompt(facts: Fact[], locale: Locale, extraContext?: string): string {
+  const langName = locale === "bn" ? "Bangla (বাংলা)" : "English";
+  const slotLines = facts.map((f, i) => `{{f${i + 1}}} = ${f.key} = ${f.value}`).join("\n");
+  return [
+    `You are Sathi (সাথী), an empathetic AI financial copilot for mobile wallet users in Bangladesh.`,
+    `Respond warmly and conversationally in ${langName}, 2-3 sentences.`,
+    `NUMBER SAFETY — SLOT PROTOCOL (mandatory):`,
+    `- Refer to EVERY number ONLY through its slot token, exactly as written: {{f1}}, {{f2}}, ...`,
+    `- NEVER write digits yourself (0-9 or ০-৯) and NEVER write number words (e.g. five thousand, পাঁচ হাজার).`,
+    `- Do not mention field names like safe_to_spend. Use the slot token where the value belongs.`,
+    `- If no slot fits, speak qualitatively (e.g. "a few days").`,
+    `SLOTS (verified values, inserted by the app):`,
+    slotLines,
+    extraContext ?? "",
+  ].filter(Boolean).join("\n");
+}
+
+/**
+ * Validate a slot-token draft and substitute trusted values. Returns null
+ * (fail closed) when the draft references an unknown slot id or contains any
+ * bare digit or number word outside slot tokens.
+ */
+export function renderSlots(draft: string, facts: Fact[]): string | null {
+  if (!draft) return null;
+  let out = "";
+  let pos = 0;
+  let ok = true;
+  for (const m of draft.matchAll(SLOT_RE)) {
+    const idx = Number(m[1]);
+    if (!Number.isInteger(idx) || idx < 1 || idx > facts.length) { ok = false; break; }
+    out += draft.slice(pos, m.index);
+    out += facts[idx - 1]!.value;
+    pos = (m.index ?? 0) + m[0].length;
+  }
+  if (!ok) return null;
+  out += draft.slice(pos);
+  const rendered = out.trim();
+  // Residual (non-slot) text must be number-free: no digits, no number words.
+  const residual = draft.replace(SLOT_RE, " ");
+  if (BARE_DIGIT_RE.test(toEnglishDigits(residual))) return null;
+  if (extractNumberWords(residual).size > 0) return null;
+  if (rendered.length < 5) return null;
+  return rendered;
 }
 
 /** Verified context produced by deterministic engines — the LLM's only numbers. */
@@ -137,14 +216,15 @@ function bnDigitsOf(s: string): string {
 
 /**
  * Full fail-closed pipeline over engine context. `generateDraft` is injected
- * so this module stays pure and testable (the server passes the z-ai call).
+ * so this module stays pure and testable (the server passes the z-ai call and
+ * receives the SLOT-PROTOCOL system prompt built here).
  */
 export async function handleMessage(params: {
   userMessage: string;
   contextData: OrchestratorContext;
   locale?: Locale;
   llmEnabled?: boolean;
-  generateDraft?: (cleanedText: string, intent: SathiIntent, ctx: OrchestratorContext, locale: Locale) => Promise<string | null>;
+  generateDraft?: (cleanedText: string, intent: SathiIntent, systemPrompt: string, locale: Locale) => Promise<string | null>;
 }): Promise<OrchestratorResponse> {
   const { userMessage, contextData, locale = "bn", llmEnabled = true, generateDraft } = params;
 
@@ -195,22 +275,28 @@ export async function handleMessage(params: {
     return { ...fallback(), intent };
   }
 
-  // 2. Generate draft (server-side LLM), 3. validate numbers.
+  // 2. Generate a SLOT-PROTOCOL draft, validate slots, substitute values.
   try {
-    const draft = await generateDraft(cleanedText, intent, contextData, locale);
+    const facts = buildFacts(contextData, locale);
+    const system = slotSystemPrompt(facts, locale);
+    const draft = await generateDraft(cleanedText, intent, system, locale);
     if (draft) {
-      const val = validateNumbers(draft, allowedNumbers);
-      if (val.passed) {
-        return {
-          reply: draft,
-          intent,
-          evidenceLabels: { narrative: "Generated text" },
-          allowedNumbers: [...allowedNumbers].sort((a, b) => a - b),
-          generatedText: true,
-          validatorPassed: true,
-          fallbackUsed: false,
-          refusal: false,
-        };
+      const rendered = renderSlots(draft, facts);
+      if (rendered !== null) {
+        // Defense in depth: the substituted text must still be grounded.
+        const val = validateNumbers(rendered, allowedNumbers);
+        if (val.passed) {
+          return {
+            reply: rendered,
+            intent,
+            evidenceLabels: { narrative: "Generated text" },
+            allowedNumbers: [...allowedNumbers].sort((a, b) => a - b),
+            generatedText: true,
+            validatorPassed: true,
+            fallbackUsed: false,
+            refusal: false,
+          };
+        }
       }
       // Fail closed! Use the reviewed template instead.
       const fb = fallback();

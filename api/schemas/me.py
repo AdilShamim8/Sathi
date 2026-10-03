@@ -52,6 +52,11 @@ class CashOnHandOut(BaseModel):
     days_of_cash_remaining: float
     confidence: Literal["normal", "low"]
     last_cashout_date: Optional[str] = None
+    # User-corrected liquidity (POST /v1/me/inputs): the value actually used.
+    effective_cash_paisa: Optional[int] = None
+    effective_cash_display: Optional[str] = None
+    other_liquid_paisa: Optional[int] = None
+    source: Optional[str] = None
 
 
 class RecurringItemOut(BaseModel):
@@ -63,7 +68,7 @@ class RecurringItemOut(BaseModel):
     amount_paisa: int
     amount_display: str
     interval_days: int
-    periodicity: Literal["monthly", "weekly"]
+    periodicity: Literal["monthly", "fortnightly", "weekly"]
     expected_day_of_month: Optional[int] = None
     confidence: float
     next_expected_date: str
@@ -130,6 +135,8 @@ class SummaryData(BaseModel):
     metrics: MetricsOut
     categories: list[CategoryRow]
     insights: list[Insight]
+    # Liquidity provenance: wallet + effective cash-on-hand + other liquid.
+    liquidity_basis: Optional[dict] = None
 
 
 class CounterpartyOut(BaseModel):

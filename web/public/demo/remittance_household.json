@@ -1,398 +1,2868 @@
 {
-  "generated_at": "2026-10-03T02:50:26.077Z",
-  "persona": "remittance_household",
-  "persona_label_bn": "রেমিট্যান্স-নির্ভর পরিবার",
-  "persona_label_en": "Remittance household",
-  "n_transactions": 339,
-  "confidence": "normal",
-  "balance": 18179,
-  "balance_display": "৳১৮,১৭৯",
-  "safe_to_spend": {
-    "total": 0,
-    "total_display": "৳০",
-    "daily_budget": 0,
-    "daily_budget_display": "৳০",
-    "status": "deficit",
-    "status_label_bn": "ঘাটতির ঝুঁকি",
-    "status_label_en": "Deficit risk",
-    "advice_bn": "সামনের 14 দিনে আবশ্যক বিল ও খরচের তুলনায় তহবিলের ঘাটতি হতে পারে। অপ্রয়োজনীয় খরচ স্থগিত রাখুন।",
-    "advice_en": "Upcoming obligations exceed available funds in the next 14 days. Defer discretionary spending."
+  "user": {
+    "user_id": "u0003",
+    "persona": "remittance_household",
+    "persona_label_bn": "রেমিট্যান্স-নির্ভর পরিবার",
+    "persona_label_en": "Remittance household",
+    "age_band": "35-44",
+    "region": "sylhet",
+    "income_band": "25k-40k"
   },
-  "metrics": {
-    "monthly_income": 20336,
-    "monthly_income_display": "৳২০,৩৩৬",
-    "monthly_spend": 20932,
-    "monthly_spend_display": "৳২০,৯৩২",
-    "savings_rate": -0.029290086226153776,
-    "income_volatility": 0.6009338525580497,
-    "buffer_days": 51.94,
-    "cash_dependency_ratio": 0.3504553228060733,
-    "fee_leakage": 0.08464055975623519,
-    "fixed_commitment_ratio": 0.4168727963496835
+  "summary": {
+    "data": {
+      "user": {
+        "persona": "remittance_household",
+        "persona_label_bn": "রেমিট্যান্স-নির্ভর পরিবার",
+        "persona_label_en": "Remittance household"
+      },
+      "as_of_date": "2026-09-30",
+      "balance_paisa": 2994579,
+      "balance_display": "৳২৯,৯৪৫",
+      "confidence": "normal",
+      "safe_to_spend": {
+        "safe_to_spend_total_paisa": 159466,
+        "safe_to_spend_total_display": "৳১,৫৯৪",
+        "safe_to_spend_wallet_paisa": 1706612,
+        "safe_to_spend_wallet_display": "৳১৭,০৬৬",
+        "daily_safe_budget_paisa": 7593,
+        "daily_safe_budget_display": "৳৭৫",
+        "upcoming_commitments_paisa": 1182967,
+        "upcoming_commitments_display": "৳১১,৮২৯",
+        "safety_buffer_paisa": 105000,
+        "safety_buffer_display": "৳১,০৫০",
+        "estimated_cash_paisa": 0,
+        "estimated_cash_display": "৳০",
+        "wallet_balance_paisa": 2994579,
+        "wallet_balance_display": "৳২৯,৯৪৫",
+        "status": "cautious",
+        "status_label_bn": "সতর্কতামূলক",
+        "status_label_en": "Cautious",
+        "horizon_days": 21,
+        "advice_bn": "নিরাপদ সীমার মধ্যে খরচ করলে পরবর্তী আয় পর্যন্ত টানাপোড়েন হওয়ার সম্ভাবনা কম।",
+        "advice_en": "Staying within the safe amount keeps a shortfall unlikely until the next income.",
+        "method": "model",
+        "rule_safe_to_spend_paisa": 1706612,
+        "rule_safe_to_spend_display": "৳১৭,০৬৬",
+        "shortfall_prob": 0.02987745292101896
+      },
+      "cash_on_hand": {
+        "estimated_cash_paisa": 0,
+        "estimated_cash_display": "৳০",
+        "trailing_cashout_total_paisa": 166164,
+        "trailing_cashout_total_display": "৳১,৬৬১",
+        "daily_cash_burn_paisa": 23737,
+        "daily_cash_burn_display": "৳২৩৭",
+        "days_of_cash_remaining": 0.0,
+        "confidence": "normal",
+        "last_cashout_date": "2026-09-23",
+        "effective_cash_paisa": 0,
+        "effective_cash_display": "৳০",
+        "other_liquid_paisa": 0,
+        "source": "estimated (cash-out rhythm)"
+      },
+      "recurring": {
+        "inflows": [],
+        "outflows": [
+          {
+            "item_id": "outflow_rent_5",
+            "title_bn": "মাসিক বাসা ভাড়া",
+            "title_en": "Monthly House Rent",
+            "category": "rent",
+            "direction": "outflow",
+            "amount_paisa": 800000,
+            "amount_display": "৳৮,০০০",
+            "interval_days": 30,
+            "periodicity": "monthly",
+            "expected_day_of_month": 5,
+            "confidence": 0.95,
+            "next_expected_date": "2026-10-06",
+            "occurrence_count": 10
+          },
+          {
+            "item_id": "outflow_mobile_12",
+            "title_bn": "মোবাইল রিচার্জ ও ইন্টারনেট প্যাকেজ",
+            "title_en": "Mobile & Internet Recharge",
+            "category": "mobile",
+            "direction": "outflow",
+            "amount_paisa": 40000,
+            "amount_display": "৳৪০০",
+            "interval_days": 30,
+            "periodicity": "monthly",
+            "expected_day_of_month": 12,
+            "confidence": 0.95,
+            "next_expected_date": "2026-10-16",
+            "occurrence_count": 11
+          },
+          {
+            "item_id": "outflow_bills_8",
+            "title_bn": "ইউটিলিটি বিল (বিদ্যুৎ/গ্যাস/পানি)",
+            "title_en": "Utility Bill",
+            "category": "bills",
+            "direction": "outflow",
+            "amount_paisa": 250000,
+            "amount_display": "৳২,৫০০",
+            "interval_days": 30,
+            "periodicity": "monthly",
+            "expected_day_of_month": 8,
+            "confidence": 0.95,
+            "next_expected_date": "2026-10-08",
+            "occurrence_count": 11
+          },
+          {
+            "item_id": "outflow_food_20",
+            "title_bn": "নিয়মিত ব্যয় (food)",
+            "title_en": "Recurring Spend (food)",
+            "category": "food",
+            "direction": "outflow",
+            "amount_paisa": 13373,
+            "amount_display": "৳১৩৩",
+            "interval_days": 30,
+            "periodicity": "monthly",
+            "expected_day_of_month": 20,
+            "confidence": 0.95,
+            "next_expected_date": "2026-10-14",
+            "occurrence_count": 4
+          },
+          {
+            "item_id": "outflow_transport_18",
+            "title_bn": "নিয়মিত ব্যয় (transport)",
+            "title_en": "Recurring Spend (transport)",
+            "category": "transport",
+            "direction": "outflow",
+            "amount_paisa": 16701,
+            "amount_display": "৳১৬৭",
+            "interval_days": 30,
+            "periodicity": "monthly",
+            "expected_day_of_month": 18,
+            "confidence": 0.8,
+            "next_expected_date": "2026-10-11",
+            "occurrence_count": 2
+          },
+          {
+            "item_id": "outflow_other_25",
+            "title_bn": "নিয়মিত ব্যয় (other)",
+            "title_en": "Recurring Spend (other)",
+            "category": "other",
+            "direction": "outflow",
+            "amount_paisa": 15854,
+            "amount_display": "৳১৫৮",
+            "interval_days": 30,
+            "periodicity": "monthly",
+            "expected_day_of_month": 25,
+            "confidence": 0.8,
+            "next_expected_date": "2026-10-22",
+            "occurrence_count": 2
+          },
+          {
+            "item_id": "outflow_food_0",
+            "title_bn": "নিয়মিত ব্যয় (food)",
+            "title_en": "Recurring Spend (food)",
+            "category": "food",
+            "direction": "outflow",
+            "amount_paisa": 19737,
+            "amount_display": "৳১৯৭",
+            "interval_days": 14,
+            "periodicity": "fortnightly",
+            "expected_day_of_month": null,
+            "confidence": 0.8,
+            "next_expected_date": "2026-10-07",
+            "occurrence_count": 2
+          },
+          {
+            "item_id": "outflow_food_0",
+            "title_bn": "নিয়মিত ব্যয় (food)",
+            "title_en": "Recurring Spend (food)",
+            "category": "food",
+            "direction": "outflow",
+            "amount_paisa": 31146,
+            "amount_display": "৳৩১১",
+            "interval_days": 14,
+            "periodicity": "fortnightly",
+            "expected_day_of_month": null,
+            "confidence": 0.8,
+            "next_expected_date": "2026-09-30",
+            "occurrence_count": 2
+          },
+          {
+            "item_id": "outflow_other_17",
+            "title_bn": "নিয়মিত ব্যয় (other)",
+            "title_en": "Recurring Spend (other)",
+            "category": "other",
+            "direction": "outflow",
+            "amount_paisa": 24402,
+            "amount_display": "৳২৪৪",
+            "interval_days": 30,
+            "periodicity": "monthly",
+            "expected_day_of_month": 17,
+            "confidence": 0.8,
+            "next_expected_date": "2026-10-14",
+            "occurrence_count": 2
+          },
+          {
+            "item_id": "outflow_other_23",
+            "title_bn": "নিয়মিত ব্যয় (other)",
+            "title_en": "Recurring Spend (other)",
+            "category": "other",
+            "direction": "outflow",
+            "amount_paisa": 17365,
+            "amount_display": "৳১৭৩",
+            "interval_days": 30,
+            "periodicity": "monthly",
+            "expected_day_of_month": 23,
+            "confidence": 0.8,
+            "next_expected_date": "2026-10-21",
+            "occurrence_count": 2
+          },
+          {
+            "item_id": "outflow_transport_21",
+            "title_bn": "নিয়মিত ব্যয় (transport)",
+            "title_en": "Recurring Spend (transport)",
+            "category": "transport",
+            "direction": "outflow",
+            "amount_paisa": 19317,
+            "amount_display": "৳১৯৩",
+            "interval_days": 30,
+            "periodicity": "monthly",
+            "expected_day_of_month": 21,
+            "confidence": 0.8,
+            "next_expected_date": "2026-10-15",
+            "occurrence_count": 2
+          },
+          {
+            "item_id": "outflow_transport_20",
+            "title_bn": "নিয়মিত ব্যয় (transport)",
+            "title_en": "Recurring Spend (transport)",
+            "category": "transport",
+            "direction": "outflow",
+            "amount_paisa": 24855,
+            "amount_display": "৳২৪৮",
+            "interval_days": 30,
+            "periodicity": "monthly",
+            "expected_day_of_month": 20,
+            "confidence": 0.8,
+            "next_expected_date": "2026-10-18",
+            "occurrence_count": 2
+          },
+          {
+            "item_id": "outflow_other_0",
+            "title_bn": "নিয়মিত ব্যয় (other)",
+            "title_en": "Recurring Spend (other)",
+            "category": "other",
+            "direction": "outflow",
+            "amount_paisa": 8716,
+            "amount_display": "৳৮৭",
+            "interval_days": 14,
+            "periodicity": "fortnightly",
+            "expected_day_of_month": null,
+            "confidence": 0.8,
+            "next_expected_date": "2026-10-02",
+            "occurrence_count": 2
+          },
+          {
+            "item_id": "outflow_food_0",
+            "title_bn": "নিয়মিত ব্যয় (food)",
+            "title_en": "Recurring Spend (food)",
+            "category": "food",
+            "direction": "outflow",
+            "amount_paisa": 18892,
+            "amount_display": "৳১৮৮",
+            "interval_days": 14,
+            "periodicity": "fortnightly",
+            "expected_day_of_month": null,
+            "confidence": 0.8,
+            "next_expected_date": "2026-10-05",
+            "occurrence_count": 2
+          }
+        ],
+        "total_monthly_inflow_paisa": 0,
+        "total_monthly_outflow_paisa": 1378849,
+        "total_monthly_inflow_display": "৳০",
+        "total_monthly_outflow_display": "৳১৩,৭৮৮",
+        "detected_salary_dom": null,
+        "upcoming_commitments_14d_paisa": 1182967,
+        "upcoming_commitments_14d_display": "৳১১,৮২৯"
+      },
+      "metrics": {
+        "monthly_income_paisa": 2764893,
+        "monthly_income_display": "৳২৭,৬৪৮",
+        "monthly_spend_paisa": 2538241,
+        "monthly_spend_display": "৳২৫,৩৮২",
+        "savings_rate": 0.08197528785411497,
+        "savings_rate_display": "৮%",
+        "income_volatility": 0.3229682215828698,
+        "income_volatility_display": "৩২%",
+        "buffer_days": 85.5594,
+        "buffer_days_display": "৮৬",
+        "cash_dependency_ratio": 0.30758926553124255,
+        "cash_dependency_ratio_display": "৩১%",
+        "fee_leakage_paisa": 126988,
+        "fee_leakage_display": "৳১,২৬৯",
+        "fixed_commitment_ratio": 0.3775811730016963,
+        "fixed_commitment_ratio_display": "৩৮%"
+      },
+      "categories": [
+        {
+          "category": "cash_out",
+          "label_bn": "ক্যাশ-আউট",
+          "label_en": "Cash-out",
+          "total_paisa": 8592902,
+          "total_display": "৳৮৫,৯২৯",
+          "share": 0.30758926553124255,
+          "share_display": "৩১%"
+        },
+        {
+          "category": "rent",
+          "label_bn": "ভাড়া",
+          "label_en": "Rent",
+          "total_paisa": 8000000,
+          "total_display": "৳৮০,০০০",
+          "share": 0.2863659010948735,
+          "share_display": "২৯%"
+        },
+        {
+          "category": "food",
+          "label_bn": "খাবার",
+          "label_en": "Food",
+          "total_paisa": 4613608,
+          "total_display": "৳৪৬,১৩৬",
+          "share": 0.16514750152731464,
+          "share_display": "১৭%"
+        },
+        {
+          "category": "bills",
+          "label_bn": "বিল",
+          "label_en": "Bills",
+          "total_paisa": 2750000,
+          "total_display": "৳২৭,৫০০",
+          "share": 0.09843827850136276,
+          "share_display": "১০%"
+        },
+        {
+          "category": "other",
+          "label_bn": "অন্যান্য",
+          "label_en": "Other",
+          "total_paisa": 2017731,
+          "total_display": "৳২০,১৭৭",
+          "share": 0.07222616949775752,
+          "share_display": "৭%"
+        },
+        {
+          "category": "transport",
+          "label_bn": "যাতায়াত",
+          "label_en": "Transport",
+          "total_paisa": 1221928,
+          "total_display": "৳১২,২১৯",
+          "share": 0.04373981409913207,
+          "share_display": "৪%"
+        },
+        {
+          "category": "mobile",
+          "label_bn": "মোবাইল",
+          "label_en": "Mobile",
+          "total_paisa": 440000,
+          "total_display": "৳৪,৪০০",
+          "share": 0.015750124560218043,
+          "share_display": "২%"
+        },
+        {
+          "category": "business",
+          "label_bn": "ব্যবসা",
+          "label_en": "Business",
+          "total_paisa": 300118,
+          "total_display": "৳৩,০০১",
+          "share": 0.010742945188098905,
+          "share_display": "১%"
+        }
+      ],
+      "insights": [
+        {
+          "id": "safe_to_spend",
+          "label": "Prediction",
+          "text_bn": "পরবর্তী আয়ের আগ পর্যন্ত নিয়মিত বিল ও সম্ভাব্য খরচ হিসাব করে আপনার নিরাপদ ব্যয়ের সীমা প্রায় ৳১,৫৯৪ (দৈনিক ৳৭৫)।",
+          "text_en": "Accounting for upcoming bills and likely spending until your next income, your safe-to-spend limit is ৳1,594 (~৳75/day)."
+        },
+        {
+          "id": "income_spend",
+          "label": "Data",
+          "text_bn": "গত পূর্ণ মাসে আপনার ওয়ালেটে এসেছে ৳২২,৮৮৬, খরচ হয়েছে ৳২৩,৫১৭।",
+          "text_en": "Last full month, ৳22,886 came into your wallet and ৳23,517 went out."
+        },
+        {
+          "id": "largest_week",
+          "label": "Data",
+          "text_bn": "সবচেয়ে বেশি খরচ হয়েছে ২ মার্চ ২০২৬ শুরু হওয়া সপ্তাহে — মোট ৳১৫,৭৪৫।",
+          "text_en": "The heaviest spending week started 2 Mar 2026 — ৳15,745 in total."
+        },
+        {
+          "id": "fees",
+          "label": "Data",
+          "text_bn": "ক্যাশ-আউট ফি হিসেবে এই সময়ে মোট ৳১,২৬৯ গেছে।",
+          "text_en": "Cash-out fees over this period add up to ৳1,269."
+        },
+        {
+          "id": "buffer",
+          "label": "Data",
+          "text_bn": "বর্তমান ব্যালেন্স দিয়ে প্রয়োজনীয় খরচ চলতে পারে প্রায় ৮৬ দিন।",
+          "text_en": "Your current balance can cover essentials for about 86 days."
+        }
+      ],
+      "liquidity_basis": {
+        "wallet_balance_paisa": 2994579,
+        "cash_on_hand_paisa": 0,
+        "other_liquid_paisa": 0,
+        "total_liquid_paisa": 2994579,
+        "cash_source": "estimated (cash-out rhythm)"
+      }
+    },
+    "evidence": {
+      "data_used": {
+        "window": "2025-10-01…2026-09-30",
+        "as_of_date": "2026-09-30",
+        "n_transactions": 418,
+        "source": "synthetic"
+      },
+      "model_version": {
+        "forecast": "fc-2026-09-30-15d8427d",
+        "categorizer": "rules-v1"
+      },
+      "config_hash": "3dd842fbccba",
+      "assumptions": [
+        {
+          "id": "FEE_CASHOUT_RATE",
+          "value": "150 bps, min ৳5",
+          "label": "Assumption"
+        },
+        {
+          "id": "FEE_DIGITAL_PAYMENT_RATE",
+          "value": "0 bps",
+          "label": "Assumption"
+        },
+        {
+          "id": "ESSENTIALS_PER_DAY",
+          "value": "৳350",
+          "label": "Assumption"
+        },
+        {
+          "id": "SHORTFALL_HORIZON_DAYS",
+          "value": "21",
+          "label": "Assumption"
+        }
+      ],
+      "labels": {
+        "balance": "Data",
+        "safe_to_spend": "Data",
+        "cash_on_hand": "Data",
+        "recurring_commitments": "Data",
+        "monthly_income": "Data",
+        "monthly_spend": "Data",
+        "categories": "Data",
+        "insights": "Data",
+        "fee_rate": "Assumption"
+      },
+      "generated_text": false,
+      "prompt_version": null,
+      "validator": {
+        "passed": true,
+        "fallback_used": false
+      }
+    }
   },
-  "recurring": {
-    "inflows": [
-      {
-        "label": "remittance",
-        "amount": 24870,
-        "cadence": "weekly",
-        "dom": null
+  "transactions": {
+    "data": {
+      "items": [
+        {
+          "txn_id": "u0003_t00418",
+          "ts": "2026-09-30T08:21:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 19898,
+          "amount_display": "৳১৯৮",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_tr_c00",
+            "type": "merchant",
+            "category": "transport",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "transport",
+            "label_bn": "যাতায়াত",
+            "label_en": "Transport",
+            "rule_id": "payment:cp=transport",
+            "reason_bn": "যাতায়াত খরচের মার্চেন্ট",
+            "reason_en": "Transport merchant"
+          },
+          "balance_after_paisa": 2994579,
+          "balance_after_display": "৳২৯,৯৪৫"
+        },
+        {
+          "txn_id": "u0003_t00417",
+          "ts": "2026-09-29T08:45:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 17761,
+          "amount_display": "৳১৭৭",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_d06",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 3014477,
+          "balance_after_display": "৳৩০,১৪৪"
+        },
+        {
+          "txn_id": "u0003_t00416",
+          "ts": "2026-09-28T08:50:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 16578,
+          "amount_display": "৳১৬৫",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_tr_c05",
+            "type": "merchant",
+            "category": "transport",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "transport",
+            "label_bn": "যাতায়াত",
+            "label_en": "Transport",
+            "rule_id": "payment:cp=transport",
+            "reason_bn": "যাতায়াত খরচের মার্চেন্ট",
+            "reason_en": "Transport merchant"
+          },
+          "balance_after_paisa": 3032238,
+          "balance_after_display": "৳৩০,৩২২"
+        },
+        {
+          "txn_id": "u0003_t00415",
+          "ts": "2026-09-28T05:07:00+00:00",
+          "type": "remittance_in",
+          "direction": "in",
+          "amount_paisa": 2288630,
+          "amount_display": "৳২২,৮৮৬",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "remit_house",
+            "type": "person",
+            "category": "remittance",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "remittance",
+            "label_bn": "রেমিট্যান্স",
+            "label_en": "Remittance",
+            "rule_id": "type:remittance_in",
+            "reason_bn": "রেমিট্যান্স হিসেবে এসেছে",
+            "reason_en": "Arrived as remittance"
+          },
+          "balance_after_paisa": 3048816,
+          "balance_after_display": "৳৩০,৪৮৮"
+        },
+        {
+          "txn_id": "u0003_t00414",
+          "ts": "2026-09-27T08:02:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 26443,
+          "amount_display": "৳২৬৪",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_ot_d05",
+            "type": "merchant",
+            "category": "other",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "other",
+            "label_bn": "অন্যান্য",
+            "label_en": "Other",
+            "rule_id": "payment:default_other",
+            "reason_bn": "অন্য কোনো নিয়মে পড়েনি",
+            "reason_en": "No other rule matched"
+          },
+          "balance_after_paisa": 760186,
+          "balance_after_display": "৳৭,৬০১"
+        },
+        {
+          "txn_id": "u0003_t00413",
+          "ts": "2026-09-26T08:24:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 15676,
+          "amount_display": "৳১৫৬",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_ot_d02",
+            "type": "merchant",
+            "category": "other",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "other",
+            "label_bn": "অন্যান্য",
+            "label_en": "Other",
+            "rule_id": "payment:default_other",
+            "reason_bn": "অন্য কোনো নিয়মে পড়েনি",
+            "reason_en": "No other rule matched"
+          },
+          "balance_after_paisa": 786629,
+          "balance_after_display": "৳৭,৮৬৬"
+        },
+        {
+          "txn_id": "u0003_t00412",
+          "ts": "2026-09-25T08:00:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 13286,
+          "amount_display": "৳১৩২",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_d13",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 802305,
+          "balance_after_display": "৳৮,০২৩"
+        },
+        {
+          "txn_id": "u0003_t00411",
+          "ts": "2026-09-24T08:53:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 9493,
+          "amount_display": "৳৯৪",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_ot_c00",
+            "type": "merchant",
+            "category": "other",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "other",
+            "label_bn": "অন্যান্য",
+            "label_en": "Other",
+            "rule_id": "payment:default_other",
+            "reason_bn": "অন্য কোনো নিয়মে পড়েনি",
+            "reason_en": "No other rule matched"
+          },
+          "balance_after_paisa": 815591,
+          "balance_after_display": "৳৮,১৫৫"
+        },
+        {
+          "txn_id": "u0003_t00409",
+          "ts": "2026-09-23T10:09:00+00:00",
+          "type": "cash_out",
+          "direction": "out",
+          "amount_paisa": 166164,
+          "amount_display": "৳১,৬৬১",
+          "fee_paisa": 2492,
+          "fee_display": "৳২৪",
+          "counterparty": {
+            "id": "agent_026",
+            "type": "agent",
+            "category": "agent",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "cash_out",
+            "label_bn": "ক্যাশ-আউট",
+            "label_en": "Cash-out",
+            "rule_id": "type:cash_out",
+            "reason_bn": "এজেন্ট থেকে ক্যাশ-আউট",
+            "reason_en": "Cash withdrawal at an agent"
+          },
+          "balance_after_paisa": 825084,
+          "balance_after_display": "৳৮,২৫০"
+        },
+        {
+          "txn_id": "u0003_t00410",
+          "ts": "2026-09-23T08:33:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 10230,
+          "amount_display": "৳১০২",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_ot_c02",
+            "type": "merchant",
+            "category": "other",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "other",
+            "label_bn": "অন্যান্য",
+            "label_en": "Other",
+            "rule_id": "payment:default_other",
+            "reason_bn": "অন্য কোনো নিয়মে পড়েনি",
+            "reason_en": "No other rule matched"
+          },
+          "balance_after_paisa": 993740,
+          "balance_after_display": "৳৯,৯৩৭"
+        },
+        {
+          "txn_id": "u0003_t00408",
+          "ts": "2026-09-22T08:12:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 3301,
+          "amount_display": "৳৩৩",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_d12",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 1003970,
+          "balance_after_display": "৳১০,০৩৯"
+        },
+        {
+          "txn_id": "u0003_t00407",
+          "ts": "2026-09-21T08:53:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 11577,
+          "amount_display": "৳১১৫",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_d06",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 1007271,
+          "balance_after_display": "৳১০,০৭২"
+        },
+        {
+          "txn_id": "u0003_t00406",
+          "ts": "2026-09-20T08:33:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 18308,
+          "amount_display": "৳১৮৩",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_ot_d03",
+            "type": "merchant",
+            "category": "other",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "other",
+            "label_bn": "অন্যান্য",
+            "label_en": "Other",
+            "rule_id": "payment:default_other",
+            "reason_bn": "অন্য কোনো নিয়মে পড়েনি",
+            "reason_en": "No other rule matched"
+          },
+          "balance_after_paisa": 1018848,
+          "balance_after_display": "৳১০,১৮৮"
+        },
+        {
+          "txn_id": "u0003_t00404",
+          "ts": "2026-09-19T10:23:00+00:00",
+          "type": "cash_out",
+          "direction": "out",
+          "amount_paisa": 157052,
+          "amount_display": "৳১,৫৭০",
+          "fee_paisa": 2356,
+          "fee_display": "৳২৩",
+          "counterparty": {
+            "id": "agent_026",
+            "type": "agent",
+            "category": "agent",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "cash_out",
+            "label_bn": "ক্যাশ-আউট",
+            "label_en": "Cash-out",
+            "rule_id": "type:cash_out",
+            "reason_bn": "এজেন্ট থেকে ক্যাশ-আউট",
+            "reason_en": "Cash withdrawal at an agent"
+          },
+          "balance_after_paisa": 1037156,
+          "balance_after_display": "৳১০,৩৭১"
+        },
+        {
+          "txn_id": "u0003_t00405",
+          "ts": "2026-09-19T08:23:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 18896,
+          "amount_display": "৳১৮৮",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_c01",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 1196564,
+          "balance_after_display": "৳১১,৯৬৫"
+        },
+        {
+          "txn_id": "u0003_t00403",
+          "ts": "2026-09-18T08:45:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 9655,
+          "amount_display": "৳৯৬",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_tr_d05",
+            "type": "merchant",
+            "category": "transport",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "transport",
+            "label_bn": "যাতায়াত",
+            "label_en": "Transport",
+            "rule_id": "payment:cp=transport",
+            "reason_bn": "যাতায়াত খরচের মার্চেন্ট",
+            "reason_en": "Transport merchant"
+          },
+          "balance_after_paisa": 1215460,
+          "balance_after_display": "৳১২,১৫৪"
+        },
+        {
+          "txn_id": "u0003_t00402",
+          "ts": "2026-09-17T08:08:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 15117,
+          "amount_display": "৳১৫১",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_c00",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 1225115,
+          "balance_after_display": "৳১২,২৫১"
+        },
+        {
+          "txn_id": "u0003_t00401",
+          "ts": "2026-09-16T08:38:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 12390,
+          "amount_display": "৳১২৩",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_ot_c01",
+            "type": "merchant",
+            "category": "other",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "other",
+            "label_bn": "অন্যান্য",
+            "label_en": "Other",
+            "rule_id": "payment:default_other",
+            "reason_bn": "অন্য কোনো নিয়মে পড়েনি",
+            "reason_en": "No other rule matched"
+          },
+          "balance_after_paisa": 1240232,
+          "balance_after_display": "৳১২,৪০২"
+        },
+        {
+          "txn_id": "u0003_t00400",
+          "ts": "2026-09-16T06:38:00+00:00",
+          "type": "recharge",
+          "direction": "out",
+          "amount_paisa": 40000,
+          "amount_display": "৳৪০০",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "operator_mob",
+            "type": "operator",
+            "category": "mobile",
+            "accepts_digital": true
+          },
+          "category": {
+            "category": "mobile",
+            "label_bn": "মোবাইল",
+            "label_en": "Mobile",
+            "rule_id": "type:recharge",
+            "reason_bn": "মোবাইল রিচার্জ",
+            "reason_en": "Mobile recharge"
+          },
+          "balance_after_paisa": 1252622,
+          "balance_after_display": "৳১২,৫২৬"
+        },
+        {
+          "txn_id": "u0003_t00399",
+          "ts": "2026-09-15T08:35:00+00:00",
+          "type": "payment",
+          "direction": "out",
+          "amount_paisa": 24828,
+          "amount_display": "৳২৪৮",
+          "fee_paisa": 0,
+          "fee_display": "৳০",
+          "counterparty": {
+            "id": "merch_food_c06",
+            "type": "merchant",
+            "category": "food",
+            "accepts_digital": false
+          },
+          "category": {
+            "category": "food",
+            "label_bn": "খাবার",
+            "label_en": "Food",
+            "rule_id": "payment:cp=food",
+            "reason_bn": "খাবারের দোকান/মুদি মার্চেন্ট",
+            "reason_en": "Food or grocery merchant"
+          },
+          "balance_after_paisa": 1292622,
+          "balance_after_display": "৳১২,৯২৬"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "total": 418,
+      "as_of_date": "2026-09-30"
+    },
+    "evidence": {
+      "data_used": {
+        "window": "2025-10-01…2026-09-30",
+        "as_of_date": "2026-09-30",
+        "n_transactions": 418,
+        "source": "synthetic"
+      },
+      "model_version": {
+        "forecast": "fc-2026-09-30-15d8427d",
+        "categorizer": "rules-v1"
+      },
+      "config_hash": "3dd842fbccba",
+      "assumptions": [
+        {
+          "id": "FEE_CASHOUT_RATE",
+          "value": "150 bps, min ৳5",
+          "label": "Assumption"
+        },
+        {
+          "id": "FEE_DIGITAL_PAYMENT_RATE",
+          "value": "0 bps",
+          "label": "Assumption"
+        },
+        {
+          "id": "ESSENTIALS_PER_DAY",
+          "value": "৳350",
+          "label": "Assumption"
+        },
+        {
+          "id": "SHORTFALL_HORIZON_DAYS",
+          "value": "21",
+          "label": "Assumption"
+        }
+      ],
+      "labels": {
+        "transactions": "Data"
+      },
+      "generated_text": false,
+      "prompt_version": null,
+      "validator": {
+        "passed": true,
+        "fallback_used": false
       }
-    ],
-    "outflows": [
-      {
-        "label": "rent",
-        "amount": 8000,
-        "cadence": "monthly",
-        "dom": 5
-      },
-      {
-        "label": "cash_out",
-        "amount": 1523,
-        "cadence": "weekly",
-        "dom": null
-      },
-      {
-        "label": "bills",
-        "amount": 2500,
-        "cadence": "monthly",
-        "dom": 9
-      },
-      {
-        "label": "cash_out",
-        "amount": 1571,
-        "cadence": "weekly",
-        "dom": null
-      },
-      {
-        "label": "cash_out",
-        "amount": 1649,
-        "cadence": "weekly",
-        "dom": null
-      },
-      {
-        "label": "groceries",
-        "amount": 186,
-        "cadence": "several times a week",
-        "dom": null
-      },
-      {
-        "label": "cash_out",
-        "amount": 1560,
-        "cadence": "monthly",
-        "dom": null
-      },
-      {
-        "label": "groceries",
-        "amount": 199,
-        "cadence": "several times a week",
-        "dom": null
-      },
-      {
-        "label": "groceries",
-        "amount": 218,
-        "cadence": "several times a week",
-        "dom": null
-      },
-      {
-        "label": "groceries",
-        "amount": 240,
-        "cadence": "several times a week",
-        "dom": null
-      },
-      {
-        "label": "groceries",
-        "amount": 187,
-        "cadence": "several times a week",
-        "dom": null
-      },
-      {
-        "label": "mobile",
-        "amount": 400,
-        "cadence": "weekly",
-        "dom": null
-      }
-    ],
-    "upcoming_commitments_14d": 28773
+    }
   },
   "forecast": {
-    "horizon_days": 21,
-    "shortfall_prob": 0.0275,
-    "shortfall_prob_display": "৩%",
-    "risk_level": "low",
-    "trough_day_offset": 8,
-    "days_to_next_income": 8,
-    "next_income_date": "2026-10-11T00:00:00.000Z",
-    "daily_quantiles": [
-      {
-        "d": 1,
-        "p10": 16115,
-        "p50": 17982,
-        "p90": 18077
+    "data": {
+      "horizon_days": 21,
+      "as_of_date": "2026-09-30",
+      "start_balance_paisa": 2994579,
+      "start_balance_display": "৳২৯,৯৪৫",
+      "shortfall_prob": 0.02987745292101896,
+      "shortfall_prob_display": "৩%",
+      "risk_level": "low",
+      "trough_date": "২১ অক্টোবর ২০২৬",
+      "confidence": "normal",
+      "days": [
+        {
+          "date": "2026-10-01",
+          "p10_paisa": 2812451,
+          "p10_display": "৳২৮,১২৪",
+          "p50_paisa": 2964921,
+          "p50_display": "৳২৯,৬৪৯",
+          "p90_paisa": 2995492,
+          "p90_display": "৳২৯,৯৫৪"
+        },
+        {
+          "date": "2026-10-02",
+          "p10_paisa": 2731270,
+          "p10_display": "৳২৭,৩১২",
+          "p50_paisa": 2936563,
+          "p50_display": "৳২৯,৩৬৫",
+          "p90_paisa": 2977160,
+          "p90_display": "৳২৯,৭৭১"
+        },
+        {
+          "date": "2026-10-03",
+          "p10_paisa": 2010367,
+          "p10_display": "৳২০,১০৩",
+          "p50_paisa": 2753095,
+          "p50_display": "৳২৭,৫৩০",
+          "p90_paisa": 2949277,
+          "p90_display": "৳২৯,৪৯২"
+        },
+        {
+          "date": "2026-10-04",
+          "p10_paisa": 1872904,
+          "p10_display": "৳১৮,৭২৯",
+          "p50_paisa": 2583607,
+          "p50_display": "৳২৫,৮৩৬",
+          "p90_paisa": 2921850,
+          "p90_display": "৳২৯,২১৮"
+        },
+        {
+          "date": "2026-10-05",
+          "p10_paisa": 1735585,
+          "p10_display": "৳১৭,৩৫৫",
+          "p50_paisa": 2080950,
+          "p50_display": "৳২০,৮০৯",
+          "p90_paisa": 2858178,
+          "p90_display": "৳২৮,৫৮১"
+        },
+        {
+          "date": "2026-10-06",
+          "p10_paisa": 1520560,
+          "p10_display": "৳১৫,২০৫",
+          "p50_paisa": 1955193,
+          "p50_display": "৳১৯,৫৫১",
+          "p90_paisa": 2698163,
+          "p90_display": "৳২৬,৯৮১"
+        },
+        {
+          "date": "2026-10-07",
+          "p10_paisa": 1358236,
+          "p10_display": "৳১৩,৫৮২",
+          "p50_paisa": 1772788,
+          "p50_display": "৳১৭,৭২৭",
+          "p90_paisa": 2036209,
+          "p90_display": "৳২০,৩৬২"
+        },
+        {
+          "date": "2026-10-08",
+          "p10_paisa": 1174162,
+          "p10_display": "৳১১,৭৪১",
+          "p50_paisa": 1562848,
+          "p50_display": "৳১৫,৬২৮",
+          "p90_paisa": 1884958,
+          "p90_display": "৳১৮,৮৪৯"
+        },
+        {
+          "date": "2026-10-09",
+          "p10_paisa": 1056090,
+          "p10_display": "৳১০,৫৬০",
+          "p50_paisa": 1505065,
+          "p50_display": "৳১৫,০৫০",
+          "p90_paisa": 1823669,
+          "p90_display": "৳১৮,২৩৬"
+        },
+        {
+          "date": "2026-10-10",
+          "p10_paisa": 952172,
+          "p10_display": "৳৯,৫২১",
+          "p50_paisa": 1415439,
+          "p50_display": "৳১৪,১৫৪",
+          "p90_paisa": 1747495,
+          "p90_display": "৳১৭,৪৭৪"
+        },
+        {
+          "date": "2026-10-11",
+          "p10_paisa": 844368,
+          "p10_display": "৳৮,৪৪৩",
+          "p50_paisa": 1352795,
+          "p50_display": "৳১৩,৫২৭",
+          "p90_paisa": 1692330,
+          "p90_display": "৳১৬,৯২৩"
+        },
+        {
+          "date": "2026-10-12",
+          "p10_paisa": 765167,
+          "p10_display": "৳৭,৬৫১",
+          "p50_paisa": 1233427,
+          "p50_display": "৳১২,৩৩৪",
+          "p90_paisa": 1632556,
+          "p90_display": "৳১৬,৩২৫"
+        },
+        {
+          "date": "2026-10-13",
+          "p10_paisa": 686109,
+          "p10_display": "৳৬,৮৬১",
+          "p50_paisa": 1192169,
+          "p50_display": "৳১১,৯২১",
+          "p90_paisa": 1600464,
+          "p90_display": "৳১৬,০০৪"
+        },
+        {
+          "date": "2026-10-14",
+          "p10_paisa": 593100,
+          "p10_display": "৳৫,৯৩১",
+          "p50_paisa": 1164133,
+          "p50_display": "৳১১,৬৪১",
+          "p90_paisa": 1555190,
+          "p90_display": "৳১৫,৫৫১"
+        },
+        {
+          "date": "2026-10-15",
+          "p10_paisa": 552245,
+          "p10_display": "৳৫,৫২২",
+          "p50_paisa": 1118510,
+          "p50_display": "৳১১,১৮৫",
+          "p90_paisa": 1521184,
+          "p90_display": "৳১৫,২১১"
+        },
+        {
+          "date": "2026-10-16",
+          "p10_paisa": 519909,
+          "p10_display": "৳৫,১৯৯",
+          "p50_paisa": 1052056,
+          "p50_display": "৳১০,৫২০",
+          "p90_paisa": 1478889,
+          "p90_display": "৳১৪,৭৮৮"
+        },
+        {
+          "date": "2026-10-17",
+          "p10_paisa": 443018,
+          "p10_display": "৳৪,৪৩০",
+          "p50_paisa": 993111,
+          "p50_display": "৳৯,৯৩১",
+          "p90_paisa": 1459732,
+          "p90_display": "৳১৪,৫৯৭"
+        },
+        {
+          "date": "2026-10-18",
+          "p10_paisa": 363217,
+          "p10_display": "৳৩,৬৩২",
+          "p50_paisa": 958904,
+          "p50_display": "৳৯,৫৮৯",
+          "p90_paisa": 1423065,
+          "p90_display": "৳১৪,২৩০"
+        },
+        {
+          "date": "2026-10-19",
+          "p10_paisa": 331577,
+          "p10_display": "৳৩,৩১৫",
+          "p50_paisa": 899858,
+          "p50_display": "৳৮,৯৯৮",
+          "p90_paisa": 1374383,
+          "p90_display": "৳১৩,৭৪৩"
+        },
+        {
+          "date": "2026-10-20",
+          "p10_paisa": 272076,
+          "p10_display": "৳২,৭২০",
+          "p50_paisa": 854188,
+          "p50_display": "৳৮,৫৪১",
+          "p90_paisa": 1361601,
+          "p90_display": "৳১৩,৬১৬"
+        },
+        {
+          "date": "2026-10-21",
+          "p10_paisa": 219400,
+          "p10_display": "৳২,১৯৪",
+          "p50_paisa": 806186,
+          "p50_display": "৳৮,০৬১",
+          "p90_paisa": 1323618,
+          "p90_display": "৳১৩,২৩৬"
+        }
+      ],
+      "days_to_next_income": 35,
+      "next_income_date": "2026-11-04",
+      "safe_to_spend_paisa": 159466,
+      "safe_to_spend_display": "৳১,৫৯৪",
+      "daily_allowance_paisa": 7593,
+      "daily_allowance_display": "৳৭৫",
+      "liquidity_basis": {
+        "wallet_balance_paisa": 2994579,
+        "cash_on_hand_paisa": 0,
+        "other_liquid_paisa": 0,
+        "total_liquid_paisa": 2994579,
+        "cash_source": "estimated (cash-out rhythm)"
       },
-      {
-        "d": 2,
-        "p10": 14512,
-        "p50": 17658,
-        "p90": 17983
+      "top_action": {
+        "action_id": "buffer_payday",
+        "title_bn": "বেতনের দিন এক সপ্তাহের বাফার রাখুন",
+        "title_en": "Hold a one-week buffer on salary day",
+        "delta_shortfall_prob": -0.0299,
+        "shortfall_prob_after": 0.0
       },
-      {
-        "d": 3,
-        "p10": 13039,
-        "p50": 16976,
-        "p90": 37178
+      "method": "lightgbm-quantile + recurring streams + calibrated paths",
+      "model_version": "fc-2026-09-30-15d8427d"
+    },
+    "evidence": {
+      "data_used": {
+        "window": "2025-10-01…2026-09-30",
+        "as_of_date": "2026-09-30",
+        "n_transactions": 418,
+        "source": "synthetic"
       },
-      {
-        "d": 4,
-        "p10": 9204,
-        "p50": 16065,
-        "p90": 37362
+      "model_version": {
+        "forecast": "fc-2026-09-30-15d8427d",
+        "categorizer": "rules-v1"
       },
-      {
-        "d": 5,
-        "p10": 8011,
-        "p50": 15724,
-        "p90": 41102
+      "config_hash": "3dd842fbccba",
+      "assumptions": [
+        {
+          "id": "FEE_CASHOUT_RATE",
+          "value": "150 bps, min ৳5",
+          "label": "Assumption"
+        },
+        {
+          "id": "FEE_DIGITAL_PAYMENT_RATE",
+          "value": "0 bps",
+          "label": "Assumption"
+        },
+        {
+          "id": "ESSENTIALS_PER_DAY",
+          "value": "৳350",
+          "label": "Assumption"
+        },
+        {
+          "id": "SHORTFALL_HORIZON_DAYS",
+          "value": "21",
+          "label": "Assumption"
+        }
+      ],
+      "labels": {
+        "shortfall_prob": "Prediction",
+        "start_balance": "Data",
+        "trough_date": "Prediction",
+        "daily_quantiles": "Prediction",
+        "safe_to_spend": "Prediction",
+        "daily_allowance": "Prediction",
+        "liquidity_basis": "Data",
+        "top_action": "Prediction"
       },
-      {
-        "d": 6,
-        "p10": 7124,
-        "p50": 15059,
-        "p90": 40884
-      },
-      {
-        "d": 7,
-        "p10": 5999,
-        "p50": 14745,
-        "p90": 40778
-      },
-      {
-        "d": 8,
-        "p10": 5561,
-        "p50": 14350,
-        "p90": 41094
-      },
-      {
-        "d": 9,
-        "p10": 4473,
-        "p50": 13902,
-        "p90": 41420
-      },
-      {
-        "d": 10,
-        "p10": 3486,
-        "p50": 13473,
-        "p90": 41710
-      },
-      {
-        "d": 11,
-        "p10": 2560,
-        "p50": 13269,
-        "p90": 41747
-      },
-      {
-        "d": 12,
-        "p10": 2054,
-        "p50": 13149,
-        "p90": 41607
-      },
-      {
-        "d": 13,
-        "p10": 1635,
-        "p50": 12485,
-        "p90": 41540
-      },
-      {
-        "d": 14,
-        "p10": 718,
-        "p50": 12301,
-        "p90": 42474
-      },
-      {
-        "d": 15,
-        "p10": 251,
-        "p50": 12626,
-        "p90": 42632
-      },
-      {
-        "d": 16,
-        "p10": -269,
-        "p50": 13423,
-        "p90": 43913
-      },
-      {
-        "d": 17,
-        "p10": -1399,
-        "p50": 17756,
-        "p90": 49038
-      },
-      {
-        "d": 18,
-        "p10": -1617,
-        "p50": 20714,
-        "p90": 51513
-      },
-      {
-        "d": 19,
-        "p10": -2578,
-        "p50": 20645,
-        "p90": 51379
-      },
-      {
-        "d": 20,
-        "p10": -3788,
-        "p50": 20821,
-        "p90": 52530
-      },
-      {
-        "d": 21,
-        "p10": -4742,
-        "p50": 20549,
-        "p90": 52986
+      "generated_text": false,
+      "prompt_version": null,
+      "validator": {
+        "passed": true,
+        "fallback_used": false
       }
-    ]
+    }
   },
-  "cashout_audit": {
-    "total_cashouts": 14,
-    "total_fees": 7000,
-    "replaceable_count": 6,
-    "replaceable_fee_saved": 3000,
-    "annualized_savings": 12167,
-    "patterns": [
-      {
-        "agent": "Agent Korim",
-        "count": 5,
-        "fee_saved": 2000
+  "cashout": {
+    "data": {
+      "patterns": [
+        {
+          "counterparty_id": "agent_026",
+          "count": 38,
+          "total_amount_paisa": 6408511,
+          "total_amount_display": "৳৬৪,০৮৫",
+          "total_fee_paisa": 96127,
+          "total_fee_display": "৳৯৬১",
+          "replaceable_count": 16,
+          "replaceable_amount_paisa": 2621908,
+          "replaceable_amount_display": "৳২৬,২১৯",
+          "replaceable_fee_saved_paisa": 39329,
+          "replaceable_fee_saved_display": "৳৩৯৩"
+        }
+      ],
+      "total_cashouts": 51,
+      "total_fees_paisa": 126988,
+      "total_fees_display": "৳১,২৬৯",
+      "replaceable_count": 16,
+      "replaceable_amount_paisa": 2621908,
+      "replaceable_amount_display": "৳২৬,২১৯",
+      "replaceable_fee_saved_paisa": 39329,
+      "replaceable_fee_saved_display": "৳৩৯৩",
+      "cash_dependency_ratio": 0.30758926553124255,
+      "cash_dependency_ratio_display": "৩১%"
+    },
+    "evidence": {
+      "data_used": {
+        "window": "2025-10-01…2026-09-30",
+        "as_of_date": "2026-09-30",
+        "n_transactions": 418,
+        "source": "synthetic"
       },
-      {
-        "agent": "Agent Rashid",
-        "count": 5,
-        "fee_saved": 1000
+      "model_version": {
+        "forecast": "fc-2026-09-30-15d8427d",
+        "categorizer": "rules-v1"
+      },
+      "config_hash": "3dd842fbccba",
+      "assumptions": [
+        {
+          "id": "FEE_CASHOUT_RATE",
+          "value": "150 bps, min ৳5",
+          "label": "Assumption"
+        },
+        {
+          "id": "FEE_DIGITAL_PAYMENT_RATE",
+          "value": "0 bps",
+          "label": "Assumption"
+        },
+        {
+          "id": "ESSENTIALS_PER_DAY",
+          "value": "৳350",
+          "label": "Assumption"
+        },
+        {
+          "id": "SHORTFALL_HORIZON_DAYS",
+          "value": "21",
+          "label": "Assumption"
+        }
+      ],
+      "labels": {
+        "replaceable_fees": "Prediction",
+        "total_cashouts": "Data",
+        "cash_dependency": "Data"
+      },
+      "generated_text": false,
+      "prompt_version": null,
+      "validator": {
+        "passed": true,
+        "fallback_used": false
       }
-    ]
+    }
   },
   "goal_plan": {
-    "target": 61008,
-    "verdict": "unlikely",
-    "p_requested": 0,
-    "feasibility_note_bn": "এই সময়ে এই লক্ষ্য পৌঁছানো কঠিন। নিচের বিকল্পগুলো দেখুন — সিদ্ধান্ত আপনার।",
-    "feasibility_note_en": "This goal is unlikely in the requested time. The options below are more realistic — you decide.",
-    "options": [
+    "data": {
+      "target_paisa": 1000000,
+      "target_display": "৳১০,০০০",
+      "requested_months": 6,
+      "monthly_required_paisa": 166667,
+      "monthly_required_display": "৳১,৬৬৬",
+      "p_requested": 0.009336824905566653,
+      "p_requested_display": "১%",
+      "verdict": "unlikely",
+      "options": [
+        {
+          "key": "extend_timeline",
+          "title_bn": "সময় বাড়িয়ে সহজে সঞ্চয়",
+          "title_en": "Extend Timeline",
+          "monthly_contribution_paisa": 207881,
+          "monthly_contribution_display": "৳২,০৭৮",
+          "percent_of_inflow": null,
+          "months": 5,
+          "p_goal_met": 0.014402161335873239,
+          "p_goal_met_display": "১%",
+          "p_low": 0.010034152171431502,
+          "p_high": 0.020631998533101704,
+          "tradeoff_bn": "বেশি সময় লাগবে, তবে মাসিক অংক ছোট ও টেকসই",
+          "tradeoff_en": "Takes longer, but the monthly amount stays small and sustainable"
+        },
+        {
+          "key": "trim_leakage",
+          "title_bn": "অপ্রয়োজনীয় ফি কমিয়ে সঞ্চয়",
+          "title_en": "Redirect Avoidable Fees",
+          "monthly_contribution_paisa": 207881,
+          "monthly_contribution_display": "৳২,০৭৮",
+          "percent_of_inflow": null,
+          "months": 5,
+          "p_goal_met": 0.014402161335873239,
+          "p_goal_met_display": "১%",
+          "p_low": 0.010034152171431502,
+          "p_high": 0.020631998533101704,
+          "tradeoff_bn": "ক্যাশ-আউট ফি ও এড়ানো যায় এমন খরচ কমিয়ে সেই টাকা জমানো হবে",
+          "tradeoff_en": "Redirects cash-out fees and avoidable spend into the goal"
+        },
+        {
+          "key": "percent_of_inflow",
+          "title_bn": "প্রতি আয়ের নির্দিষ্ট অংশ সঞ্চয়",
+          "title_en": "Save Percentage of Inflows",
+          "monthly_contribution_paisa": 166667,
+          "monthly_contribution_display": "৳১,৬৬৬",
+          "percent_of_inflow": 0.058391713251482326,
+          "months": 6,
+          "p_goal_met": 0.0347964728663965,
+          "p_goal_met_display": "৩%",
+          "p_low": 0.027614835298305378,
+          "p_high": 0.043761744748329105,
+          "tradeoff_bn": "আয় আসার সঙ্গে সঙ্গে একটি নির্দিষ্ট অংশ আলাদা রাখা হয়",
+          "tradeoff_en": "Sets aside a fixed share the moment income arrives"
+        }
+      ],
+      "feasibility_note_bn": "এই সময়ে এই লক্ষ্য পৌঁছানো কঠিন। নিচের বিকল্পগুলো দেখুন — সিদ্ধান্ত আপনার।",
+      "feasibility_note_en": "This goal is unlikely in the requested time. The options below are more realistic — you decide."
+    },
+    "evidence": {
+      "data_used": {
+        "window": "2025-10-01…2026-09-30",
+        "as_of_date": "2026-09-30",
+        "n_transactions": 418,
+        "source": "synthetic"
+      },
+      "model_version": {
+        "forecast": "fc-2026-09-30-15d8427d",
+        "categorizer": "rules-v1"
+      },
+      "config_hash": "3dd842fbccba",
+      "assumptions": [
+        {
+          "id": "FEE_CASHOUT_RATE",
+          "value": "150 bps, min ৳5",
+          "label": "Assumption"
+        },
+        {
+          "id": "FEE_DIGITAL_PAYMENT_RATE",
+          "value": "0 bps",
+          "label": "Assumption"
+        },
+        {
+          "id": "ESSENTIALS_PER_DAY",
+          "value": "৳350",
+          "label": "Assumption"
+        },
+        {
+          "id": "SHORTFALL_HORIZON_DAYS",
+          "value": "21",
+          "label": "Assumption"
+        }
+      ],
+      "labels": {
+        "target": "Data",
+        "options": "Prediction",
+        "feasibility": "Prediction"
+      },
+      "generated_text": false,
+      "prompt_version": null,
+      "validator": {
+        "passed": true,
+        "fallback_used": false
+      }
+    }
+  },
+  "engine": {
+    "as_of_date": "2026-09-30",
+    "opening_balance_paisa": 3171781,
+    "transactions": [
       {
-        "key": "extend_timeline",
-        "monthly_contribution": 500,
-        "months": 36,
-        "p_goal_met": 0,
-        "p_low": 0,
-        "p_high": 0.001917047281252934,
-        "tradeoff_bn": "বেশি সময় লাগবে, তবে মাসিক অংক ছোট ও টেকসই",
-        "tradeoff_en": "Takes longer, but the monthly amount stays small and sustainable"
+        "ts": "2026-06-02T08:11:00Z",
+        "type": "payment",
+        "amount_paisa": 16929,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d10",
+        "counterparty_category": "food",
+        "accepts_digital": true
       },
       {
-        "key": "trim_leakage",
-        "monthly_contribution": 500,
-        "months": 36,
-        "p_goal_met": 0,
-        "p_low": 0,
-        "p_high": 0.001917047281252934,
-        "tradeoff_bn": "ক্যাশ-আউট ফি ও এড়ানো যায় এমন খরচ কমিয়ে সেই টাকা জমানো হবে",
-        "tradeoff_en": "Redirects cash-out fees and avoidable spend into the goal"
+        "ts": "2026-06-03T06:34:00Z",
+        "type": "send_money",
+        "amount_paisa": 800000,
+        "fee_paisa": 0,
+        "counterparty_id": "person_landlord",
+        "counterparty_category": "rent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-03T08:09:00Z",
+        "type": "payment",
+        "amount_paisa": 22072,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_c05",
+        "counterparty_category": "transport",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-05T08:00:00Z",
+        "type": "payment",
+        "amount_paisa": 44155,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c02",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-06T08:22:00Z",
+        "type": "payment",
+        "amount_paisa": 21611,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d04",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-07T05:58:00Z",
+        "type": "remittance_in",
+        "amount_paisa": 2555311,
+        "fee_paisa": 0,
+        "counterparty_id": "remit_house",
+        "counterparty_category": "remittance",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-07T08:01:00Z",
+        "type": "payment",
+        "amount_paisa": 26787,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d02",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-08T06:47:00Z",
+        "type": "bill_pay",
+        "amount_paisa": 250000,
+        "fee_paisa": 0,
+        "counterparty_id": "biller_util",
+        "counterparty_category": "utilities",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-08T08:04:00Z",
+        "type": "payment",
+        "amount_paisa": 12243,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c03",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-09T08:55:00Z",
+        "type": "payment",
+        "amount_paisa": 23773,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d04",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-10T06:08:00Z",
+        "type": "recharge",
+        "amount_paisa": 40000,
+        "fee_paisa": 0,
+        "counterparty_id": "operator_mob",
+        "counterparty_category": "mobile",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-10T08:55:00Z",
+        "type": "payment",
+        "amount_paisa": 25399,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c00",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-11T08:17:00Z",
+        "type": "payment",
+        "amount_paisa": 16232,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_c00",
+        "counterparty_category": "other",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-11T10:52:00Z",
+        "type": "cash_out",
+        "amount_paisa": 161380,
+        "fee_paisa": 2421,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-12T08:45:00Z",
+        "type": "payment",
+        "amount_paisa": 17934,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d11",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-12T12:51:00Z",
+        "type": "payment",
+        "amount_paisa": 131494,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d02",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-13T08:24:00Z",
+        "type": "payment",
+        "amount_paisa": 11897,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d08",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-14T08:06:00Z",
+        "type": "payment",
+        "amount_paisa": 12096,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_c02",
+        "counterparty_category": "other",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-15T08:51:00Z",
+        "type": "payment",
+        "amount_paisa": 15691,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d10",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-15T10:35:00Z",
+        "type": "cash_out",
+        "amount_paisa": 136274,
+        "fee_paisa": 2044,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-16T08:00:00Z",
+        "type": "payment",
+        "amount_paisa": 15167,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c02",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-17T08:40:00Z",
+        "type": "payment",
+        "amount_paisa": 19317,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d00",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-18T08:28:00Z",
+        "type": "payment",
+        "amount_paisa": 20266,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d09",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-19T08:30:00Z",
+        "type": "payment",
+        "amount_paisa": 8015,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d01",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-20T08:24:00Z",
+        "type": "payment",
+        "amount_paisa": 6535,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d12",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-21T08:56:00Z",
+        "type": "payment",
+        "amount_paisa": 21700,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d15",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-22T08:33:00Z",
+        "type": "payment",
+        "amount_paisa": 2000,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d06",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-22T10:28:00Z",
+        "type": "cash_out",
+        "amount_paisa": 140462,
+        "fee_paisa": 2107,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-23T08:13:00Z",
+        "type": "payment",
+        "amount_paisa": 17365,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d00",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-24T08:07:00Z",
+        "type": "payment",
+        "amount_paisa": 24211,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_c04",
+        "counterparty_category": "other",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-24T10:53:00Z",
+        "type": "cash_out",
+        "amount_paisa": 193529,
+        "fee_paisa": 2903,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-24T12:48:00Z",
+        "type": "payment",
+        "amount_paisa": 88294,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_biz_02",
+        "counterparty_category": "business",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-25T08:09:00Z",
+        "type": "payment",
+        "amount_paisa": 12631,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d11",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-26T08:26:00Z",
+        "type": "payment",
+        "amount_paisa": 11752,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c03",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-26T10:57:00Z",
+        "type": "cash_out",
+        "amount_paisa": 175655,
+        "fee_paisa": 2635,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-06-27T08:40:00Z",
+        "type": "payment",
+        "amount_paisa": 14909,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d10",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-28T08:50:00Z",
+        "type": "payment",
+        "amount_paisa": 8716,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d05",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-06-29T08:13:00Z",
+        "type": "payment",
+        "amount_paisa": 26903,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d02",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-01T08:47:00Z",
+        "type": "payment",
+        "amount_paisa": 21338,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_c00",
+        "counterparty_category": "other",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-07-02T08:45:00Z",
+        "type": "payment",
+        "amount_paisa": 35831,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d10",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-03T08:33:00Z",
+        "type": "payment",
+        "amount_paisa": 9009,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d11",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-03T10:11:00Z",
+        "type": "cash_out",
+        "amount_paisa": 167384,
+        "fee_paisa": 2511,
+        "counterparty_id": "agent_039",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-07-04T08:31:00Z",
+        "type": "payment",
+        "amount_paisa": 32337,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c01",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-07-04T10:51:00Z",
+        "type": "cash_out",
+        "amount_paisa": 154523,
+        "fee_paisa": 2318,
+        "counterparty_id": "agent_003",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-07-05T08:59:00Z",
+        "type": "payment",
+        "amount_paisa": 20955,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d05",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-06T08:19:00Z",
+        "type": "payment",
+        "amount_paisa": 39753,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d12",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-07T06:56:00Z",
+        "type": "send_money",
+        "amount_paisa": 800000,
+        "fee_paisa": 0,
+        "counterparty_id": "person_landlord",
+        "counterparty_category": "rent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-07-07T10:50:00Z",
+        "type": "cash_out",
+        "amount_paisa": 132565,
+        "fee_paisa": 1988,
+        "counterparty_id": "agent_022",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-07-08T06:03:00Z",
+        "type": "bill_pay",
+        "amount_paisa": 250000,
+        "fee_paisa": 0,
+        "counterparty_id": "biller_util",
+        "counterparty_category": "utilities",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-08T08:04:00Z",
+        "type": "payment",
+        "amount_paisa": 42646,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d04",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-08T10:27:00Z",
+        "type": "cash_out",
+        "amount_paisa": 124278,
+        "fee_paisa": 1864,
+        "counterparty_id": "agent_031",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-07-09T08:35:00Z",
+        "type": "payment",
+        "amount_paisa": 32355,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d09",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-10T08:10:00Z",
+        "type": "payment",
+        "amount_paisa": 8690,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d05",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-11T08:59:00Z",
+        "type": "payment",
+        "amount_paisa": 9368,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d11",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-12T08:54:00Z",
+        "type": "payment",
+        "amount_paisa": 18016,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d04",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-13T06:25:00Z",
+        "type": "recharge",
+        "amount_paisa": 40000,
+        "fee_paisa": 0,
+        "counterparty_id": "operator_mob",
+        "counterparty_category": "mobile",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-13T08:23:00Z",
+        "type": "payment",
+        "amount_paisa": 18814,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d04",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-14T08:54:00Z",
+        "type": "payment",
+        "amount_paisa": 17485,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d06",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-15T08:13:00Z",
+        "type": "payment",
+        "amount_paisa": 16431,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d04",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-17T05:30:00Z",
+        "type": "remittance_in",
+        "amount_paisa": 2968593,
+        "fee_paisa": 0,
+        "counterparty_id": "remit_house",
+        "counterparty_category": "remittance",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-17T08:40:00Z",
+        "type": "payment",
+        "amount_paisa": 5958,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d09",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-18T08:12:00Z",
+        "type": "payment",
+        "amount_paisa": 4746,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d03",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-20T08:30:00Z",
+        "type": "payment",
+        "amount_paisa": 24855,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d09",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-21T08:30:00Z",
+        "type": "payment",
+        "amount_paisa": 16458,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d06",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-22T08:46:00Z",
+        "type": "payment",
+        "amount_paisa": 13041,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c04",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-07-22T10:01:00Z",
+        "type": "cash_out",
+        "amount_paisa": 129654,
+        "fee_paisa": 1945,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-07-23T08:58:00Z",
+        "type": "payment",
+        "amount_paisa": 12436,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d04",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-23T10:51:00Z",
+        "type": "cash_out",
+        "amount_paisa": 161505,
+        "fee_paisa": 2423,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-07-24T08:48:00Z",
+        "type": "payment",
+        "amount_paisa": 17639,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d15",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-24T12:37:00Z",
+        "type": "payment",
+        "amount_paisa": 110365,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d14",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-26T08:46:00Z",
+        "type": "payment",
+        "amount_paisa": 11429,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d03",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-27T08:55:00Z",
+        "type": "payment",
+        "amount_paisa": 19352,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c03",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-07-28T08:27:00Z",
+        "type": "payment",
+        "amount_paisa": 18624,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d16",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-29T08:04:00Z",
+        "type": "payment",
+        "amount_paisa": 25180,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d17",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-07-31T08:50:00Z",
+        "type": "payment",
+        "amount_paisa": 17881,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_c03",
+        "counterparty_category": "other",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-01T08:43:00Z",
+        "type": "payment",
+        "amount_paisa": 37760,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d11",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-03T08:21:00Z",
+        "type": "payment",
+        "amount_paisa": 32846,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d03",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-04T08:37:00Z",
+        "type": "payment",
+        "amount_paisa": 24823,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d09",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-05T06:54:00Z",
+        "type": "send_money",
+        "amount_paisa": 800000,
+        "fee_paisa": 0,
+        "counterparty_id": "person_landlord",
+        "counterparty_category": "rent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-05T08:49:00Z",
+        "type": "payment",
+        "amount_paisa": 3874,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d04",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-06T06:11:00Z",
+        "type": "bill_pay",
+        "amount_paisa": 250000,
+        "fee_paisa": 0,
+        "counterparty_id": "biller_util",
+        "counterparty_category": "utilities",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-06T08:16:00Z",
+        "type": "payment",
+        "amount_paisa": 35046,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c00",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-07T08:28:00Z",
+        "type": "payment",
+        "amount_paisa": 18778,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d14",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-08T08:27:00Z",
+        "type": "payment",
+        "amount_paisa": 17990,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d15",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-09T08:27:00Z",
+        "type": "payment",
+        "amount_paisa": 14503,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d09",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-10T08:02:00Z",
+        "type": "payment",
+        "amount_paisa": 24357,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d10",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-11T08:59:00Z",
+        "type": "payment",
+        "amount_paisa": 14474,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d14",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-11T10:12:00Z",
+        "type": "cash_out",
+        "amount_paisa": 162075,
+        "fee_paisa": 2431,
+        "counterparty_id": "agent_037",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-12T08:53:00Z",
+        "type": "payment",
+        "amount_paisa": 18305,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_c04",
+        "counterparty_category": "other",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-13T06:45:00Z",
+        "type": "recharge",
+        "amount_paisa": 40000,
+        "fee_paisa": 0,
+        "counterparty_id": "operator_mob",
+        "counterparty_category": "mobile",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-13T08:48:00Z",
+        "type": "payment",
+        "amount_paisa": 14837,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d16",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-14T08:48:00Z",
+        "type": "payment",
+        "amount_paisa": 12565,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d18",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-16T08:22:00Z",
+        "type": "payment",
+        "amount_paisa": 9077,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d11",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-17T08:41:00Z",
+        "type": "payment",
+        "amount_paisa": 12663,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d00",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-18T08:53:00Z",
+        "type": "payment",
+        "amount_paisa": 9205,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d02",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-19T08:48:00Z",
+        "type": "payment",
+        "amount_paisa": 18414,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d01",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-19T10:59:00Z",
+        "type": "cash_out",
+        "amount_paisa": 338753,
+        "fee_paisa": 5081,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-20T08:12:00Z",
+        "type": "payment",
+        "amount_paisa": 10727,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_c05",
+        "counterparty_category": "transport",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-21T08:14:00Z",
+        "type": "payment",
+        "amount_paisa": 8106,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_c03",
+        "counterparty_category": "other",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-22T05:23:00Z",
+        "type": "remittance_in",
+        "amount_paisa": 2268889,
+        "fee_paisa": 0,
+        "counterparty_id": "remit_house",
+        "counterparty_category": "remittance",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-22T08:59:00Z",
+        "type": "payment",
+        "amount_paisa": 13475,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d11",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-23T08:04:00Z",
+        "type": "payment",
+        "amount_paisa": 13116,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d04",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-24T08:17:00Z",
+        "type": "payment",
+        "amount_paisa": 18892,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d09",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-25T08:24:00Z",
+        "type": "payment",
+        "amount_paisa": 12303,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d05",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-26T08:44:00Z",
+        "type": "payment",
+        "amount_paisa": 23437,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d14",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-26T10:58:00Z",
+        "type": "cash_out",
+        "amount_paisa": 177458,
+        "fee_paisa": 2662,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-27T12:48:00Z",
+        "type": "payment",
+        "amount_paisa": 128482,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_biz_07",
+        "counterparty_category": "business",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-28T08:05:00Z",
+        "type": "payment",
+        "amount_paisa": 19978,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c04",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-29T08:55:00Z",
+        "type": "payment",
+        "amount_paisa": 10963,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d01",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-29T10:09:00Z",
+        "type": "cash_out",
+        "amount_paisa": 165153,
+        "fee_paisa": 2477,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-30T08:03:00Z",
+        "type": "payment",
+        "amount_paisa": 24609,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d01",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-08-31T08:18:00Z",
+        "type": "payment",
+        "amount_paisa": 9815,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c03",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-08-31T12:02:00Z",
+        "type": "payment",
+        "amount_paisa": 147920,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d05",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-01T08:14:00Z",
+        "type": "payment",
+        "amount_paisa": 28171,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d00",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-02T08:09:00Z",
+        "type": "payment",
+        "amount_paisa": 30269,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_c05",
+        "counterparty_category": "other",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-03T08:53:00Z",
+        "type": "payment",
+        "amount_paisa": 23071,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c03",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-04T08:10:00Z",
+        "type": "payment",
+        "amount_paisa": 21151,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d05",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-04T10:59:00Z",
+        "type": "cash_out",
+        "amount_paisa": 144695,
+        "fee_paisa": 2170,
+        "counterparty_id": "agent_007",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-05T08:30:00Z",
+        "type": "payment",
+        "amount_paisa": 44250,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d01",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-06T06:26:00Z",
+        "type": "send_money",
+        "amount_paisa": 800000,
+        "fee_paisa": 0,
+        "counterparty_id": "person_landlord",
+        "counterparty_category": "rent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-06T08:34:00Z",
+        "type": "payment",
+        "amount_paisa": 16548,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c04",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-08T06:18:00Z",
+        "type": "bill_pay",
+        "amount_paisa": 250000,
+        "fee_paisa": 0,
+        "counterparty_id": "biller_util",
+        "counterparty_category": "utilities",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-08T08:00:00Z",
+        "type": "payment",
+        "amount_paisa": 30030,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d02",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-08T10:12:00Z",
+        "type": "cash_out",
+        "amount_paisa": 156673,
+        "fee_paisa": 2350,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-09T08:17:00Z",
+        "type": "payment",
+        "amount_paisa": 33368,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d07",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-10T08:27:00Z",
+        "type": "payment",
+        "amount_paisa": 29382,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d03",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-10T12:47:00Z",
+        "type": "payment",
+        "amount_paisa": 86096,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d14",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-11T08:11:00Z",
+        "type": "payment",
+        "amount_paisa": 7821,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d15",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-12T08:21:00Z",
+        "type": "payment",
+        "amount_paisa": 10677,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d02",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-13T08:46:00Z",
+        "type": "payment",
+        "amount_paisa": 5844,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c02",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-14T08:32:00Z",
+        "type": "payment",
+        "amount_paisa": 17674,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d08",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-15T08:35:00Z",
+        "type": "payment",
+        "amount_paisa": 24828,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c06",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-16T06:38:00Z",
+        "type": "recharge",
+        "amount_paisa": 40000,
+        "fee_paisa": 0,
+        "counterparty_id": "operator_mob",
+        "counterparty_category": "mobile",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-16T08:38:00Z",
+        "type": "payment",
+        "amount_paisa": 12390,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_c01",
+        "counterparty_category": "other",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-17T08:08:00Z",
+        "type": "payment",
+        "amount_paisa": 15117,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c00",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-18T08:45:00Z",
+        "type": "payment",
+        "amount_paisa": 9655,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_d05",
+        "counterparty_category": "transport",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-19T08:23:00Z",
+        "type": "payment",
+        "amount_paisa": 18896,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_c01",
+        "counterparty_category": "food",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-19T10:23:00Z",
+        "type": "cash_out",
+        "amount_paisa": 157052,
+        "fee_paisa": 2356,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-20T08:33:00Z",
+        "type": "payment",
+        "amount_paisa": 18308,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d03",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-21T08:53:00Z",
+        "type": "payment",
+        "amount_paisa": 11577,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d06",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-22T08:12:00Z",
+        "type": "payment",
+        "amount_paisa": 3301,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d12",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-23T08:33:00Z",
+        "type": "payment",
+        "amount_paisa": 10230,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_c02",
+        "counterparty_category": "other",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-23T10:09:00Z",
+        "type": "cash_out",
+        "amount_paisa": 166164,
+        "fee_paisa": 2492,
+        "counterparty_id": "agent_026",
+        "counterparty_category": "agent",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-24T08:53:00Z",
+        "type": "payment",
+        "amount_paisa": 9493,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_c00",
+        "counterparty_category": "other",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-25T08:00:00Z",
+        "type": "payment",
+        "amount_paisa": 13286,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d13",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-26T08:24:00Z",
+        "type": "payment",
+        "amount_paisa": 15676,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d02",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-27T08:02:00Z",
+        "type": "payment",
+        "amount_paisa": 26443,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_ot_d05",
+        "counterparty_category": "other",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-28T05:07:00Z",
+        "type": "remittance_in",
+        "amount_paisa": 2288630,
+        "fee_paisa": 0,
+        "counterparty_id": "remit_house",
+        "counterparty_category": "remittance",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-28T08:50:00Z",
+        "type": "payment",
+        "amount_paisa": 16578,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_c05",
+        "counterparty_category": "transport",
+        "accepts_digital": false
+      },
+      {
+        "ts": "2026-09-29T08:45:00Z",
+        "type": "payment",
+        "amount_paisa": 17761,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_food_d06",
+        "counterparty_category": "food",
+        "accepts_digital": true
+      },
+      {
+        "ts": "2026-09-30T08:21:00Z",
+        "type": "payment",
+        "amount_paisa": 19898,
+        "fee_paisa": 0,
+        "counterparty_id": "merch_tr_c00",
+        "counterparty_category": "transport",
+        "accepts_digital": false
       }
     ]
-  },
-  "categories": [
-    {
-      "category": "cash_out",
-      "total": 80740,
-      "share": 0.3504553228060733
-    },
-    {
-      "category": "rent",
-      "total": 64000,
-      "share": 0.27779465766148986
-    },
-    {
-      "category": "food",
-      "total": 34490,
-      "share": 0.14970527723038726
-    },
-    {
-      "category": "bills",
-      "total": 24905,
-      "share": 0.10810118670405319
-    },
-    {
-      "category": "other",
-      "total": 14941,
-      "share": 0.06485203093938
-    },
-    {
-      "category": "transport",
-      "total": 6910,
-      "share": 0.02999314194438898
-    },
-    {
-      "category": "mobile",
-      "total": 4400,
-      "share": 0.019098382714227428
-    }
-  ],
-  "weekly_outflows": [
-    {
-      "isoYear": 2026,
-      "isoWeek": 33,
-      "start": "2026-08-10",
-      "outflow": 1056,
-      "isLargest": false
-    },
-    {
-      "isoYear": 2026,
-      "isoWeek": 34,
-      "start": "2026-08-17",
-      "outflow": 6654,
-      "isLargest": false
-    },
-    {
-      "isoYear": 2026,
-      "isoWeek": 35,
-      "start": "2026-08-24",
-      "outflow": 2274,
-      "isLargest": false
-    },
-    {
-      "isoYear": 2026,
-      "isoWeek": 36,
-      "start": "2026-08-31",
-      "outflow": 3429,
-      "isLargest": false
-    },
-    {
-      "isoYear": 2026,
-      "isoWeek": 37,
-      "start": "2026-09-07",
-      "outflow": 15500,
-      "isLargest": false
-    },
-    {
-      "isoYear": 2026,
-      "isoWeek": 38,
-      "start": "2026-09-14",
-      "outflow": 3446,
-      "isLargest": false
-    },
-    {
-      "isoYear": 2026,
-      "isoWeek": 39,
-      "start": "2026-09-21",
-      "outflow": 5508,
-      "isLargest": false
-    },
-    {
-      "isoYear": 2026,
-      "isoWeek": 40,
-      "start": "2026-09-28",
-      "outflow": 1086,
-      "isLargest": false
-    }
-  ]
+  }
 }

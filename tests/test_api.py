@@ -178,3 +178,72 @@ def test_model_card_endpoint(client):
     card = resp.json()
     assert "LightGBM" in card["model"]
     assert "fairness_evaluation" in card
+
+
+def test_inputs_get_defaults_and_auth(client, auth_headers):
+    # Unauthenticated -> 401 (never a client-supplied user_id)
+    assert client.get("/v1/me/inputs").status_code == 401
+    resp = client.get("/v1/me/inputs", headers=auth_headers)
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert "cash_on_hand_paisa" in data and "income_day" in data
+    assert "rent_confirmed" in data and "other_liquid_paisa" in data
+
+
+def test_inputs_post_roundtrip_and_effect(client, auth_headers):
+    resp = client.post("/v1/me/inputs", headers=auth_headers,
+                       json={"cash_on_hand_taka": 2500, "income_day": 7,
+                             "rent_confirmed": True, "other_liquid_taka": 1000})
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert data["cash_on_hand_paisa"] == 250000
+    assert data["income_day"] == 7
+    assert data["rent_confirmed"] is True
+    assert data["other_liquid_paisa"] == 100000
+
+    # The declared cash flows into the summary's liquidity basis.
+    s = client.get("/v1/me/summary", headers=auth_headers).json()["data"]
+    basis = s["liquidity_basis"]
+    assert basis["cash_on_hand_paisa"] >= 0
+    assert basis["other_liquid_paisa"] == 100000
+    assert basis["cash_source"].startswith("user-declared")
+    assert s["cash_on_hand"]["source"].startswith("user-declared")
+
+    # Invalid payloads fail closed.
+    assert client.post("/v1/me/inputs", headers=auth_headers,
+                       json={"income_day": 99}).status_code == 400
+    assert client.post("/v1/me/inputs", headers=auth_headers,
+                       json={}).status_code == 400
+
+
+def test_forecast_contract_fields(client, auth_headers):
+    resp = client.get("/v1/me/forecast", headers=auth_headers)
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    # Mission contract: actionable output, not just a probability.
+    assert "safe_to_spend_paisa" in data
+    assert "daily_allowance_paisa" in data
+    assert "liquidity_basis" in data
+    assert "top_action" in data
+    assert "shortfall_prob" in data
+    basis = data["liquidity_basis"]
+    for k in ("wallet_balance_paisa", "cash_on_hand_paisa", "other_liquid_paisa", "total_liquid_paisa"):
+        assert k in basis
+
+
+def test_actions_endpoint(client, auth_headers):
+    assert client.get("/v1/me/actions").status_code == 401
+    resp = client.get("/v1/me/actions", headers=auth_headers)
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert "actions" in data and "base_shortfall_prob" in data
+    assert data["method"].startswith("counterfactual")
+    for a in data["actions"]:
+        assert a["delta_shortfall_prob"] <= 0.0001  # ranked: never worse than baseline
+        assert 0.0 <= a["shortfall_prob_after"] <= 1.0
+    ids = {a["action_id"] for a in data["actions"]}
+    assert "buffer_payday" in ids  # the always-present candidate
+
+
+def test_benchmark_requires_auth(client):
+    assert client.get("/v1/me/benchmark").status_code == 401

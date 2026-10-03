@@ -7,6 +7,7 @@ Output: web/public/demo/{persona}.json and web/public/demo/users.json
 """
 from __future__ import annotations
 
+import datetime as dt
 import json
 from pathlib import Path
 
@@ -119,6 +120,41 @@ def generate_bundle() -> None:
         # 5. Preset Goal Plan (emergency fund: 10,000 taka in 6 months)
         gp_data, gp_ev = create_goal_plan(conn, cfg, user_id, "emergency_fund", 1000000, 6)
 
+        # 6. Raw engine input: the transaction series itself (last 120 days,
+        # minimal fields) so the offline page can run the deterministic
+        # engines locally — recurring detection, bootstrap path simulation,
+        # safe-to-spend and shortfall explanation without any network.
+        cutoff_dt = as_of - dt.timedelta(days=120)
+        cutoff = cutoff_dt.isoformat()
+        eng_rows = conn.execute(
+            "SELECT ts, type, amount_paisa, fee_paisa, counterparty_id, "
+            "counterparty_category, counterparty_accepts_digital, balance_after_paisa "
+            "FROM transactions WHERE user_id = ? AND ts >= ? ORDER BY ts",
+            (user_id, cutoff),
+        ).fetchall()
+        engine_txns = [
+            {
+                "ts": r["ts"],
+                "type": r["type"],
+                "amount_paisa": r["amount_paisa"],
+                "fee_paisa": r["fee_paisa"],
+                "counterparty_id": r["counterparty_id"],
+                "counterparty_category": r["counterparty_category"],
+                "accepts_digital": bool(r["counterparty_accepts_digital"]),
+            }
+            for r in eng_rows
+        ]
+
+        # Wallet balance just BEFORE the first engine txn = first balance_after
+        # reversed by that txn's net effect (fee included for outflows).
+        opening_paisa = 0
+        if eng_rows:
+            first = eng_rows[0]
+            signed = first["amount_paisa"] + first["fee_paisa"] \
+                if first["type"] not in ("cash_in", "salary_in", "remittance_in") \
+                else -first["amount_paisa"]
+            opening_paisa = int(first["balance_after_paisa"]) + signed
+
         bundle = {
             "user": manifest_item,
             "summary": {"data": summary_data.model_dump(), "evidence": summary_ev.model_dump()},
@@ -126,6 +162,11 @@ def generate_bundle() -> None:
             "forecast": {"data": fc_data.model_dump(), "evidence": fc_ev.model_dump()},
             "cashout": {"data": co_data.model_dump(), "evidence": co_ev.model_dump()},
             "goal_plan": {"data": gp_data.model_dump(), "evidence": gp_ev.model_dump()},
+            "engine": {
+                "as_of_date": as_of.isoformat(),
+                "opening_balance_paisa": opening_paisa,
+                "transactions": engine_txns,
+            },
         }
 
         persona_file = OUTPUT_DIR / f"{persona}.json"

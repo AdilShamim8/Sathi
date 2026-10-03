@@ -165,6 +165,22 @@ export const api = {
     post<{ salaryAmount: number | null; salaryPayDay: number | null }>("/api/salary", body),
   updateProfile: (body: { name?: string; preferredLanguage?: string; openingBalance?: number }) =>
     post<{ name: string; preferredLanguage: string; mode: string; openingBalance?: number }>("/api/user", body, { method: "PATCH" }),
+  inputs: () => get<{
+    cashOnHandTaka: number | null;
+    incomeDay: number | null;
+    rentAmountTaka: number | null;
+    rentConfirmed: boolean;
+    otherLiquidTaka: number | null;
+    effectiveCashOnHandTaka: number;
+    source: string;
+  }>("/api/inputs"),
+  updateInputs: (body: {
+    cashOnHandTaka?: number;
+    incomeDay?: number;
+    rentAmountTaka?: number;
+    rentConfirmed?: boolean;
+    otherLiquidTaka?: number;
+  }) => post<{ cashOnHandTaka: number | null }>("/api/inputs", body),
   resetAllData: () => post<{ ok: boolean; reset: boolean }>("/api/reset"),
   metrics: () => get<MetricsPayload>("/api/metrics"),
 };

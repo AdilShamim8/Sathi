@@ -76,6 +76,20 @@
       "bootstrap": 0.25,
       "rule": 0.5
     },
+    "operating_point_validation_chosen": {
+      "model": {
+        "recall_oriented_cutoff": 0.32,
+        "recall": 0.2361111111111111,
+        "precision": 0.5666666666666667,
+        "target_recall_0_80_at_precision_0_60_met": false
+      },
+      "bootstrap": {
+        "recall_oriented_cutoff": 0.26,
+        "recall": 0.2777777777777778,
+        "precision": 0.6666666666666666,
+        "target_recall_0_80_at_precision_0_60_met": false
+      }
+    },
     "overall": {
       "n": 2325,
       "base_rate": 0.03096774193548387,
@@ -241,12 +255,12 @@
             "cutoff": 0.15,
             "recall": null,
             "precision": 0.0,
-            "brier_skill_vs_bootstrap": 0.10697835447302728,
+            "brier_skill_vs_bootstrap": 0.10697835447302739,
             "brier_skill_vs_rule": 0.8908159932053066
           },
           "bootstrap": {
-            "brier": 0.006155630695783642,
-            "brier_skill_vs_base_rate": -3.633314683037689,
+            "brier": 0.006155630695783643,
+            "brier_skill_vs_base_rate": -3.63331468303769,
             "pr_auc": null,
             "recall_at_precision_0_6": null,
             "cutoff": 0.25,
@@ -511,7 +525,7 @@
       },
       {
         "bin": "0.4-0.5",
-        "mean_predicted": 0.4485547808688933,
+        "mean_predicted": 0.44855478086889333,
         "observed": 0.75,
         "n": 4
       },
@@ -540,6 +554,8 @@
         "n": 2
       }
     ],
+    "ece_model": 0.01239936468168179,
+    "ece_bootstrap": 0.014084877809061418,
     "coverage_per_persona": {
       "garment_worker": {
         "coverage": 0.905761316872428,
@@ -572,8 +588,13 @@
         "base_rate": 0.03096774193548387,
         "brier_model": 0.024014095724250683,
         "brier_bootstrap": 0.02355435553173213,
+        "brier_rule": 0.05290322580645161,
         "brier_skill_vs_base_rate": 0.20056379930987123,
+        "brier_skill_vs_rule": 0.546075019846481,
         "pr_auc_model": 0.38728944888616096,
+        "pr_auc_bootstrap": 0.4101537694666952,
+        "recall_at_precision_0_6_model": 0.2361111111111111,
+        "recall_at_precision_0_6_bootstrap": 0.375,
         "coverage_p10_p90": 0.8470857142857143
       },
       {
@@ -582,8 +603,13 @@
         "base_rate": 0.03096774193548387,
         "brier_model": 0.02716068673451131,
         "brier_bootstrap": 0.02355435553173213,
+        "brier_rule": 0.05290322580645161,
         "brier_skill_vs_base_rate": 0.09581287338480349,
+        "brier_skill_vs_rule": 0.48659677514033495,
         "pr_auc_model": 0.2811676739560556,
+        "pr_auc_bootstrap": 0.4101537694666952,
+        "recall_at_precision_0_6_model": 0.1111111111111111,
+        "recall_at_precision_0_6_bootstrap": 0.375,
         "coverage_p10_p90": 0.8300571428571428
       },
       {
@@ -592,8 +618,13 @@
         "base_rate": 0.03096774193548387,
         "brier_model": 0.02975232823436797,
         "brier_bootstrap": 0.02355435553173213,
+        "brier_rule": 0.05290322580645161,
         "brier_skill_vs_base_rate": 0.009536377364009585,
+        "brier_skill_vs_rule": 0.43760842971621516,
         "pr_auc_model": 0.22601375231867288,
+        "pr_auc_bootstrap": 0.4101537694666952,
+        "recall_at_precision_0_6_model": 0.05555555555555555,
+        "recall_at_precision_0_6_bootstrap": 0.375,
         "coverage_p10_p90": 0.820495238095238
       },
       {
@@ -602,8 +633,13 @@
         "base_rate": 0.03096774193548387,
         "brier_model": 0.030937559621308595,
         "brier_bootstrap": 0.02355435553173213,
+        "brier_rule": 0.05290322580645161,
         "brier_skill_vs_base_rate": -0.029920318727929995,
+        "brier_skill_vs_rule": 0.41520466569477654,
         "pr_auc_model": 0.2057415726847146,
+        "pr_auc_bootstrap": 0.4101537694666952,
+        "recall_at_precision_0_6_model": 0.041666666666666664,
+        "recall_at_precision_0_6_bootstrap": 0.375,
         "coverage_p10_p90": 0.817504761904762
       },
       {
@@ -612,8 +648,13 @@
         "base_rate": 0.056460084033613446,
         "brier_model": 0.038383533707858936,
         "brier_bootstrap": 0.04132501170995686,
+        "brier_rule": 0.06565126050420168,
         "brier_skill_vs_base_rate": 0.284860211282841,
+        "brier_skill_vs_rule": 0.4153420145618927,
         "pr_auc_model": 0.5315125386305066,
+        "pr_auc_bootstrap": 0.4759953987609414,
+        "recall_at_precision_0_6_model": 0.4604651162790698,
+        "recall_at_precision_0_6_bootstrap": 0.33488372093023255,
         "coverage_p10_p90": 0.7978742857142858
       }
     ]

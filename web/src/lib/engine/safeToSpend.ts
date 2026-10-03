@@ -16,6 +16,10 @@ export function calculateSafeToSpend(params: {
   dailyEssentials: number;
   horizonDays?: number;
   monthlySavingsTarget?: number;
+  /** Physical cash-on-hand (behavioral estimate or user-declared, decayed). */
+  cashOnHand?: number;
+  /** Other explicitly supported liquid funds (user-declared). */
+  otherLiquid?: number;
 }): SafeToSpendResult {
   const {
     walletBalance,
@@ -23,9 +27,12 @@ export function calculateSafeToSpend(params: {
     dailyEssentials,
     horizonDays = 7,
     monthlySavingsTarget = 0,
+    cashOnHand = 0,
+    otherLiquid = 0,
   } = params;
 
-  const totalLiquid = Math.max(0, walletBalance);
+  // Mission P0: liquidity = wallet + cash-on-hand + other liquid funds.
+  const totalLiquid = Math.max(0, walletBalance) + Math.max(0, cashOnHand) + Math.max(0, otherLiquid);
   // Reserve at least 3 days of essentials as emergency cushion (min ৳1,000)
   const safetyBuffer = Math.max(dailyEssentials * 3, 1000);
   const proratedSavings = Math.round(monthlySavingsTarget * (horizonDays / 30));
@@ -33,6 +40,7 @@ export function calculateSafeToSpend(params: {
   const protectedObligations = upcomingCommitments + safetyBuffer + proratedSavings;
 
   const safeTotal = Math.max(0, totalLiquid - protectedObligations);
+  const safeWallet = Math.max(0, walletBalance - protectedObligations);
   const dailyBudget = Math.floor(safeTotal / Math.max(horizonDays, 1));
 
   let status: SafeToSpendResult["status"];
@@ -71,12 +79,14 @@ export function calculateSafeToSpend(params: {
 
   return {
     safeToSpendTotal: safeTotal,
-    safeToSpendWallet: safeTotal,
+    safeToSpendWallet: safeWallet,
     dailySafeBudget: dailyBudget,
     upcomingCommitments: Math.round(upcomingCommitments),
     safetyBuffer: Math.round(safetyBuffer),
     proratedSavings: Math.round(proratedSavings),
     walletBalance: Math.round(walletBalance),
+    cashOnHand: Math.round(Math.max(0, cashOnHand)),
+    otherLiquid: Math.round(Math.max(0, otherLiquid)),
     horizonDays,
     status,
     statusLabelEn,
@@ -84,7 +94,7 @@ export function calculateSafeToSpend(params: {
     adviceEn,
     adviceBn,
     breakdown: [
-      { label: "Cash on hand", amount: Math.round(totalLiquid) },
+      { label: "Wallet + cash on hand + other liquid", amount: Math.round(totalLiquid) },
       { label: "Upcoming commitments (7d)", amount: -Math.round(upcomingCommitments) },
       { label: "Safety buffer", amount: -Math.round(safetyBuffer) },
       { label: "Prorated savings", amount: -Math.round(proratedSavings) },

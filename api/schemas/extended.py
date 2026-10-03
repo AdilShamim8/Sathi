@@ -50,6 +50,62 @@ class ForecastData(BaseModel):
     trough_date: str | None
     confidence: Literal["normal", "low"]
     days: list[DailyForecastPoint]
+    # --- mission contract additions (safe-to-spend + liquidity basis + action) ---
+    days_to_next_income: int | None = None
+    next_income_date: str | None = None
+    safe_to_spend_paisa: int | None = None
+    safe_to_spend_display: str | None = None
+    daily_allowance_paisa: int | None = None
+    daily_allowance_display: str | None = None
+    liquidity_basis: dict | None = None
+    top_action: dict | None = None
+    method: str | None = None
+    model_version: str | None = None
+
+
+# --- User Inputs (mission P0: liquidity corrections) ---
+class UserInputsRequest(BaseModel):
+    """User-declared corrections to the behavioral liquidity estimates."""
+    cash_on_hand_taka: int | None = Field(default=None, ge=0, le=10_000_000)
+    income_day: int | None = Field(default=None, ge=1, le=31)
+    rent_amount_taka: int | None = Field(default=None, ge=0, le=10_000_000)
+    rent_confirmed: bool | None = None
+    other_liquid_taka: int | None = Field(default=None, ge=0, le=10_000_000)
+
+
+class UserInputsData(BaseModel):
+    cash_on_hand_paisa: int | None
+    cash_on_hand_as_of: str | None
+    income_day: int | None
+    rent_amount_paisa: int | None
+    rent_confirmed: bool
+    other_liquid_paisa: int | None
+    updated_at: str | None
+
+
+# --- Actions (counterfactual action engine) ---
+class ActionOut(BaseModel):
+    action_id: str
+    title_bn: str
+    title_en: str
+    detail_bn: str
+    detail_en: str
+    category: str
+    shortfall_prob_before: float
+    shortfall_prob_after: float
+    delta_shortfall_prob: float
+    freed_monthly_paisa: int | None
+    safe_to_spend_after_paisa: int | None
+    safe_to_spend_after_display: str | None
+
+
+class ActionsData(BaseModel):
+    actions: list[ActionOut]
+    base_shortfall_prob: float
+    base_safe_to_spend_paisa: int | None
+    method: str
+    note_bn: str
+    note_en: str
 
 
 # --- Cashout ---

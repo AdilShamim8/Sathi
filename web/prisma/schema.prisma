@@ -119,3 +119,18 @@ model ForecastRecord {
 
   @@index([userId, forecastDate])
 }
+
+// User-declared liquidity corrections (POST /v1/me/inputs). A declared cash
+// amount decays forward at the observed daily cash burn (userInputs.ts).
+model UserInput {
+  id                 Int       @id @default(autoincrement())
+  userId             Int       @unique
+  user               User      @relation(fields: [userId], references: [id])
+  cashOnHandTaka     Int? // physical cash the user says they hold
+  cashOnHandUpdatedAt DateTime?
+  incomeDay          Int? // day of month income usually arrives (1-31)
+  rentAmountTaka     Int?
+  rentConfirmed      Boolean   @default(false)
+  otherLiquidTaka    Int? // other explicitly supported liquid funds
+  updatedAt          DateTime  @default(now())
+}
