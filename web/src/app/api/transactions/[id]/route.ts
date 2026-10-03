@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { audit, clearInsights } from "@/lib/server/data";
 import { validateTxnPatch } from "@/lib/server/validate";
 
@@ -31,7 +31,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     return NextResponse.json({ saved: true, id: updated.id });
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[transactions/[id] PATCH]", e);
     return NextResponse.json({ error: "Failed to update transaction" }, { status: 500 });
   }
@@ -57,7 +57,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json({ deleted: true, id: txnId });
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[transactions/[id] DELETE]", e);
     return NextResponse.json({ error: "Failed to delete transaction" }, { status: 500 });
   }

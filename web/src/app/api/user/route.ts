@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { audit, clearInsights } from "@/lib/server/data";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +34,7 @@ export async function PATCH(req: NextRequest) {
     if (body.openingBalance !== undefined) {
       const b = Number(body.openingBalance);
       if (!Number.isFinite(b) || b < 0 || b > 10_000_000) {
-        return NextResponse.json({ error: "Starting balance must be between ৳0 and ৳10,000,000" }, { status: 400 });
+        return NextResponse.json({ error: "Starting balance must be between à§³0 and à§³10,000,000" }, { status: 400 });
       }
       data.openingBalance = Math.round(b);
     }
@@ -53,8 +53,9 @@ export async function PATCH(req: NextRequest) {
       openingBalance: updated.openingBalance,
     });
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[user PATCH]", e);
     return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
   }
 }
+

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { audit, clearInsights } from "@/lib/server/data";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Salary settings (user's explicit option).
- * GET  → current salary settings + what was detected from history
- * POST → update salary amount / pay day; feeds the income-detection layer.
+ * GET  â†’ current salary settings + what was detected from history
+ * POST â†’ update salary amount / pay day; feeds the income-detection layer.
  *
  * Note: recurring income detection still runs on transaction history;
  * the user-declared salary refines estimates when history is ambiguous
@@ -25,7 +25,7 @@ export async function GET() {
       note: "Recurring income timing is learned from your transaction history; these settings refine the estimate.",
     });
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[salary GET]", e);
     return NextResponse.json({ error: "Failed to load salary settings" }, { status: 500 });
   }
@@ -78,8 +78,9 @@ export async function POST(req: NextRequest) {
       salaryMerchant: updated.salaryMerchant,
     });
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[salary POST]", e);
     return NextResponse.json({ error: "Failed to save salary settings" }, { status: 500 });
   }
 }
+

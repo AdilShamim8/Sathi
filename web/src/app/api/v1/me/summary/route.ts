@@ -16,7 +16,7 @@ import { cashoutFee } from "@/lib/engine/cashout";
 export const dynamic = "force-dynamic";
 
 /**
- * Full summary (reference: GET /v1/me/summary) — metrics + categorizer +
+ * Full summary (reference: GET /v1/me/summary) â€” metrics + categorizer +
  * safe-to-spend + cash-on-hand + recurring + template-rendered insights,
  * with the evidence block. All money in integer paisa + bn display strings.
  */
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
     const trailingCashoutTotal = recent.reduce((s, t) => s + t.amount, 0);
     const dailyCashBurn = trailingCashoutTotal / 21;
 
-    // Core safe-to-spend (taka engine → paisa output) — the RULE baseline.
+    // Core safe-to-spend (taka engine â†’ paisa output) â€” the RULE baseline.
     const s2s = calculateSafeToSpend({
       walletBalance: balance,
       upcomingCommitments: commitments14,
@@ -115,15 +115,15 @@ export async function GET(req: NextRequest) {
         share_display: formatProbability(outflowSum ? total / outflowSum : 0, "bn"),
       }));
 
-    // Insights from reviewed templates — every figure preformatted here.
+    // Insights from reviewed templates â€” every figure preformatted here.
     const insights: { id: string; label: string; text_bn: string; text_en: string }[] = [];
     insights.push({
       id: "safe_to_spend",
       label: method === "model" ? "Prediction" : "Data",
       text_bn:
         method === "model"
-          ? `পরবর্তী আয়ের আগ পর্যন্ত নিয়মিত বিল ও সম্ভাব্য খরচ হিসাব করে আপনার নিরাপদ ব্যয়ের সীমা প্রায় ${formatTaka(safeTotalPaisa / 100, "bn")} (দৈনিক ${formatTaka(dailyBudgetPaisa / 100, "bn")})।`
-          : `আগামী ১৪ দিনের সব সম্ভাব্য নিয়মিত বিল ও আবশ্যক খরচ মিটিয়ে আপনার নিরাপদ ব্যয়ের সীমা প্রায় ${formatTaka(s2s.safeToSpendTotal, "bn")} (দৈনিক ${formatTaka(s2s.dailySafeBudget, "bn")})।`,
+          ? `à¦ªà¦°à¦¬à¦°à§à¦¤à§€ à¦†à¦¯à¦¼à§‡à¦° à¦†à¦— à¦ªà¦°à§à¦¯à¦¨à§à¦¤ à¦¨à¦¿à¦¯à¦¼à¦®à¦¿à¦¤ à¦¬à¦¿à¦² à¦“ à¦¸à¦®à§à¦­à¦¾à¦¬à§à¦¯ à¦–à¦°à¦š à¦¹à¦¿à¦¸à¦¾à¦¬ à¦•à¦°à§‡ à¦†à¦ªà¦¨à¦¾à¦° à¦¨à¦¿à¦°à¦¾à¦ªà¦¦ à¦¬à§à¦¯à¦¯à¦¼à§‡à¦° à¦¸à§€à¦®à¦¾ à¦ªà§à¦°à¦¾à¦¯à¦¼ ${formatTaka(safeTotalPaisa / 100, "bn")} (à¦¦à§ˆà¦¨à¦¿à¦• ${formatTaka(dailyBudgetPaisa / 100, "bn")})à¥¤`
+          : `à¦†à¦—à¦¾à¦®à§€ à§§à§ª à¦¦à¦¿à¦¨à§‡à¦° à¦¸à¦¬ à¦¸à¦®à§à¦­à¦¾à¦¬à§à¦¯ à¦¨à¦¿à¦¯à¦¼à¦®à¦¿à¦¤ à¦¬à¦¿à¦² à¦“ à¦†à¦¬à¦¶à§à¦¯à¦• à¦–à¦°à¦š à¦®à¦¿à¦Ÿà¦¿à¦¯à¦¼à§‡ à¦†à¦ªà¦¨à¦¾à¦° à¦¨à¦¿à¦°à¦¾à¦ªà¦¦ à¦¬à§à¦¯à¦¯à¦¼à§‡à¦° à¦¸à§€à¦®à¦¾ à¦ªà§à¦°à¦¾à¦¯à¦¼ ${formatTaka(s2s.safeToSpendTotal, "bn")} (à¦¦à§ˆà¦¨à¦¿à¦• ${formatTaka(s2s.dailySafeBudget, "bn")})à¥¤`,
       text_en:
         method === "model"
           ? `Accounting for upcoming bills and likely spending until your next income, your safe-to-spend limit is ${formatTaka(safeTotalPaisa / 100, "en")} (~${formatTaka(dailyBudgetPaisa / 100, "en")}/day).`
@@ -248,7 +248,7 @@ export async function GET(req: NextRequest) {
         })),
         total_monthly_inflow_paisa: recurringIn.reduce((s, r) => s + r.monthlyEstimate, 0) * 100,
         total_monthly_outflow_paisa: recurringOut.reduce((s, r) => s + r.monthlyEstimate, 0) * 100,
-        detected_from: "transaction history only — never persona/config",
+        detected_from: "transaction history only â€” never persona/config",
       },
       metrics: {
         monthly_income_paisa: metrics.monthlyIncome * 100,
@@ -290,3 +290,4 @@ export async function GET(req: NextRequest) {
     return notFound("Summary failed");
   }
 }
+

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { getUserTransactions, getActiveGoals, recordForecast } from "@/lib/server/data";
 import { computeAll } from "@/lib/server/compute";
 import { buildActionCards } from "@/lib/engine/actions";
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
       goal: activeGoal,
     });
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[forecast]", e);
     return NextResponse.json({ error: "Failed to compute forecast" }, { status: 500 });
   }
@@ -136,8 +136,9 @@ export async function POST(req: NextRequest) {
       goalImpact,
     });
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[forecast POST]", e);
     return NextResponse.json({ error: "Failed to simulate action" }, { status: 500 });
   }
 }
+

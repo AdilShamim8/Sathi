@@ -10,7 +10,23 @@ import { getOwnerUser } from "./data";
 export class OnboardingRequiredError extends Error {
   constructor() {
     super("onboarding_required");
+    this.name = "OnboardingRequiredError";
+    Object.setPrototypeOf(this, OnboardingRequiredError.prototype);
   }
+}
+
+export function isOnboardingRequiredError(e: unknown): boolean {
+  if (!e) return false;
+  if (e instanceof OnboardingRequiredError) return true;
+  if (typeof e === "object") {
+    const err = e as { message?: string; name?: string; code?: string };
+    return (
+      err.message === "onboarding_required" ||
+      err.name === "OnboardingRequiredError" ||
+      err.code === "onboarding_required"
+    );
+  }
+  return false;
 }
 
 export async function requireOwner(): Promise<User> {

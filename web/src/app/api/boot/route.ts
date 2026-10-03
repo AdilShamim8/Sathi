@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * Boot: report whether the owner account exists. The app is single-owner and
- * local-first — no user is ever auto-created here; /api/onboarding does that
+ * local-first â€” no user is ever auto-created here; /api/onboarding does that
  * with the user's chosen name and start mode (personal or demo data).
  */
 export async function GET() {
@@ -24,3 +24,4 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: "Failed to initialize app" }, { status: 500 });
   }
 }
+

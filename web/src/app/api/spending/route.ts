@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { getUserTransactions } from "@/lib/server/data";
 import { computeAll } from "@/lib/server/compute";
 
@@ -16,8 +16,9 @@ export async function GET() {
     });
     return NextResponse.json(intel);
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[spending]", e);
     return NextResponse.json({ error: "Failed to compute spending intelligence" }, { status: 500 });
   }
 }
+

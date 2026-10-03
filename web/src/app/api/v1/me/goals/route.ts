@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
       monthly_contribution_paisa: goal.monthlyCommitment * 100,
       monthly_contribution_display: formatTaka(goal.monthlyCommitment, "bn"),
       status: goal.status,
-      note: "No money moves — this records the plan only.",
+      note: "No money moves â€” this records the plan only.",
     };
     const evidence = buildEvidence({
       nTransactions: 0,
@@ -102,3 +102,4 @@ export async function POST(req: NextRequest) {
     return notFound("Goal save failed");
   }
 }
+

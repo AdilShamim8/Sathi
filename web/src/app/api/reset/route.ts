@@ -25,3 +25,4 @@ export async function POST() {
     return NextResponse.json({ error: "Failed to reset data" }, { status: 500 });
   }
 }
+

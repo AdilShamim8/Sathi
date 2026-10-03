@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
  * Cash-flow forecast (reference: GET /v1/me/forecast, ML handoff 7e4f6a0).
  *
  * Primary method: the irregular-flow LightGBM quantile forecaster + recurring
- * stream detection + calibrated path simulation — the same model version the
+ * stream detection + calibrated path simulation â€” the same model version the
  * Python pipeline evaluated (docs/eval_report.md). Fallback (model artifacts
  * unavailable): the previous production method, the seeded stationary block
  * bootstrap of daily net-flow residuals. Both produce P(shortfall) before the
@@ -170,3 +170,4 @@ export async function GET(req: NextRequest) {
     return notFound("Forecast failed");
   }
 }
+

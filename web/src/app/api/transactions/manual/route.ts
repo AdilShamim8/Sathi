@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { audit, clearInsights } from "@/lib/server/data";
 import { validateTxnCreate } from "@/lib/server/validate";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Manual transaction entry (structured form — the reliable path for income
+ * Manual transaction entry (structured form â€” the reliable path for income
  * sources like freelance payments and for precise corrections).
  * body: { amount, direction: "in"|"out", category, merchant?, timestamp? }
  */
@@ -42,8 +42,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ saved: true, id: created.id });
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[transactions/manual POST]", e);
     return NextResponse.json({ error: "Failed to save transaction" }, { status: 500 });
   }
 }
+

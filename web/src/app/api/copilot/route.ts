@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { getUserTransactions, getActiveGoals, getKnowledgeChunks, audit } from "@/lib/server/data";
 import { answerQuestion } from "@/lib/engine/copilot";
 import { sanitizeInput } from "@/lib/engine/llmSafety";
@@ -66,8 +66,9 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(answer);
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[copilot]", e);
     return NextResponse.json({ error: "The copilot is temporarily unavailable. Your data screens still work." }, { status: 500 });
   }
 }
+

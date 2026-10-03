@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
-import { getUserTransactions, getActiveGoals, getInsights, insertInsights } from "@/lib/server/data";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
+import { getUserTransactions, getActiveGoals, getInsights, insertInsights, getOwnerUser } from "@/lib/server/data";
 import { computeAll } from "@/lib/server/compute";
 import { generateInsights } from "@/lib/engine/insights";
 import { MODEL_VERSION, type FinancialSummary } from "@/lib/engine/domain";
@@ -10,7 +10,10 @@ export const dynamic = "force-dynamic";
 /** Financial summary: month snapshot + cash-flow outlook + safe-to-spend + top insight. */
 export async function GET() {
   try {
-    const user = await requireOwner();
+    let user = await getOwnerUser();
+    if (!user) {
+      user = await requireOwner();
+    }
     const anchor = new Date();
     const txns = await getUserTransactions(user.id);
     const goals = await getActiveGoals(user.id);
@@ -18,13 +21,18 @@ export async function GET() {
 
     const { intel, cash, fc, risk, sts } = computeAll(txns, anchor, user.openingBalance, salary);
 
-    // Insights regenerate whenever they were cleared (any data mutation) —
+    // Insights regenerate whenever they were cleared (any data mutation) â€”
     // but only once the user actually has history to analyse.
-    let insightRows = await getInsights(user.id);
-    if (insightRows.length === 0 && txns.length > 0) {
-      const generated = generateInsights(intel, txns, anchor, cash.walletBalance, sts, risk);
-      await insertInsights(user.id, generated, MODEL_VERSION);
+    let insightRows: any[] = [];
+    try {
       insightRows = await getInsights(user.id);
+      if (insightRows.length === 0 && txns.length > 0) {
+        const generated = generateInsights(intel, txns, anchor, cash.walletBalance, sts, risk);
+        await insertInsights(user.id, generated, MODEL_VERSION);
+        insightRows = await getInsights(user.id);
+      }
+    } catch (err) {
+      console.warn("[summary] insight load error:", err);
     }
 
     const active = goals.find((g) => g.status === "active") ?? null;
@@ -63,8 +71,9 @@ export async function GET() {
 
     return NextResponse.json(payload);
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[summary]", e);
-    return NextResponse.json({ error: "Failed to compute summary" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to compute summary", message: (e as Error)?.message }, { status: 500 });
   }
 }
+

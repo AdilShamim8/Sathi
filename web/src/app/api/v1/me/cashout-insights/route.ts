@@ -8,7 +8,7 @@ import { formatTaka } from "@/lib/engine/formatting";
 export const dynamic = "force-dynamic";
 
 /**
- * Cash-out fee audit (reference: GET /v1/me/cashout-insights) — repeat agent
+ * Cash-out fee audit (reference: GET /v1/me/cashout-insights) â€” repeat agent
  * withdrawals that could plausibly have been digital payments, with the fee
  * impact at the configured illustrative rate.
  */
@@ -75,3 +75,4 @@ export async function GET(req: NextRequest) {
     return notFound("Cashout insights failed");
   }
 }
+

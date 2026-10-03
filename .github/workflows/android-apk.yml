@@ -33,21 +33,29 @@ jobs:
       # The app shell is a thin Capacitor wrapper that loads the deployed
       # Next.js app (server-rendered UI + API routes). No static export is
       # needed: web/capacitor.config.json points at the deployment URL.
-      - name: Install Capacitor CLI
-        run: npm install -g @capacitor/cli@6 @capacitor/core@6 @capacitor/android@6
+      - name: Install Capacitor packages in web
+        working-directory: web
+        run: |
+          npm install --no-save @capacitor/core@6 @capacitor/android@6 @capacitor/cli@6
+
+      - name: Ensure Android webDir assets exist
+        working-directory: web
+        run: |
+          mkdir -p public
+          if [ ! -f public/index.html ]; then
+            echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Sathi</title></head><body><div id="root"></div></body></html>' > public/index.html
+          fi
 
       - name: Sync Capacitor Android
-        run: |
-          cd web
-          npx cap sync android
+        working-directory: web
+        run: npx cap sync android
 
       - name: Set gradlew executable permission
         run: chmod +x web/android/gradlew
 
       - name: Build Android Debug APK
-        run: |
-          cd web/android
-          ./gradlew assembleDebug --no-daemon --stacktrace
+        working-directory: web/android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Prepare APK for Artifact & Release
         run: |

@@ -37,8 +37,12 @@ function SathiApp() {
     (async () => {
       try {
         const res = await fetch("/api/boot", { cache: "no-store" });
-        const data = (await res.json()) as { needsOnboarding?: boolean };
-        if (!cancelled) setBootState(data?.needsOnboarding ? "onboarding" : "ready");
+        if (res.ok) {
+          const data = (await res.json()) as { needsOnboarding?: boolean };
+          if (!cancelled) setBootState(data?.needsOnboarding ? "onboarding" : "ready");
+        } else {
+          if (!cancelled) setBootState("ready");
+        }
       } catch {
         // boot failed — let the views surface their own error states
         if (!cancelled) setBootState("ready");

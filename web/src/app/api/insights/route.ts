@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { getInsights, insertInsights, clearInsights, getUserTransactions, audit } from "@/lib/server/data";
 import { computeAll } from "@/lib/server/compute";
 import { generateInsights } from "@/lib/engine/insights";
@@ -29,7 +29,7 @@ export async function GET() {
     }
     return NextResponse.json(rows);
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[insights GET]", e);
     return NextResponse.json({ error: "Failed to list insights" }, { status: 500 });
   }
@@ -55,8 +55,9 @@ export async function POST() {
     await audit(user.id, "insights_refreshed", { count: generated.length });
     return NextResponse.json(await getInsights(user.id));
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[insights POST]", e);
     return NextResponse.json({ error: "Failed to refresh insights" }, { status: 500 });
   }
 }
+

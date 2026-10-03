@@ -17,9 +17,9 @@ import { addDays } from "@/lib/engine/timeutils";
 export const dynamic = "force-dynamic";
 
 /**
- * Chat (reference: POST /v1/chat) — the full fail-closed pipeline:
- *   sanitize → intent → deterministic engine context → LLM draft (z-ai)
- *   → numeric validation → reviewed bilingual template on ANY failure.
+ * Chat (reference: POST /v1/chat) â€” the full fail-closed pipeline:
+ *   sanitize â†’ intent â†’ deterministic engine context â†’ LLM draft (z-ai)
+ *   â†’ numeric validation â†’ reviewed bilingual template on ANY failure.
  * The LLM never computes a number; it only rephrases verified figures.
  */
 export async function POST(req: NextRequest) {
@@ -111,14 +111,14 @@ export async function POST(req: NextRequest) {
       try {
         const { default: ZAI } = await import("z-ai-web-dev-sdk");
         const zai = await ZAI.create();
-        const langName = loc === "bn" ? "Bangla (বাংলা)" : "English";
+        const langName = loc === "bn" ? "Bangla (à¦¬à¦¾à¦‚à¦²à¦¾)" : "English";
         const contextLines = Object.entries(ctx)
           .map(([k, v]) => `- ${k}: ${v}`)
           .join("\n");
         const systemPrompt = [
-          `You are Sathi (সাথী), an empathetic and certified AI financial copilot for mobile wallet users in Bangladesh.`,
+          `You are Sathi (à¦¸à¦¾à¦¥à§€), an empathetic and certified AI financial copilot for mobile wallet users in Bangladesh.`,
           `Respond politely and conversationally in ${langName}.`,
-          `Keep your response concise (2-3 sentences max). Refer to figures naturally (e.g. "৳2,000", "about 35%") — never mention field names like safe_to_spend or daily_safe_budget.`,
+          `Keep your response concise (2-3 sentences max). Refer to figures naturally (e.g. "à§³2,000", "about 35%") â€” never mention field names like safe_to_spend or daily_safe_budget.`,
           `CRITICAL SAFETY RULE: You must ONLY reference the exact numerical figures provided in the verified context below.`,
           `Never invent ungrounded numbers or make unauthorized investment guarantees.`,
           ``,
@@ -176,3 +176,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: { code: "internal", message: "Chat failed" } }, { status: 500 });
   }
 }
+

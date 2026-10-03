@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { getActiveGoals, goalToDomain, audit, clearInsights } from "@/lib/server/data";
 
 export const dynamic = "force-dynamic";
@@ -12,14 +12,14 @@ export async function GET() {
     const goals = await getActiveGoals(user.id);
     return NextResponse.json(goals);
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[goals GET]", e);
     return NextResponse.json({ error: "Failed to list goals" }, { status: 500 });
   }
 }
 
 /**
- * Create a goal. Multiple active goals are supported — creating one never
+ * Create a goal. Multiple active goals are supported â€” creating one never
  * touches the others (edit/archive/delete happen via /api/goals/[id]).
  */
 export async function POST(req: NextRequest) {
@@ -64,8 +64,9 @@ export async function POST(req: NextRequest) {
     await audit(user.id, "goal_created", { name, targetAmount, months, savedSoFar });
     return NextResponse.json({ id: created.id, goal: goalToDomain(created) });
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[goals POST]", e);
     return NextResponse.json({ error: "Failed to create goal" }, { status: 500 });
   }
 }
+

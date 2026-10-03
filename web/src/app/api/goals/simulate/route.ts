@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { getUserTransactions, goalToDomain, audit } from "@/lib/server/data";
 import { simulateGoal } from "@/lib/engine/goals";
 
@@ -34,8 +34,9 @@ export async function POST(req: NextRequest) {
     await audit(user.id, "goal_simulated", body);
     return NextResponse.json(result);
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[goals/simulate]", e);
     return NextResponse.json({ error: "Failed to simulate goal" }, { status: 500 });
   }
 }
+

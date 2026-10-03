@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireOwner, onboardingRequiredResponse, OnboardingRequiredError } from "@/lib/server/guard";
+import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { getUserTransactions, goalToDomain } from "@/lib/server/data";
 import { analyzeGoal } from "@/lib/engine/goals";
 
@@ -21,8 +21,9 @@ export async function GET(req: NextRequest) {
     const analysis = analyzeGoal(goalToDomain(rows[0]), txns, new Date());
     return NextResponse.json(analysis);
   } catch (e) {
-    if (e instanceof OnboardingRequiredError) return onboardingRequiredResponse();
+    if (isOnboardingRequiredError(e)) return onboardingRequiredResponse();
     console.error("[goals/analyze]", e);
     return NextResponse.json({ error: "Failed to analyze goal" }, { status: 500 });
   }
 }
+
