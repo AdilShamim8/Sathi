@@ -66,26 +66,7 @@ async function migrateRolesOnce(): Promise<void> {
 export async function getOwnerUser(): Promise<User | null> {
   await ensureSchema(); // cold-start safe: creates tables on a fresh database
   await migrateRolesOnce();
-  let owner = await db.user.findFirst({ where: { role: "owner" }, orderBy: { id: "asc" } });
-
-  if (!owner) {
-    try {
-      const userCount = await db.user.count();
-      if (userCount === 0) {
-        owner = await onboardUser({
-          name: DEFAULT_USER_NAME,
-          mode: "demo",
-          salaryAmount: 30000,
-          salaryPayDay: 2,
-          openingBalance: 12000,
-        });
-      }
-    } catch (e) {
-      console.warn("[getOwnerUser] auto-seed notice:", e);
-    }
-  }
-
-  return owner;
+  return db.user.findFirst({ where: { role: "owner" }, orderBy: { id: "asc" } });
 }
 
 export interface OnboardingInput {
