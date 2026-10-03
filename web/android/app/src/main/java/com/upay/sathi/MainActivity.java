@@ -32,6 +32,14 @@ import java.nio.charset.StandardCharsets;
  *  - slow load               → 25 s timeout, then the retry page
  *  - renderer crash          → activity is recreated instead of leaving a
  *                              dead blank WebView
+ *  - repeated failures       → the offline page escalates itself: retries
+ *                              with backoff, then opens the built-in offline
+ *                              demo mode (sample data, zero network) and
+ *                              reconnects the moment the backend answers
+ *                              its /api/v1/healthz probe
+ *  - wedged WebView cache    → cleared on every failure so a retry always
+ *                              starts clean (reinstalling used to be the
+ *                              only way out)
  */
 public class MainActivity extends BridgeActivity {
 
@@ -42,6 +50,9 @@ public class MainActivity extends BridgeActivity {
     private static final long LOAD_TIMEOUT_MS = 25000L;
 
     private WebView appWebView;
+
+    /** How many times the offline page has been shown in this session (1-based). */
+    private int offlineLoads = 0;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private final Runnable loadTimeout = new Runnable() {
@@ -68,6 +79,8 @@ public class MainActivity extends BridgeActivity {
 
     private void showOfflinePage(String reason) {
         handler.removeCallbacks(loadTimeout);
+        offlineLoads++;
+        final int attempt = offlineLoads;
         final WebView view = appWebView;
         if (view == null) {
             return;
@@ -79,6 +92,14 @@ public class MainActivity extends BridgeActivity {
                 try {
                     String html = readRawResource(R.raw.offline);
                     html = html.replace("__REASON__", safeReason);
+                    html = html.replace("__ATTEMPT__", String.valueOf(attempt));
+                    // Self-heal: a wedged WebView cache used to leave the app
+                    // dead until the user reinstalled it. Clear it so every
+                    // retry starts from a clean slate.
+                    try {
+                        view.clearCache(true);
+                    } catch (Throwable ignored) {
+                    }
                     // Base URL = the app origin so the retry navigation stays
                     // inside this WebView (Capacitor keeps same-host loads internal).
                     view.loadDataWithBaseURL(APP_URL, html, "text/html", "utf-8", null);
@@ -97,7 +118,8 @@ public class MainActivity extends BridgeActivity {
     }
 
     private static String sanitize(String s) {
-        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            .replace("\"", "&quot;").replace("'", "&#39;");
     }
 
     private String readRawResource(int resId) throws Exception {

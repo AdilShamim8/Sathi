@@ -31,8 +31,9 @@ jobs:
           java-version: '17'
 
       # The app shell is a thin Capacitor wrapper that loads the deployed
-      # Next.js app (server-rendered UI + API routes). No static export is
-      # needed: web/capacitor.config.json points at the deployment URL.
+      # Next.js app (web/capacitor.config.json -> server.url). No static
+      # export is needed. When the backend is unreachable, the app falls
+      # back to the offline demo page bundled in res/raw/offline.html.
       - name: Install Capacitor packages in web
         working-directory: web
         run: |
@@ -53,22 +54,40 @@ jobs:
       - name: Set gradlew executable permission
         run: chmod +x web/android/gradlew
 
-      - name: Build Android Debug APK
+      - name: Restore release signing key
         working-directory: web/android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > sathi-release.keystore
+            echo "stable release keystore restored"
+          else
+            echo "::warning::ANDROID_KEYSTORE_BASE64 secret not set - generating an ephemeral key (updates will need a reinstall)"
+            keytool -genkeypair -keystore sathi-release.keystore -alias sathi \
+              -keyalg RSA -keysize 2048 -validity 9125 -storepass sathi-temp \
+              -dname "CN=Sathi Demo, O=uPay" >/dev/null 2>&1
+          fi
+
+      - name: Build Android Release APK
+        working-directory: web/android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD || 'sathi-temp' }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS || 'sathi' }}
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Prepare APK for Artifact & Release
         run: |
           mkdir -p apk-output
           VERSION="${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'snapshot' }}"
-          cp web/android/app/build/outputs/apk/debug/app-debug.apk "apk-output/sathi-${VERSION}-debug.apk"
+          cp web/android/app/build/outputs/apk/release/app-release*.apk "apk-output/sathi-${VERSION}.apk"
           ls -la apk-output/
 
       - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: sathi-android-apk
-          path: apk-output/sathi-*-debug.apk
+          path: apk-output/sathi-*.apk
           retention-days: 30
 
       - name: Create or Update GitHub Release with APK
@@ -79,7 +98,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: Sathi Release ${{ github.ref_name }}
-          files: apk-output/sathi-${{ github.ref_name }}-debug.apk
+          files: apk-output/sathi-${{ github.ref_name }}.apk
           generate_release_notes: true
           draft: false
           prerelease: false

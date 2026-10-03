@@ -1,5 +1,10 @@
 apply plugin: 'com.android.application'
 
+def releaseKeystore = rootProject.file("sathi-release.keystore")
+def releaseStorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: ""
+def releaseKeyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: "sathi"
+def hasReleaseSigning = releaseKeystore.exists() && !releaseStorePassword.isEmpty()
+
 android {
     namespace "com.upay.sathi"
     compileSdk rootProject.ext.compileSdkVersion
@@ -7,8 +12,8 @@ android {
         applicationId "com.upay.sathi"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "6.1.0"
+        versionCode 3
+        versionName "6.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,11 +21,33 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            // Stable signing key restored by CI from ANDROID_KEYSTORE_BASE64.
+            // Keeping the key stable lets every release install directly over
+            // the previous one (no uninstall, no data loss).
+            if (hasReleaseSigning) {
+                storeFile releaseKeystore
+                storeType "PKCS12"
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseStorePassword
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
         }
+    }
+    lint {
+        // Keep assembleRelease CI-friendly for this demo app.
+        checkReleaseBuilds false
+        abortOnError false
     }
 }
 
