@@ -1,4 +1,4 @@
-# Sathi (সাথী) 🇧🇩
+# Sathi (সাথী)
 
 > **A Bangla-First AI Financial Copilot for Mobile-Wallet Users**  
 > Built for **AI Hackathon 2026**, Track 03: *Customer Innovation & Financial Independence*  
