@@ -12,28 +12,29 @@ datasource db {
 }
 
 model User {
-  id                Int         @id @default(autoincrement())
+  id                Int              @id @default(autoincrement())
   name              String
-  preferredLanguage String      @default("en")
+  preferredLanguage String           @default("en")
   // role separates the device owner (the real app user) from the synthetic
   // Sathi personas that power the reference-compatible /api/v1 surface.
-  role              String      @default("persona") // owner | persona
+  role              String           @default("persona") // owner | persona
   // mode records how the owner account was started:
   //   "personal" — real day-to-day use, data entered by the user
   //   "demo"     — seeded synthetic history (hackathon demo / exploration)
-  mode              String      @default("personal")
+  mode              String           @default("personal")
   // NEW: salary settings the user can set/adjust (recurring detection still
   // learns from transaction history; these fields inform the user's intent).
   salaryAmount      Int? // monthly salary in BDT (whole taka)
   salaryPayDay      Int? // day of month (1-31) salary usually arrives
   salaryMerchant    String? // e.g. "Employer Payroll"
-  openingBalance    Int         @default(0) // wallet balance at first transaction
-  createdAt         DateTime    @default(now())
+  openingBalance    Int              @default(0) // wallet balance at first transaction
+  createdAt         DateTime         @default(now())
   transactions      Transaction[]
   goals             Goal[]
   insights          Insight[]
   auditEvents       AuditEvent[]
   forecastRecords   ForecastRecord[]
+  userInputs        UserInput[]
 }
 
 model Transaction {
@@ -86,11 +87,11 @@ model Insight {
 }
 
 model KnowledgeDoc {
-  id         Int    @id @default(autoincrement())
-  sourceId   String
-  title      String
-  topic      String
-  chunkText  String
+  id        Int    @id @default(autoincrement())
+  sourceId  String
+  title     String
+  topic     String
+  chunkText String
 }
 
 model AuditEvent {
@@ -105,17 +106,17 @@ model AuditEvent {
 }
 
 model ForecastRecord {
-  id                 Int      @id @default(autoincrement())
-  userId             Int
-  user               User     @relation(fields: [userId], references: [id])
-  forecastDate       DateTime
-  horizonDays        Int
-  predictedInflow    Int
-  predictedOutflow   Int
-  shortfallProb      Float // ML: P(balance dips below safety line in horizon)
-  pressure           String
-  factorsJson        String
-  modelVersion       String
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id])
+  forecastDate     DateTime
+  horizonDays      Int
+  predictedInflow  Int
+  predictedOutflow Int
+  shortfallProb    Float // ML: P(balance dips below safety line in horizon)
+  pressure         String
+  factorsJson      String
+  modelVersion     String
 
   @@index([userId, forecastDate])
 }
@@ -123,14 +124,14 @@ model ForecastRecord {
 // User-declared liquidity corrections (POST /v1/me/inputs). A declared cash
 // amount decays forward at the observed daily cash burn (userInputs.ts).
 model UserInput {
-  id                 Int       @id @default(autoincrement())
-  userId             Int       @unique
-  user               User      @relation(fields: [userId], references: [id])
-  cashOnHandTaka     Int? // physical cash the user says they hold
+  id                  Int       @id @default(autoincrement())
+  userId              Int       @unique
+  user                User      @relation(fields: [userId], references: [id])
+  cashOnHandTaka      Int? // physical cash the user says they hold
   cashOnHandUpdatedAt DateTime?
-  incomeDay          Int? // day of month income usually arrives (1-31)
-  rentAmountTaka     Int?
-  rentConfirmed      Boolean   @default(false)
-  otherLiquidTaka    Int? // other explicitly supported liquid funds
-  updatedAt          DateTime  @default(now())
+  incomeDay           Int? // day of month income usually arrives (1-31)
+  rentAmountTaka      Int?
+  rentConfirmed       Boolean   @default(false)
+  otherLiquidTaka     Int? // other explicitly supported liquid funds
+  updatedAt           DateTime  @default(now())
 }
