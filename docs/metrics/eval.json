@@ -1,119 +1,807 @@
 {
   "label": "SIMULATED \u2014 synthetic data only; real validation requires governed data",
-  "model_version": "fc-2026-09-30-26761078",
+  "model_version": "fc-2026-09-30-15d8427d",
+  "n_test_users": 300,
   "forecast": {
-    "wape_model": 0.975624444352801,
-    "wape_naive": 1.1071872113515233,
-    "wape_seasonal": 1.2372201395851765,
-    "coverage_p10_p90": 0.9216666666666666,
-    "n_weeks": 1200,
-    "wape_improvement_vs_best_baseline": 0.11882612592510533,
+    "unit": "daily irregular net flow / user scale (scale-free)",
+    "n_rows": 94500,
+    "n_origins": 2700,
+    "horizon_days": 35,
+    "cum_days": 28,
+    "table_columns": [
+      "pinball",
+      "wape_p50",
+      "coverage_p10_p90",
+      "coverage_28d_cum",
+      "crps_28d_cum"
+    ],
+    "table": [
+      {
+        "name": "Model (LightGBM quantile, calibrated)",
+        "pinball": 0.24217581553357645,
+        "wape_p50": 0.85875827239187,
+        "coverage_p10_p90": 0.8472910052910053,
+        "coverage_28d_cum": 0.8237037037037037,
+        "crps_28d_cum": 3.4130967706646507
+      },
+      {
+        "name": "Model, no conformal widening",
+        "pinball": 0.24221454479321172,
+        "wape_p50": 0.85875827239187,
+        "coverage_p10_p90": 0.853015873015873,
+        "coverage_28d_cum": 0.8285185185185185,
+        "crps_28d_cum": 3.4146661215512433
+      },
+      {
+        "name": "Model, independent days (rho = 0)",
+        "pinball": 0.24217581553357645,
+        "wape_p50": 0.85875827239187,
+        "coverage_p10_p90": 0.8472910052910053,
+        "coverage_28d_cum": 0.7,
+        "crps_28d_cum": 3.428617310802664
+      },
+      {
+        "name": "B1 seasonal naive (same weekday, 4 wk ago)",
+        "pinball": 0.45997942162710775,
+        "wape_p50": 1.237060037428488,
+        "coverage_p10_p90": 0.025396825396825397
+      },
+      {
+        "name": "B2 user's 90-day empirical quantiles",
+        "pinball": 0.25477549348097195,
+        "wape_p50": 0.8758877319210597,
+        "coverage_p10_p90": 0.812063492063492,
+        "coverage_28d_cum": 0.6648148148148149,
+        "crps_28d_cum": 3.806423852235484
+      },
+      {
+        "name": "B3 zero irregular flow",
+        "pinball": 0.34679802294249057,
+        "wape_p50": 1.0,
+        "coverage_p10_p90": 0.11913227513227513
+      }
+    ],
+    "pinball_improvement_vs_best_baseline": 0.04945404196945069,
+    "rho": 0.4,
+    "conformal_widen_scaled": -0.014646224700250048
+  },
+  "shortfall": {
+    "event": "end-of-day wallet balance below the personal floor within the lead window",
+    "lead_days": 7,
+    "floor_days": 3,
+    "n_val": 2332,
+    "base_rate_val": 0.036449399656946824,
+    "cutoffs_from_val": {
+      "model": 0.15,
+      "bootstrap": 0.25,
+      "rule": 0.5
+    },
+    "overall": {
+      "n": 2325,
+      "base_rate": 0.03096774193548387,
+      "methods": {
+        "model": {
+          "brier": 0.024014095724250683,
+          "brier_skill_vs_base_rate": 0.20056379930987123,
+          "pr_auc": 0.38728944888616096,
+          "recall_at_precision_0_6": 0.2361111111111111,
+          "cutoff": 0.15,
+          "recall": 0.5,
+          "precision": 0.3157894736842105,
+          "brier_skill_vs_bootstrap": -0.01951826667043366,
+          "brier_skill_vs_rule": 0.546075019846481
+        },
+        "bootstrap": {
+          "brier": 0.02355435553173213,
+          "brier_skill_vs_base_rate": 0.21586868345091448,
+          "pr_auc": 0.4101537694666952,
+          "recall_at_precision_0_6": 0.375,
+          "cutoff": 0.25,
+          "recall": 0.2916666666666667,
+          "precision": 0.6363636363636364
+        },
+        "rule": {
+          "brier": 0.05290322580645161,
+          "brier_skill_vs_base_rate": -0.7611637068745516,
+          "pr_auc": 0.22800965547509322,
+          "recall_at_precision_0_6": 0.0,
+          "cutoff": 0.5,
+          "recall": 0.6666666666666666,
+          "precision": 0.32653061224489793
+        },
+        "base_rate": {
+          "brier": 0.03003878946627642
+        }
+      }
+    },
     "per_persona": {
       "garment_worker": {
-        "wape_model": 0.9621624109502828,
-        "wape_naive": 1.1710624961697405,
-        "n_weeks": 380
+        "n": 397,
+        "base_rate": 0.05289672544080604,
+        "methods": {
+          "model": {
+            "brier": 0.02962145622322127,
+            "brier_skill_vs_base_rate": 0.41191303217465947,
+            "pr_auc": 0.6897258279689071,
+            "recall_at_precision_0_6": 0.6190476190476191,
+            "cutoff": 0.15,
+            "recall": 0.5714285714285714,
+            "precision": 0.631578947368421,
+            "brier_skill_vs_bootstrap": 0.07152563044519666,
+            "brier_skill_vs_rule": 0.5477031492069675
+          },
+          "bootstrap": {
+            "brier": 0.03190336448105136,
+            "brier_skill_vs_base_rate": 0.3666093678952883,
+            "pr_auc": 0.7830691471019178,
+            "recall_at_precision_0_6": 0.7619047619047619,
+            "cutoff": 0.25,
+            "recall": 0.42857142857142855,
+            "precision": 0.8181818181818182
+          },
+          "rule": {
+            "brier": 0.0654911838790932,
+            "brier_skill_vs_base_rate": -0.30022344129573564,
+            "pr_auc": 0.4048162994329007,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.5,
+            "recall": 0.9047619047619048,
+            "precision": 0.4418604651162791
+          },
+          "base_rate": {
+            "brier": 0.05036917640388644
+          }
+        }
       },
       "gig_driver": {
-        "wape_model": 1.0508805997131971,
-        "wape_naive": 1.0253895637638126,
-        "n_weeks": 190
+        "n": 482,
+        "base_rate": 0.03941908713692946,
+        "methods": {
+          "model": {
+            "brier": 0.034813540960127315,
+            "brier_skill_vs_base_rate": 0.08080734583406779,
+            "pr_auc": 0.2642970139250948,
+            "recall_at_precision_0_6": 0.10526315789473684,
+            "cutoff": 0.15,
+            "recall": 0.5263157894736842,
+            "precision": 0.19607843137254902,
+            "brier_skill_vs_bootstrap": -0.01956172774897169,
+            "brier_skill_vs_rule": 0.44066244190728776
+          },
+          "bootstrap": {
+            "brier": 0.03414559414366211,
+            "brier_skill_vs_base_rate": 0.09844335154148864,
+            "pr_auc": 0.24253723461275642,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.25,
+            "recall": 0.05263157894736842,
+            "precision": 0.25
+          },
+          "rule": {
+            "brier": 0.06224066390041494,
+            "brier_skill_vs_base_rate": -0.6433594362951267,
+            "pr_auc": 0.16775233261290298,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.5,
+            "recall": 0.47368421052631576,
+            "precision": 0.3103448275862069
+          },
+          "base_rate": {
+            "brier": 0.0378740417499494
+          }
+        }
       },
       "remittance_household": {
-        "wape_model": 0.9206532690749946,
-        "wape_naive": 1.0841913077294942,
-        "n_weeks": 200
+        "n": 402,
+        "base_rate": 0.06716417910447761,
+        "methods": {
+          "model": {
+            "brier": 0.04880899607000684,
+            "brier_skill_vs_base_rate": 0.23252132067876052,
+            "pr_auc": 0.52988725946952,
+            "recall_at_precision_0_6": 0.4444444444444444,
+            "cutoff": 0.15,
+            "recall": 0.4444444444444444,
+            "precision": 0.6,
+            "brier_skill_vs_bootstrap": -0.06995125975258198,
+            "brier_skill_vs_rule": 0.3234063303399052
+          },
+          "bootstrap": {
+            "brier": 0.045617962150251164,
+            "brier_skill_vs_base_rate": 0.2826975319429851,
+            "pr_auc": 0.557297697462672,
+            "recall_at_precision_0_6": 0.7777777777777778,
+            "cutoff": 0.25,
+            "recall": 0.3333333333333333,
+            "precision": 0.6923076923076923
+          },
+          "rule": {
+            "brier": 0.07213930348258707,
+            "brier_skill_vs_base_rate": -0.13432731303383783,
+            "pr_auc": 0.37014662139040244,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.5,
+            "recall": 0.7407407407407407,
+            "precision": 0.47619047619047616
+          },
+          "base_rate": {
+            "brier": 0.06359654982620973
+          }
+        }
       },
       "shopkeeper": {
-        "wape_model": 1.0604791150907644,
-        "wape_naive": 1.0565577126418346,
-        "n_weeks": 210
+        "n": 576,
+        "base_rate": 0.0,
+        "methods": {
+          "model": {
+            "brier": 0.005497111453205052,
+            "brier_skill_vs_base_rate": -3.1376503024906013,
+            "pr_auc": null,
+            "recall_at_precision_0_6": null,
+            "cutoff": 0.15,
+            "recall": null,
+            "precision": 0.0,
+            "brier_skill_vs_bootstrap": 0.10697835447302728,
+            "brier_skill_vs_rule": 0.8908159932053066
+          },
+          "bootstrap": {
+            "brier": 0.006155630695783642,
+            "brier_skill_vs_base_rate": -3.633314683037689,
+            "pr_auc": null,
+            "recall_at_precision_0_6": null,
+            "cutoff": 0.25,
+            "recall": null,
+            "precision": 0.0
+          },
+          "rule": {
+            "brier": 0.050347222222222224,
+            "brier_skill_vs_base_rate": -36.896120722798926,
+            "pr_auc": null,
+            "recall_at_precision_0_6": null,
+            "cutoff": 0.5,
+            "recall": null,
+            "precision": 0.0
+          },
+          "base_rate": {
+            "brier": 0.0013285587353518353
+          }
+        }
       },
       "student": {
-        "wape_model": 0.8678276806644256,
-        "wape_naive": 1.2090942022326447,
-        "n_weeks": 220
+        "n": 468,
+        "base_rate": 0.010683760683760684,
+        "methods": {
+          "model": {
+            "brier": 0.009626869825414025,
+            "brier_skill_vs_base_rate": 0.14302027477301593,
+            "pr_auc": 0.32487179487179485,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.15,
+            "recall": 0.4,
+            "precision": 0.3333333333333333,
+            "brier_skill_vs_bootstrap": -0.19951398153976174,
+            "brier_skill_vs_rule": 0.4994027690784707
+          },
+          "bootstrap": {
+            "brier": 0.008025642029663087,
+            "brier_skill_vs_base_rate": 0.28556087013932263,
+            "pr_auc": 0.39014492753623187,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.25,
+            "recall": 0.4,
+            "precision": 0.5
+          },
+          "rule": {
+            "brier": 0.019230769230769232,
+            "brier_skill_vs_base_rate": -0.7119146337453857,
+            "pr_auc": 0.010683760683760684,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.5,
+            "recall": 0.0,
+            "precision": 0.0
+          },
+          "base_rate": {
+            "brier": 0.011233486093109382
+          }
+        }
       }
     },
     "per_income_band": {
       "15k-25k": {
-        "wape_model": 0.9782298490922335,
-        "wape_naive": 1.144680185360356
+        "n": 879,
+        "base_rate": 0.04550625711035267,
+        "methods": {
+          "model": {
+            "brier": 0.0324685379560867,
+            "brier_skill_vs_base_rate": 0.2538963736122615,
+            "pr_auc": 0.45077551333011134,
+            "recall_at_precision_0_6": 0.25,
+            "cutoff": 0.15,
+            "recall": 0.55,
+            "precision": 0.3142857142857143,
+            "brier_skill_vs_bootstrap": 0.020051194235629732,
+            "brier_skill_vs_rule": 0.49035991315356764
+          },
+          "bootstrap": {
+            "brier": 0.03313289200935441,
+            "brier_skill_vs_base_rate": 0.2386299957723098,
+            "pr_auc": 0.5387391829441992,
+            "recall_at_precision_0_6": 0.475,
+            "cutoff": 0.25,
+            "recall": 0.25,
+            "precision": 0.6666666666666666
+          },
+          "rule": {
+            "brier": 0.06370875995449374,
+            "brier_skill_vs_base_rate": -0.4639814363985828,
+            "pr_auc": 0.285874099355328,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.5,
+            "recall": 0.7,
+            "precision": 0.3888888888888889
+          },
+          "base_rate": {
+            "brier": 0.043517464341090474
+          }
+        }
       },
       "25k-40k": {
-        "wape_model": 0.9829235690533604,
-        "wape_naive": 1.0718849115615412
+        "n": 978,
+        "base_rate": 0.027607361963190184,
+        "methods": {
+          "model": {
+            "brier": 0.023300156050295364,
+            "brier_skill_vs_base_rate": 0.1345752833116538,
+            "pr_auc": 0.33826079660950176,
+            "recall_at_precision_0_6": 0.37037037037037035,
+            "cutoff": 0.15,
+            "recall": 0.4444444444444444,
+            "precision": 0.3157894736842105,
+            "brier_skill_vs_bootstrap": -0.04128522697273529,
+            "brier_skill_vs_rule": 0.6071111617726057
+          },
+          "bootstrap": {
+            "brier": 0.022376343624920598,
+            "brier_skill_vs_base_rate": 0.16888793361225107,
+            "pr_auc": 0.4057330175619566,
+            "recall_at_precision_0_6": 0.3333333333333333,
+            "cutoff": 0.25,
+            "recall": 0.3333333333333333,
+            "precision": 0.6428571428571429
+          },
+          "rule": {
+            "brier": 0.05930470347648262,
+            "brier_skill_vs_base_rate": -1.2027215651961587,
+            "pr_auc": 0.21581682780161998,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.5,
+            "recall": 0.7407407407407407,
+            "precision": 0.28169014084507044
+          },
+          "base_rate": {
+            "brier": 0.0269233771592014
+          }
+        }
       },
       "under-15k": {
-        "wape_model": 0.8678276806644256,
-        "wape_naive": 1.2090942022326447
+        "n": 468,
+        "base_rate": 0.010683760683760684,
+        "methods": {
+          "model": {
+            "brier": 0.009626869825414025,
+            "brier_skill_vs_base_rate": 0.14302027477301593,
+            "pr_auc": 0.32487179487179485,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.15,
+            "recall": 0.4,
+            "precision": 0.3333333333333333,
+            "brier_skill_vs_bootstrap": -0.19951398153976174,
+            "brier_skill_vs_rule": 0.4994027690784707
+          },
+          "bootstrap": {
+            "brier": 0.008025642029663087,
+            "brier_skill_vs_base_rate": 0.28556087013932263,
+            "pr_auc": 0.39014492753623187,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.25,
+            "recall": 0.4,
+            "precision": 0.5
+          },
+          "rule": {
+            "brier": 0.019230769230769232,
+            "brier_skill_vs_base_rate": -0.7119146337453857,
+            "pr_auc": 0.010683760683760684,
+            "recall_at_precision_0_6": 0.0,
+            "cutoff": 0.5,
+            "recall": 0.0,
+            "precision": 0.0
+          },
+          "base_rate": {
+            "brier": 0.011233486093109382
+          }
+        }
       }
     },
-    "noise_robustness": [
+    "reliability_model": [
       {
-        "feature_noise": 0.0,
-        "wape_model": 0.975624444352801
+        "bin": "0.0-0.1",
+        "mean_predicted": 0.018299904037447724,
+        "observed": 0.013989387361312108,
+        "n": 2073
       },
       {
-        "feature_noise": 0.1,
-        "wape_model": 0.984923911256941
+        "bin": "0.1-0.2",
+        "mean_predicted": 0.1331544042298348,
+        "observed": 0.06451612903225806,
+        "n": 186
       },
       {
-        "feature_noise": 0.2,
-        "wape_model": 0.9916914803080374
+        "bin": "0.2-0.3",
+        "mean_predicted": 0.24535314426917776,
+        "observed": 0.3870967741935484,
+        "n": 31
       },
       {
-        "feature_noise": 0.3,
-        "wape_model": 0.9920056396589306
+        "bin": "0.3-0.4",
+        "mean_predicted": 0.3513702109753092,
+        "observed": 0.375,
+        "n": 16
+      },
+      {
+        "bin": "0.4-0.5",
+        "mean_predicted": 0.4438463042459444,
+        "observed": 0.5,
+        "n": 8
+      },
+      {
+        "bin": "0.5-0.6",
+        "mean_predicted": 0.5351183570037215,
+        "observed": 0.75,
+        "n": 4
+      },
+      {
+        "bin": "0.6-0.7",
+        "mean_predicted": 0.6727979509173929,
+        "observed": 0.5,
+        "n": 2
+      },
+      {
+        "bin": "0.7-0.8",
+        "mean_predicted": 0.7765481515738484,
+        "observed": 1.0,
+        "n": 1
+      },
+      {
+        "bin": "0.8-0.9",
+        "mean_predicted": 0.8142209472194832,
+        "observed": 1.0,
+        "n": 2
+      },
+      {
+        "bin": "0.9-1.0",
+        "mean_predicted": 0.9476942586791568,
+        "observed": 1.0,
+        "n": 2
       }
-    ]
-  },
-  "shortfall": {
-    "cutoff": 0.8000000000000002,
-    "recall": 0.9072847682119205,
-    "precision": 0.9383561643835616,
-    "lead_days": 7,
-    "n_val": 960,
-    "n_test": 960,
-    "per_persona": {
+    ],
+    "reliability_bootstrap": [
+      {
+        "bin": "0.0-0.1",
+        "mean_predicted": 0.017772699828751685,
+        "observed": 0.011010052656773576,
+        "n": 2089
+      },
+      {
+        "bin": "0.1-0.2",
+        "mean_predicted": 0.13859505485758522,
+        "observed": 0.10497237569060773,
+        "n": 181
+      },
+      {
+        "bin": "0.2-0.3",
+        "mean_predicted": 0.2339339809080262,
+        "observed": 0.3870967741935484,
+        "n": 31
+      },
+      {
+        "bin": "0.3-0.4",
+        "mean_predicted": 0.3656568784961523,
+        "observed": 0.8571428571428571,
+        "n": 7
+      },
+      {
+        "bin": "0.4-0.5",
+        "mean_predicted": 0.4485547808688933,
+        "observed": 0.75,
+        "n": 4
+      },
+      {
+        "bin": "0.5-0.6",
+        "mean_predicted": 0.528503875474431,
+        "observed": 0.8333333333333334,
+        "n": 6
+      },
+      {
+        "bin": "0.6-0.7",
+        "mean_predicted": 0.6323691394322658,
+        "observed": 0.6666666666666666,
+        "n": 3
+      },
+      {
+        "bin": "0.7-0.8",
+        "mean_predicted": 0.7790040393659646,
+        "observed": 0.5,
+        "n": 2
+      },
+      {
+        "bin": "0.8-0.9",
+        "mean_predicted": 0.8251796540457556,
+        "observed": 0.5,
+        "n": 2
+      }
+    ],
+    "coverage_per_persona": {
       "garment_worker": {
-        "recall": 0.9153846153846154,
-        "precision": 0.937007874015748,
-        "n": 304
+        "coverage": 0.905761316872428,
+        "n": 17010
       },
       "gig_driver": {
-        "recall": null,
-        "precision": null,
-        "n": 152
+        "coverage": 0.7795472287275566,
+        "n": 19215
       },
       "remittance_household": {
-        "recall": 0.8,
-        "precision": 0.9454545454545454,
-        "n": 160
+        "coverage": 0.8799640610961366,
+        "n": 16695
       },
       "shopkeeper": {
-        "recall": 0.0,
-        "precision": null,
-        "n": 168
+        "coverage": 0.7878747795414462,
+        "n": 22680
       },
       "student": {
-        "recall": 0.9716981132075472,
-        "precision": 0.9363636363636364,
-        "n": 176
+        "coverage": 0.905978835978836,
+        "n": 18900
       }
     }
   },
-  "planner_backtest": {
-    "n_users": 105,
-    "buckets": {
-      "0.00-0.33": {
-        "mean_stated": 0.02807142857142857,
-        "realized": 0.009523809523809525,
-        "n": 105
+  "robustness": {
+    "note": "Feature noise multiplies every continuous origin feature by (1 + noise x N(0,1)) at prediction time. The drifted cohort was generated with shifted parameters and is never used for training, early stopping or calibration. Cutoffs and base rate come from validation users.",
+    "rows": [
+      {
+        "name": "Test users, feature noise \u00b10%",
+        "n": 2325,
+        "base_rate": 0.03096774193548387,
+        "brier_model": 0.024014095724250683,
+        "brier_bootstrap": 0.02355435553173213,
+        "brier_skill_vs_base_rate": 0.20056379930987123,
+        "pr_auc_model": 0.38728944888616096,
+        "coverage_p10_p90": 0.8470857142857143
+      },
+      {
+        "name": "Test users, feature noise \u00b110%",
+        "n": 2325,
+        "base_rate": 0.03096774193548387,
+        "brier_model": 0.02716068673451131,
+        "brier_bootstrap": 0.02355435553173213,
+        "brier_skill_vs_base_rate": 0.09581287338480349,
+        "pr_auc_model": 0.2811676739560556,
+        "coverage_p10_p90": 0.8300571428571428
+      },
+      {
+        "name": "Test users, feature noise \u00b120%",
+        "n": 2325,
+        "base_rate": 0.03096774193548387,
+        "brier_model": 0.02975232823436797,
+        "brier_bootstrap": 0.02355435553173213,
+        "brier_skill_vs_base_rate": 0.009536377364009585,
+        "pr_auc_model": 0.22601375231867288,
+        "coverage_p10_p90": 0.820495238095238
+      },
+      {
+        "name": "Test users, feature noise \u00b130%",
+        "n": 2325,
+        "base_rate": 0.03096774193548387,
+        "brier_model": 0.030937559621308595,
+        "brier_bootstrap": 0.02355435553173213,
+        "brier_skill_vs_base_rate": -0.029920318727929995,
+        "pr_auc_model": 0.2057415726847146,
+        "coverage_p10_p90": 0.817504761904762
+      },
+      {
+        "name": "Drifted cohort (income day +4, volatility x2, shocks x2)",
+        "n": 3808,
+        "base_rate": 0.056460084033613446,
+        "brier_model": 0.038383533707858936,
+        "brier_bootstrap": 0.04132501170995686,
+        "brier_skill_vs_base_rate": 0.284860211282841,
+        "pr_auc_model": 0.5315125386305066,
+        "coverage_p10_p90": 0.7978742857142858
       }
-    },
-    "mean_stated": 0.02807142857142857,
-    "realized_rate": 0.009523809523809525,
-    "calibration_gap": 0.018547619047619045
+    ]
+  },
+  "ablations": {
+    "note": "Shortfall Brier on the same test user-weeks with one component removed at a time.",
+    "rows": [
+      {
+        "name": "Full model",
+        "brier": 0.024014095724250683,
+        "brier_skill_vs_base_rate": 0.20056379930987123,
+        "pr_auc": 0.38728944888616096,
+        "delta_brier_vs_full": 0.0
+      },
+      {
+        "name": "\u2212 cash-on-hand features",
+        "brier": 0.02408109647641401,
+        "brier_skill_vs_base_rate": 0.1983333248681982,
+        "pr_auc": 0.39596481432008546,
+        "delta_brier_vs_full": 6.700075216332577e-05
+      },
+      {
+        "name": "\u2212 recurring-stream timing (scheduled money spread evenly)",
+        "brier": 0.026332796872194645,
+        "brier_skill_vs_base_rate": 0.12337356664263632,
+        "pr_auc": 0.2858736645839254,
+        "delta_brier_vs_full": 0.002318701147943962
+      },
+      {
+        "name": "\u2212 conformal widening",
+        "brier": 0.02408294020529415,
+        "brier_skill_vs_base_rate": 0.19827194659986913,
+        "pr_auc": 0.38770876513359726,
+        "delta_brier_vs_full": 6.884448104346741e-05
+      },
+      {
+        "name": "\u2212 block correlation (independent days, rho = 0)",
+        "brier": 0.023804480107468738,
+        "brier_skill_vs_base_rate": 0.20754196389327673,
+        "pr_auc": 0.38920947169047443,
+        "delta_brier_vs_full": -0.00020961561678194476
+      }
+    ],
+    "cash_on_hand": {
+      "n": 2700,
+      "mae_v1_taka": 464.96216455026456,
+      "mae_v2_taka": 356.6171,
+      "mae_zero_taka": 1225.3880777777779
+    }
+  },
+  "planner_backtest": {
+    "note": "Planned 90 days before as_of; targets = k x median monthly surplus x 3 months, k in {0.5, 0.8, 1.0, 1.3, 2.0}; users with non-positive median surplus are skipped.",
+    "n_users": 175,
+    "n_goals": 875,
+    "bins": [
+      {
+        "bin": "0.0-0.2",
+        "mean_stated": 0.10460505319148937,
+        "realised": 0.027925531914893616,
+        "n": 752
+      },
+      {
+        "bin": "0.2-0.4",
+        "mean_stated": 0.2757521367521367,
+        "realised": 0.05128205128205128,
+        "n": 117
+      },
+      {
+        "bin": "0.4-0.6",
+        "mean_stated": 0.4559999999999999,
+        "realised": 0.0,
+        "n": 6
+      }
+    ],
+    "ece": 0.09904228571428571
+  },
+  "shap": {
+    "note": "TreeExplainer on the p50 model, 3,000 sampled test rows (scale-free units). Persona is shown for the examples only; it is not a model input.",
+    "global": [
+      {
+        "feature": "log_scale",
+        "mean_abs_shap": 0.14860740247753676,
+        "share": 0.3070428046909873
+      },
+      {
+        "feature": "no_income_share_30",
+        "mean_abs_shap": 0.10820709820056525,
+        "share": 0.22357036301739247
+      },
+      {
+        "feature": "dom",
+        "mean_abs_shap": 0.05090864378316681,
+        "share": 0.1051840790539402
+      },
+      {
+        "feature": "income_period_days",
+        "mean_abs_shap": 0.025703894425803647,
+        "share": 0.0531076898216612
+      },
+      {
+        "feature": "dom_irr_profile",
+        "mean_abs_shap": 0.024880813888567038,
+        "share": 0.05140709515123154
+      },
+      {
+        "feature": "balance_scaled",
+        "mean_abs_shap": 0.024854678932054702,
+        "share": 0.05135309682938322
+      },
+      {
+        "feature": "irr_net_90",
+        "mean_abs_shap": 0.02028548579740782,
+        "share": 0.041912531609566206
+      },
+      {
+        "feature": "is_festival",
+        "mean_abs_shap": 0.011911023350401454,
+        "share": 0.02460977014116049
+      },
+      {
+        "feature": "days_to_income",
+        "mean_abs_shap": 0.010994392954983345,
+        "share": 0.02271588892944408
+      },
+      {
+        "feature": "irr_net_30",
+        "mean_abs_shap": 0.009451633096534351,
+        "share": 0.01952834035510942
+      }
+    ],
+    "examples": [
+      {
+        "persona": "garment_worker",
+        "origin": "2026-08-22",
+        "k": 7,
+        "top": [
+          {
+            "feature": "log_scale",
+            "shap": -0.1073491586782721
+          },
+          {
+            "feature": "no_income_share_30",
+            "shap": -0.08644993417337345
+          },
+          {
+            "feature": "dom",
+            "shap": 0.05502857113178696
+          }
+        ]
+      },
+      {
+        "persona": "gig_driver",
+        "origin": "2026-06-27",
+        "k": 7,
+        "top": [
+          {
+            "feature": "no_income_share_30",
+            "shap": 0.09771434991903243
+          },
+          {
+            "feature": "log_scale",
+            "shap": 0.054188122119507756
+          },
+          {
+            "feature": "income_period_days",
+            "shap": 0.023553620892122963
+          }
+        ]
+      },
+      {
+        "persona": "remittance_household",
+        "origin": "2026-07-11",
+        "k": 7,
+        "top": [
+          {
+            "feature": "no_income_share_30",
+            "shap": -0.08779125898405096
+          },
+          {
+            "feature": "log_scale",
+            "shap": -0.08246585607971353
+          },
+          {
+            "feature": "income_period_days",
+            "shap": -0.04058069110845397
+          }
+        ]
+      }
+    ]
   }
 }

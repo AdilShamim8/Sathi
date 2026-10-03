@@ -1,6 +1,0 @@
-* text=auto eol=lf
-web/android/gradlew text eol=lf
-*.png binary
-*.jpg binary
-*.woff2 binary
-*.parquet binary

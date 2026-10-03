@@ -1,74 +1,72 @@
 {
-  "title": "AI Model vs Simple Rule Baseline Benchmark",
-  "description": "Empirical comparison of LightGBM Quantile Forecaster vs 14-day Rolling Mean Rule Baseline on held-out test data.",
+  "title": "AI model vs rule baselines",
+  "description": "Every value is computed by `python -m ml.evaluate` on the frozen held-out test users; metrics not yet computed are omitted.",
   "brier_score": {
-    "ml_model": 0.082,
-    "naive_rule_baseline": 0.124,
-    "seasonal_baseline": 0.115,
-    "brier_skill_score": 0.339,
-    "brier_skill_percentage_display": "+33.9%"
+    "ml_model": 0.024014095724250683,
+    "bootstrap_baseline": 0.02355435553173213,
+    "rule_baseline": 0.05290322580645161,
+    "base_rate_baseline": 0.03003878946627642,
+    "brier_skill_score": 0.20056379930987123,
+    "brier_skill_vs_bootstrap": -0.01951826667043366,
+    "brier_skill_vs_rule": 0.546075019846481
   },
   "quantile_loss": {
-    "pinball_loss_q10": {
-      "ml": 24.8,
-      "baseline": 41.2,
-      "improvement_pct": 39.8
-    },
-    "pinball_loss_p50_mae": {
-      "ml": 48.6,
-      "baseline": 69.4,
-      "improvement_pct": 30.0
-    },
-    "pinball_loss_q90": {
-      "ml": 21.3,
-      "baseline": 36.7,
-      "improvement_pct": 42.0
-    }
+    "pinball_ml": 0.24217581553357645,
+    "pinball_best_baseline": 0.25477549348097195,
+    "best_baseline": "B2 user's 90-day empirical quantiles",
+    "improvement": 0.04945404196945069
   },
   "wape_accuracy": {
-    "wape_ml": 0.976,
-    "wape_naive_baseline": 1.107,
-    "wape_seasonal_baseline": 1.237,
-    "relative_improvement_pct": 11.88,
-    "coverage_p10_p90": 0.922
+    "wape_ml": 0.85875827239187,
+    "wape_best_baseline": 0.8758877319210597,
+    "coverage_p10_p90": 0.8472910052910053,
+    "coverage_28d_cumulative": 0.8237037037037037
   },
   "early_warning_7d": {
-    "ml_recall": 0.907,
-    "ml_precision": 0.938,
-    "ml_f1": 0.922,
-    "baseline_recall": 0.612,
-    "baseline_precision": 0.684,
-    "baseline_f1": 0.646,
-    "f1_gain_pct": 42.7
+    "ml_precision": 0.3157894736842105,
+    "ml_recall": 0.5,
+    "ml_f1": 0.3870967741935484,
+    "ml_pr_auc": 0.38728944888616096,
+    "baseline_precision": 0.6363636363636364,
+    "baseline_recall": 0.2916666666666667,
+    "baseline_f1": 0.4,
+    "baseline_pr_auc": 0.4101537694666952,
+    "recall_at_precision_0_6": 0.2361111111111111
   },
   "interpretability": {
     "top_features": [
       {
-        "feature": "mean_net_30d",
-        "importance_pct": 32.4,
-        "description_bn": "৩০ দিনের গড় নগদ প্রবাহ"
+        "feature": "log_scale",
+        "importance_pct": 30.7,
+        "description_bn": "লেনদেনের আকার",
+        "description_en": "Typical transaction size"
       },
       {
-        "feature": "dom_net_profile",
-        "importance_pct": 24.1,
-        "description_bn": "মাসের নির্দিষ্ট দিনের বেতন/বিল চক্র"
+        "feature": "no_income_share_30",
+        "importance_pct": 22.4,
+        "description_bn": "আয়হীন দিনের অংশ",
+        "description_en": "Share of days without income"
       },
       {
-        "feature": "days_since_cashout",
-        "importance_pct": 16.5,
-        "description_bn": "সর্বশেষ ক্যাশ-আউট পরবর্তী সময়"
+        "feature": "dom",
+        "importance_pct": 10.5,
+        "description_bn": "মাসের তারিখ",
+        "description_en": "Day of month"
       },
       {
-        "feature": "std_net_30d",
-        "importance_pct": 14.8,
-        "description_bn": "দৈনিক আয়ের ওঠানামা ও অস্থিরতা"
+        "feature": "income_period_days",
+        "importance_pct": 5.3,
+        "description_bn": "আয়ের চক্র",
+        "description_en": "Income cycle length"
       },
       {
-        "feature": "is_festival_window",
-        "importance_pct": 12.2,
-        "description_bn": "ঈদ ও উৎসবকালীন বাড়তি খরচের চাপ"
+        "feature": "dom_irr_profile",
+        "importance_pct": 5.1,
+        "description_bn": "মাসের দিনভিত্তিক খরচের ধরন",
+        "description_en": "Day-of-month spending pattern"
       }
-    ]
+    ],
+    "method": "mean |SHAP| on the p50 model"
   },
-  "governance_note": "Evaluated on frozen held-out test splits. All numbers labelled SIMULATED for synthetic governance."
+  "governance_note": "SIMULATED — synthetic data only; real validation requires governed data · model fc-2026-09-30-15d8427d"
 }
