@@ -10,6 +10,38 @@
 [![Frontend](https://img.shields.io/badge/Frontend-Next.js%2016%20%2B%20TypeScript-black.svg)]()
 [![Shell](https://img.shields.io/badge/Mobile-Capacitor%20Android-blueviolet.svg)]()
 
+> 🌐 **Live web app:** <https://sathi-pied.vercel.app> &nbsp;·&nbsp; 📱 **Android APK:** [Download from Releases](https://github.com/AdilShamim8/Sathi/releases/latest) &nbsp;·&nbsp; 🧪 Try it instantly with **“Explore with demo data”** on first launch
+
+---
+
+## 📸 App Screenshots
+
+**Dashboard — Safe-to-Spend, shortfall risk & financial health** (live deployment, demo data):
+
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" alt="Sathi dashboard — Safe-to-Spend, shortfall risk, financial health, goal progress" width="880">
+</p>
+
+**The five core views** — the Android APK and the website run the exact same code and show the exact same numbers:
+
+| | | |
+|:---:|:---:|:---:|
+| **Home**<br>Safe-to-Spend & risk | **Spending**<br>Category intelligence | **Copilot**<br>Grounded Bangla chat |
+| <img src="docs/screenshots/mobile-home.png" width="230"> | <img src="docs/screenshots/mobile-spending.png" width="230"> | <img src="docs/screenshots/mobile-copilot.png" width="230"> |
+| **Cash Flow**<br>Forecast & pressure | **Goals**<br>Monte Carlo plans | **Insights**<br>Evidence-backed advice |
+| <img src="docs/screenshots/mobile-cash-flow.png" width="230"> | <img src="docs/screenshots/mobile-goals.png" width="230"> | <img src="docs/screenshots/ui-06-insights.png" width="230"> |
+
+<details>
+<summary><b>📂 Full UI gallery</b> — onboarding, transactions, Bangla mode, salary & settings</summary>
+
+| | | |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/ui-09-onboarding.png" width="210"> | <img src="docs/screenshots/ui-07-transactions.png" width="210"> | <img src="docs/screenshots/ui-08-bangla.png" width="210"> |
+| <img src="docs/screenshots/ui-02-cashflow.png" width="210"> | <img src="docs/screenshots/ui-03-spending.png" width="210"> | <img src="docs/screenshots/ui-04-copilot.png" width="210"> |
+| <img src="docs/screenshots/ui-10-settings.png" width="210"> | <img src="docs/screenshots/ui-11-txn-edit.png" width="210"> | <img src="docs/screenshots/ui-01-home.png" width="210"> |
+
+</details>
+
 ---
 
 ## 1. Project Overview
@@ -269,8 +301,8 @@ curl -H "Authorization: Bearer $TOKEN" localhost:3000/api/v1/me/benchmark  # T1�
 
 ## 12. Deliverables & Hackathon Roadmap
 
-- **Live Web URL:** deployed via Vercel (Root Directory `web`) — fill in after publishing
-- **Android APK:** built automatically by GitHub Actions and published as a public [GitHub Release](https://github.com/AdilShamim8/Sathi/releases)
+- **Live Web URL:** <https://sathi-pied.vercel.app> — deployed on Vercel (Root Directory `web`), zero-config serverless SQLite
+- **Android APK:** [`sathi-v6.0.0-debug.apk`](https://github.com/AdilShamim8/Sathi/releases/latest) — built automatically on every push by GitHub Actions and published as a public GitHub Release; the shell loads the live deployment
 - **Compliance matrix:** [`docs/HACKATHON_COMPLIANCE.md`](docs/HACKATHON_COMPLIANCE.md) — §13 Product Readiness, §14 Responsible AI & Safety, §15 Evaluation, with an evidence pointer for every line
 - **Responsible AI:** synthetic data only (no real PII; every ML number labelled SIMULATED); LLM guardrails (numeric grounding, deterministic fallback, no autonomous decisions); model guardrails (leakage-safe features enforced by test, held-out calibration, fail-closed serving); `audit_events` records every capture, forecast and query
 - **Submission Milestone:** demo video + technical report at T+66h
