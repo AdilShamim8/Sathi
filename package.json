@@ -4,17 +4,20 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
-    "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/ && cp -r ml-artifacts .next/standalone/",
+    "build": "next build && node scripts/copy-standalone.js",
     "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
     "lint": "eslint .",
     "test": "bun test tests/sathi-engines.test.ts tests/sathi-ml.test.ts tests/sathi-app.test.ts",
-    "postinstall": "prisma generate",
+    "postinstall": "node scripts/postinstall.js",
     "db:push": "prisma db push --accept-data-loss",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset"
   },
   "dependencies": {
+    "@capacitor/android": "^6.2.2",
+    "@capacitor/cli": "^6.2.2",
+    "@capacitor/core": "^6.2.2",
     "@prisma/client": "^6.11.1",
     "@radix-ui/react-toast": "^1.2.14",
     "@tanstack/react-query": "^5.82.0",
