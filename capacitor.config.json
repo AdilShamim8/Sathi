@@ -4,10 +4,12 @@
   "webDir": "public",
   "server": {
     "androidScheme": "https",
-    "cleartext": true
+    "cleartext": false,
+    "url": "https://sathi.upay.example",
+    "allowNavigation": []
   },
   "android": {
-    "backgroundColor": "#0F172A",
-    "allowMixedContent": true
+    "backgroundColor": "#F6F4EE",
+    "allowMixedContent": false
   }
 }

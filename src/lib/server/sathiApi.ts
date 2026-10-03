@@ -13,6 +13,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { User } from "@prisma/client";
+import { ensureSchema } from "@/lib/server/ensureSchema";
 import { SATHI_PERSONAS, generateSathiPersonaHistory } from "@/lib/engine/sathiPersonas";
 import {
   FEES, THRESHOLDS, configHash,
@@ -87,6 +88,7 @@ export function clientKey(req: NextRequest, route: string): string {
  * untouched; persona users power the /api/v1 surface.
  */
 export async function ensurePersonaUser(personaId: string): Promise<User> {
+  await ensureSchema(); // cold-start safe: creates tables on a fresh database
   const spec = SATHI_PERSONAS[personaId];
   if (!spec) throw new NotFoundError(`Unknown persona: ${personaId}`);
   const existing = await db.user.findFirst({ where: { name: spec.name } });

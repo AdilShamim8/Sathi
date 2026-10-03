@@ -102,6 +102,37 @@ bun run dev          # http://localhost:3000
 - **What leaves the device.** Only the copilot's question plus already-computed aggregate evidence is sent to the AI language service for phrasing (fail-closed, 20 s timeout). Raw transactions never leave the device. The LLM never produces numbers — every ৳ figure is computed by deterministic engines and validated against the evidence before display.
 - **Insights never go stale.** Every data mutation invalidates persisted insights; the next read regenerates them from current data.
 
+## 5c. Deploying (Vercel / self-hosted)
+
+The app is serverless-ready: on a fresh or empty database it creates its own
+schema and seeds on first request (no `db push` needed).
+
+**Vercel (demo-grade):**
+
+1. Import the GitHub repo. **Root Directory: leave empty (repo root)** — the
+   Next.js app lives at the top level, not in `web/`.
+2. Add the environment variable `DATABASE_URL = file:/tmp/sathi.db`
+   (Production + Preview). The serverless filesystem is read-only except
+   `/tmp`; the app creates and migrates that database automatically.
+3. Deploy. Build command (`bun run build`), install (bun) and framework
+   (Next.js) are auto-detected; `ml-artifacts/` is traced into the functions
+   so the model forecasts work.
+4. **Know the trade-off:** data lives per serverless instance and resets on
+   cold starts — fine for a demo, not for personal use. For persistent hosted
+   data, either point `DATABASE_URL` at Postgres (Neon/Supabase free tier;
+   change `provider` in `prisma/schema.prisma` and run `bun run db:push`
+   once) or self-host.
+
+**Self-hosted / VPS (persistent, recommended for personal use):**
+
+```bash
+bun install && bun run db:push && bun run build
+DATABASE_URL=file:./db/custom.db PORT=3000 bun run start   # standalone server
+```
+
+The Android shell (`android/`) loads whichever deployment URL you set in
+`capacitor.config.json`.
+
 ## 6. Environment Variables
 
 | Variable | Purpose |

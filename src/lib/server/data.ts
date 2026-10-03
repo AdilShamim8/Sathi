@@ -8,6 +8,7 @@
  */
 import { db } from "@/lib/db";
 import { User, Transaction, Goal, Insight, KnowledgeDoc, AuditEvent, ForecastRecord } from "@prisma/client";
+import { ensureSchema } from "@/lib/server/ensureSchema";
 import { generateDemoTransactions } from "@/lib/engine/synthetic";
 import { KNOWLEDGE_CORPUS } from "@/lib/engine/knowledge";
 import type { Txn, Goal as GoalT } from "@/lib/engine/domain";
@@ -63,6 +64,7 @@ async function migrateRolesOnce(): Promise<void> {
 
 /** The single device owner, or null before onboarding has completed. */
 export async function getOwnerUser(): Promise<User | null> {
+  await ensureSchema(); // cold-start safe: creates tables on a fresh database
   await migrateRolesOnce();
   return db.user.findFirst({ where: { role: "owner" }, orderBy: { id: "asc" } });
 }
@@ -169,6 +171,7 @@ export async function resetAllData(): Promise<void> {
 
 /** Knowledge base is static shared content — created once, kept across resets. */
 export async function ensureKnowledge(): Promise<void> {
+  await ensureSchema(); // cold-start safe: creates tables on a fresh database
   const kbCount = await db.knowledgeDoc.count();
   if (kbCount === 0) {
     await db.knowledgeDoc.createMany({

@@ -19,10 +19,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: '20'
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -30,18 +30,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # Install ALL project dependencies (includes @capacitor/android, @capacitor/cli,
-      # @capacitor/core) so that `cap sync` finds them in local node_modules.
-      # Global installs (npm install -g) do NOT populate node_modules and cause
-      # "Unable to find node_modules/@capacitor/android" errors.
-      - name: Install dependencies (includes Capacitor packages)
-        run: bun install
-
       # The app shell is a thin Capacitor wrapper that loads the deployed
       # Next.js app (server-rendered UI + API routes). No static export is
       # needed: capacitor.config.json points at the deployment URL.
-      - name: Sync Capacitor Android project
-        run: bunx cap sync android
+      - name: Install Capacitor CLI
+        run: npm install -g @capacitor/cli@6 @capacitor/core@6 @capacitor/android@6
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
 
       - name: Set gradlew executable permission
         run: chmod +x android/gradlew
@@ -54,24 +50,23 @@ jobs:
       - name: Prepare APK for Artifact & Release
         run: |
           mkdir -p apk-output
-          cp android/app/build/outputs/apk/debug/app-debug.apk apk-output/sathi-v5.0.0-debug.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk apk-output/sathi-v5.1.0-debug.apk
           ls -la apk-output/
 
       - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: sathi-android-apk
-          path: apk-output/sathi-v5.0.0-debug.apk
+          path: apk-output/sathi-v5.1.0-debug.apk
           retention-days: 30
 
       - name: Create or Update GitHub Release with APK
         if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'v5.0.0' }}
-          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('Sathi Release {0}', github.ref_name) || 'Sathi App Release v5.0.0 (Latest APK)' }}
-          files: apk-output/sathi-v5.0.0-debug.apk
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'v5.1.0' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('Sathi Release {0}', github.ref_name) || 'Sathi App Release v5.1.0 (Latest APK)' }}
+          files: apk-output/sathi-v5.1.0-debug.apk
           generate_release_notes: true
           draft: false
           prerelease: false
-

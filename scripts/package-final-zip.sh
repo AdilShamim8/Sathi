@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Package the final GitHub-ready zip: sathi-v5.0.0.zip
+# Package the final GitHub-ready zip: sathi-v5.1.0.zip
 # Production-only tree: the Next.js app (runtime, serves ml-artifacts/),
 # the ml/ offline Python factory, the Android shell, docs + tests.
 # Excludes: reference material, sandbox tooling, runtime DBs, build output.
@@ -65,7 +65,7 @@ ls -la "$STAGE/sathi/"
 echo "---- sizes ----"
 du -sh "$STAGE/sathi"/* | sort -rh | head -12
 
-OUT="$ROOT/download/sathi-v5.0.0.zip"
+OUT="$ROOT/download/sathi-v5.1.0.zip"
 rm -f "$OUT"
 (cd "$STAGE" && zip -r -q "$OUT" sathi)
 echo "---- zip created ----"

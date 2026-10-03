@@ -2,7 +2,7 @@
 
 > **Purpose.** This document maps every line of the hackathon's **§13 Product Readiness**, **§14 Responsible AI & Safety**, and **§15 Evaluation Framework** to concrete, checkable evidence inside this repository — written to be read by a judge or a senior reviewer, and re-verified by the commands in §6.
 >
-> **Status:** v5.0 · model `fc-2026-09-30-15d8427d` · 83 TypeScript + 78 Python tests green (both enforced in CI) · all 31 smoke checks passing · owner-scoped product API with full CRUD + reset.
+> **Status:** v5.1 · model `fc-2026-09-30-15d8427d` · 83 TypeScript + 78 Python tests green (both enforced in CI) · all 31 smoke checks passing · owner-scoped product API with full CRUD + reset.
 
 ---
 

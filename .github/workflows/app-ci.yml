@@ -36,8 +36,6 @@ jobs:
         run: bun run build
         env:
           DATABASE_URL: file:../db/custom.db
-          # Not on Vercel — produce standalone output for full coverage
-          VERCEL: ""
 
   ml:
     name: ML Pipeline — Python Tests (78) & Data Verification

@@ -77,14 +77,14 @@ export function getForecaster(): Forecaster | null {
     const version = (
       JSON.parse(readFileSync(path.join(dir, "latest.json"), "utf8")) as { version: string }
     ).version;
-    const folder = path.join(/*turbopackIgnore: true*/ dir, version);
+    const folder = path.join(dir, version);
     const metadata = JSON.parse(readFileSync(path.join(folder, "metadata.json"), "utf8"));
     const calibration = JSON.parse(
       readFileSync(path.join(folder, "calibration.json"), "utf8"),
     ) as Calibration;
     const boosters = new Map<number, LgbModel>();
     for (const t of TAUS) {
-      const file = path.join(/*turbopackIgnore: true*/ folder, `model_q${String(Math.round(t * 100)).padStart(2, "0")}.txt`);
+      const file = path.join(folder, `model_q${String(Math.round(t * 100)).padStart(2, "0")}.txt`);
       boosters.set(t, parseLgbModel(readFileSync(file, "utf8")));
     }
     cachedForecaster = { version, metadata, calibration, boosters };
