@@ -302,7 +302,7 @@ curl -H "Authorization: Bearer $TOKEN" localhost:3000/api/v1/me/benchmark  # T1�
 ## 12. Deliverables & Hackathon Roadmap
 
 - **Live Web URL:** <https://sathi-pied.vercel.app> — deployed on Vercel (Root Directory `web`), zero-config serverless SQLite
-- **Android APK:** [`sathi-v6.0.0-debug.apk`](https://github.com/AdilShamim8/Sathi/releases/latest) — built automatically on every push by GitHub Actions and published as a public GitHub Release; the shell loads the live deployment
+- **Android APK:** [Download from Releases](https://github.com/AdilShamim8/Sathi/releases/latest) — built automatically on every `v*` tag by GitHub Actions; the shell loads the live deployment, with an in-app reconnect page if the network drops
 - **Compliance matrix:** [`docs/HACKATHON_COMPLIANCE.md`](docs/HACKATHON_COMPLIANCE.md) — §13 Product Readiness, §14 Responsible AI & Safety, §15 Evaluation, with an evidence pointer for every line
 - **Responsible AI:** synthetic data only (no real PII; every ML number labelled SIMULATED); LLM guardrails (numeric grounding, deterministic fallback, no autonomous decisions); model guardrails (leakage-safe features enforced by test, held-out calibration, fail-closed serving); `audit_events` records every capture, forecast and query
 - **Submission Milestone:** demo video + technical report at T+66h
