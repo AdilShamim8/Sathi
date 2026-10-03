@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 
 /**
  * Salary settings (user's explicit option).
- * GET  â†’ current salary settings + what was detected from history
- * POST â†’ update salary amount / pay day; feeds the income-detection layer.
+ * GET  → current salary settings + what was detected from history
+ * POST → update salary amount / pay day; feeds the income-detection layer.
  *
  * Note: recurring income detection still runs on transaction history;
  * the user-declared salary refines estimates when history is ambiguous
@@ -83,4 +83,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to save salary settings" }, { status: 500 });
   }
 }
-

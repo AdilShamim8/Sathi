@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
  *
  * Every number below is read from docs/metrics/eval.json + benchmark.json,
  * which are generated ONLY by `python -m ml.evaluate` (the `ml/` pipeline) on the
- * frozen held-out test users â€” nothing here is typed by hand, so this route
+ * frozen held-out test users — nothing here is typed by hand, so this route
  * cannot drift from the evaluation. The in-product risk-classifier
  * validation (leakage-safe logistic regression vs the simple rule) is kept
  * as a clearly-labelled second block.
@@ -103,4 +103,3 @@ export async function GET(req: NextRequest) {
     }));
   }
 }
-

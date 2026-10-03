@@ -7,7 +7,7 @@ import { validateTxnCreate } from "@/lib/server/validate";
 export const dynamic = "force-dynamic";
 
 /**
- * Manual transaction entry (structured form â€” the reliable path for income
+ * Manual transaction entry (structured form — the reliable path for income
  * sources like freelance payments and for precise corrections).
  * body: { amount, direction: "in"|"out", category, merchant?, timestamp? }
  */
@@ -47,4 +47,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to save transaction" }, { status: 500 });
   }
 }
-

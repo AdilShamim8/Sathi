@@ -19,7 +19,7 @@ export async function GET() {
 }
 
 /**
- * Create a goal. Multiple active goals are supported â€” creating one never
+ * Create a goal. Multiple active goals are supported — creating one never
  * touches the others (edit/archive/delete happen via /api/goals/[id]).
  */
 export async function POST(req: NextRequest) {
@@ -69,4 +69,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create goal" }, { status: 500 });
   }
 }
-

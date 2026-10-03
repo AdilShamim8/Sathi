@@ -34,7 +34,7 @@ export async function PATCH(req: NextRequest) {
     if (body.openingBalance !== undefined) {
       const b = Number(body.openingBalance);
       if (!Number.isFinite(b) || b < 0 || b > 10_000_000) {
-        return NextResponse.json({ error: "Starting balance must be between à§³0 and à§³10,000,000" }, { status: 400 });
+        return NextResponse.json({ error: "Starting balance must be between ৳0 and ৳10,000,000" }, { status: 400 });
       }
       data.openingBalance = Math.round(b);
     }
@@ -58,4 +58,3 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
   }
 }
-

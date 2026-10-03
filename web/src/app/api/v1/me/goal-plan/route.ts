@@ -11,7 +11,7 @@ import { formatTaka, formatProbability } from "@/lib/engine/formatting";
 export const dynamic = "force-dynamic";
 
 /**
- * Monte Carlo goal plan (reference: POST /v1/me/goal-plan) â€” three honest
+ * Monte Carlo goal plan (reference: POST /v1/me/goal-plan) — three honest
  * options (extend timeline / trim leakage / percent of inflow) with Wilson
  * 95% intervals, from the user's own surplus distribution.
  */
@@ -74,9 +74,9 @@ export async function POST(req: NextRequest) {
     });
 
     const titleBn: Record<string, string> = {
-      extend_timeline: "à¦¸à¦®à¦¯à¦¼ à¦¬à¦¾à¦¡à¦¼à¦¿à¦¯à¦¼à§‡ à¦¸à¦¹à¦œà§‡ à¦¸à¦žà§à¦šà¦¯à¦¼",
-      trim_leakage: "à¦…à¦ªà§à¦°à¦¯à¦¼à§‹à¦œà¦¨à§€à¦¯à¦¼ à¦«à¦¿ à¦•à¦®à¦¿à¦¯à¦¼à§‡ à¦¸à¦žà§à¦šà¦¯à¦¼",
-      percent_of_inflow: "à¦ªà§à¦°à¦¤à¦¿ à¦†à¦¯à¦¼à§‡à¦° à¦¨à¦¿à¦°à§à¦¦à¦¿à¦·à§à¦Ÿ à¦…à¦‚à¦¶ à¦¸à¦žà§à¦šà¦¯à¦¼",
+      extend_timeline: "সময় বাড়িয়ে সহজে সঞ্চয়",
+      trim_leakage: "অপ্রয়োজনীয় ফি কমিয়ে সঞ্চয়",
+      percent_of_inflow: "প্রতি আয়ের নির্দিষ্ট অংশ সঞ্চয়",
     };
     const titleEn: Record<string, string> = {
       extend_timeline: "Extend Timeline",
@@ -130,4 +130,3 @@ export async function POST(req: NextRequest) {
     return notFound("Goal plan failed");
   }
 }
-

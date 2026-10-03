@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * Offline evaluation metrics (judge-facing):
- *  - P0 ML validation: ML vs simple rule baseline â€” Brier Score, Brier
+ *  - P0 ML validation: ML vs simple rule baseline — Brier Score, Brier
  *    Skill Score, PR-AUC, Reliability (calibration)
  *  - NL parser accuracy on a labelled holdout set
  *  - Baseline forecast backtest (MAE/MAPE)
@@ -28,7 +28,7 @@ export async function GET() {
     // P0: ML validation (trains once per process, then cached)
     const { metrics } = getRiskModel();
 
-    // baseline forecast backtest â€” on the owner's history when there is
+    // baseline forecast backtest — on the owner's history when there is
     // enough of it, otherwise on the seeded synthetic demo history so the
     // evaluation stays meaningful for brand-new personal accounts.
     let backtestTxns = txns;
@@ -47,17 +47,17 @@ export async function GET() {
 
     // NL parser accuracy: labelled synthetic utterance set (holdout)
     const cases: { text: string; category: string; amount: number }[] = [
-      { text: "à¦†à¦œà¦•à§‡ coffee à¦–à¦¾à¦‡à¦›à¦¿ à§¨à§¦à§¦ à¦Ÿà¦¾à¦•à¦¾", category: "food_beverage", amount: 200 },
+      { text: "আজকে coffee খাইছি ২০০ টাকা", category: "food_beverage", amount: 200 },
       { text: "spent 500 on groceries yesterday", category: "groceries", amount: 500 },
       { text: "aj bazar korlam 850 taka", category: "groceries", amount: 850 },
-      { text: "rickshaw à¦­à¦¾à¦¡à¦¼à¦¾ à§¬à§¦ à¦Ÿà¦¾à¦•à¦¾", category: "transport", amount: 60 },
+      { text: "rickshaw ভাড়া ৬০ টাকা", category: "transport", amount: 60 },
       { text: "paid electricity bill 1450", category: "utilities", amount: 1450 },
-      { text: "cash out à¦•à¦°à¦²à¦¾à¦® à§¨à§¦à§¦à§¦", category: "cash_out", amount: 2000 },
+      { text: "cash out করলাম ২০০০", category: "cash_out", amount: 2000 },
       { text: "netflix subscription 349 tk", category: "entertainment", amount: 349 },
-      { text: "à¦”à¦·à¦§ à¦•à¦¿à¦¨à¦²à¦¾à¦® à§ªà§«à§¦ à¦Ÿà¦¾à¦•à¦¾", category: "health", amount: 450 },
+      { text: "ঔষধ কিনলাম ৪৫০ টাকা", category: "health", amount: 450 },
       { text: "mobile recharge 199", category: "mobile_topup", amount: 199 },
-      { text: "à¦†à¦®à§à¦®à§à¦•à§‡ à§©à§¦à§¦à§¦ à¦Ÿà¦¾à¦•à¦¾ à¦ªà¦¾à¦ à¦¿à¦¯à¦¼à§‡à¦›à¦¿", category: "send_money", amount: 3000 },
-      { text: "à¦¬à§‡à¦¤à¦¨ à¦ªà§‡à¦¯à¦¼à§‡à¦›à¦¿ à§©à§¦à§¦à§¦à§¦ à¦Ÿà¦¾à¦•à¦¾", category: "income", amount: 30000 },
+      { text: "আম্মুকে ৩০০০ টাকা পাঠিয়েছি", category: "send_money", amount: 3000 },
+      { text: "বেতন পেয়েছি ৩০০০০ টাকা", category: "income", amount: 30000 },
       { text: "bought shoes 1200 taka", category: "shopping", amount: 1200 },
     ];
     let catCorrect = 0;
@@ -124,8 +124,8 @@ export async function GET() {
       },
       dataGovernance: {
         synthetic: true,
-        pii: "none â€” all data is seeded synthetic with documented assumptions",
-        splits: "user-level train/val/test â€” no user straddles splits (no leakage)",
+        pii: "none — all data is seeded synthetic with documented assumptions",
+        splits: "user-level train/val/test — no user straddles splits (no leakage)",
       },
       generatedAt: anchor.toISOString(),
     });
@@ -135,4 +135,3 @@ export async function GET() {
     return NextResponse.json({ error: "Failed to compute metrics" }, { status: 500 });
   }
 }
-

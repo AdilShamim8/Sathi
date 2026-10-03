@@ -4,7 +4,7 @@ import { onboardUser, audit, DEFAULT_USER_NAME } from "@/lib/server/data";
 export const dynamic = "force-dynamic";
 
 /**
- * Create the owner account (first launch). Idempotent â€” if an owner already
+ * Create the owner account (first launch). Idempotent — if an owner already
  * exists the call is treated as a no-op and returns the existing account.
  *
  * body: { name?: string, mode?: "personal" | "demo",
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
 
     let name = typeof body.name === "string" ? body.name.trim() : "";
-    if (name.length < 2) name = DEFAULT_USER_NAME; // skipped/blank â†’ default
+    if (name.length < 2) name = DEFAULT_USER_NAME; // skipped/blank → default
     if (name.length > 80) name = name.slice(0, 80);
 
     const mode = body.mode === "demo" ? "demo" : "personal";
@@ -52,4 +52,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to complete setup" }, { status: 500 });
   }
 }
-

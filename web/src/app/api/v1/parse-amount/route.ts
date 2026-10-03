@@ -9,13 +9,13 @@ export const dynamic = "force-dynamic";
 
 /**
  * Natural-language amount + category parser (reference: POST /v1/parse-amount).
- * Bangla digits, Banglish and English all parse. Deterministic â€” no LLM.
+ * Bangla digits, Banglish and English all parse. Deterministic — no LLM.
  */
 export async function POST(req: NextRequest) {
   try {
     if (!rateLimit(clientKey(req, "parse-amount"), RATE_LIMITS.parse_amount_per_window, RATE_LIMITS.window_s * 1000)) {
       return NextResponse.json(
-        { error: { code: "rate_limited", message: "Too many parses â€” wait a minute." } },
+        { error: { code: "rate_limited", message: "Too many parses — wait a minute." } },
         { status: 429 },
       );
     }
@@ -31,11 +31,10 @@ export async function POST(req: NextRequest) {
       category: parsed.category,
       direction: parsed.direction,
       confidence: 1,
-      note: locale === "bn" ? "à¦¨à¦¿à¦°à§à¦§à¦¾à¦°à¦¿à¦¤ à¦ªà¦¾à¦°à§à¦¸à¦¾à¦° â€” à¦•à§‹à¦¨à§‹ LLM à¦¨à¦¯à¦¼" : "Deterministic parser â€” no LLM involved",
+      note: locale === "bn" ? "নির্ধারিত পার্সার — কোনো LLM নয়" : "Deterministic parser — no LLM involved",
     });
   } catch (e) {
     console.error("[v1 parse-amount]", e);
     return NextResponse.json({ error: { code: "internal", message: "Parse failed" } }, { status: 500 });
   }
 }
-
