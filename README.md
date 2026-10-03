@@ -83,8 +83,8 @@ Sathi's answer: **Empower the customer with foresight, clear trade-offs, and hon
 The app is serverless-ready: on a fresh or empty database it creates its own schema and seeds on first request (no `db push` needed).
 
 1. Import this GitHub repo into Vercel with **Root Directory: `web`**.
-2. Add the environment variable `DATABASE_URL = file:/tmp/sathi.db` (Production + Preview). The serverless filesystem is read-only except `/tmp`; the app creates and migrates that database automatically.
-3. Deploy — install (bun), build command and framework (Next.js) are auto-detected; `ml-artifacts/` is traced into the functions so model forecasts work.
+2. Deploy — no environment variables required. Install (bun), build command and framework (Next.js) are auto-detected; `ml-artifacts/` is traced into the functions so model forecasts work.
+3. **How the database works on serverless:** `web/src/lib/db.ts` detects the Vercel environment and redirects the SQLite file to an auto-created writable copy under `/tmp` (the rest of the filesystem is read-only). The data layer's `ensureSchema()` builds the tables on first request — zero-config cold start. Setting `DATABASE_URL` on Vercel is optional; `file:` URLs are redirected to `/tmp` automatically, and remote provider URLs (`libsql://`, `postgres://`, …) pass through untouched.
 4. **Know the trade-off:** data lives per serverless instance and resets on cold starts — fine for a demo. For persistent hosted data, point `DATABASE_URL` at Postgres (change `provider` in `web/prisma/schema.prisma`, run `bun run db:push` once) or self-host:
 
 ```bash
