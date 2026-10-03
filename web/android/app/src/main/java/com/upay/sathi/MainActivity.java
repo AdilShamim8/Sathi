@@ -61,7 +61,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         handler.removeCallbacks(loadTimeout);
         super.onDestroy();
     }
