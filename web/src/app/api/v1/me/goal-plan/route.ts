@@ -68,6 +68,8 @@ export async function POST(req: NextRequest) {
         minMonthlyContribution: minContrib,
         likelyCutoff: PLANNER_CONFIG.likely_cutoff,
         uncertainCutoff: PLANNER_CONFIG.uncertain_cutoff,
+        calibrationA: PLANNER_CONFIG.calibration_a,
+        calibrationB: PLANNER_CONFIG.calibration_b,
       },
       seed: PLANNER_CONFIG.seed,
       asOfDate: anchor,
@@ -121,6 +123,7 @@ export async function POST(req: NextRequest) {
       labels: { plan: "Prediction", options: "Prediction", p_goal_met: "Prediction" },
       extraAssumptions: [
         { id: "PLANNER_N_SIMS", value: String(PLANNER_CONFIG.n_simulations), label: "Monte Carlo paths per option" },
+        { id: "PLANNER_CALIBRATION", value: `Platt a=${PLANNER_CONFIG.calibration_a}, b=${PLANNER_CONFIG.calibration_b}`, label: "Empirical recalibration of P(goal met) — fitted on the frozen T6 back-test (raw simulation is ~3-5x optimistic)" },
         { id: "MIN_BUFFER_DAYS", value: String(THRESHOLDS.min_buffer_days), label: "Planner never drops below this buffer" },
       ],
     });

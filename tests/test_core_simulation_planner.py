@@ -92,3 +92,47 @@ def test_planner_rejects_invalid_goal():
     import pytest
     with pytest.raises(ValueError):
         plan_goal(0, 6, surplus, inflow, 0, 0, 0, CFG, np.random.default_rng(1), dt.date(2026, 9, 30))
+
+
+def test_goal_probabilities_are_platt_recalibrated():
+    """T6 back-test: the raw i.i.d. simulation is ~3-5x optimistic, so every
+    emitted probability passes through a Platt recalibration fitted on the
+    frozen held-out users. Lock the contract: bin-anchored, monotone, and
+    never claiming certainty."""
+    from core.planner import _calibrate
+
+    A, B = -2.4133, 0.5291
+    # raw 0.105 must land near the realised 2.8% (frozen T6 bin, n=752)
+    p = _calibrate(0.105, 2000, A, B)
+    assert abs(p - 0.028) < 0.004
+    # raw 0.276 near the realised 5.1% (frozen T6 bin, n=117)
+    p2 = _calibrate(0.276, 2000, A, B)
+    assert abs(p2 - 0.051) < 0.004
+    # monotone across the whole range
+    ps = [_calibrate(i / 100, 2000, A, B) for i in range(101)]
+    assert all(a <= b + 1e-12 for a, b in zip(ps, ps[1:]))
+    # an all-paths success is capped below certainty but stays "likely"
+    certain = _calibrate(1.0, 2000, A, B)
+    assert 0.7 <= certain < 1.0
+    # impossibility stays impossible
+    assert _calibrate(0.0, 2000, A, B) == 0.0
+
+
+def test_plan_goal_calibrated_below_raw():
+    """The shipped plan must be materially less optimistic than the raw
+    simulator for a mid-feasibility goal (the audit finding)."""
+    from core.planner import PlannerConfig as PC
+
+    surplus, inflow = _pools()
+    identity = PC(n_simulations=CFG.n_simulations, horizon_cap_months=CFG.horizon_cap_months,
+                  min_monthly_contribution_paisa=CFG.min_monthly_contribution_paisa,
+                  calibration_a=0.0, calibration_b=1.0)
+    # a goal that is genuinely mid-feasibility for this pool
+    target = 880_000
+    raw = plan_goal(target, 6, surplus, inflow, 15_000, 50_000, 400_000, identity,
+                    np.random.default_rng(5), dt.date(2026, 9, 30)).p_requested
+    cal = plan_goal(target, 6, surplus, inflow, 15_000, 50_000, 400_000, CFG,
+                    np.random.default_rng(5), dt.date(2026, 9, 30)).p_requested
+    assert 0.05 < raw < 0.95      # mid-range, where the optimism lived
+    assert cal < raw              # calibrated strictly below raw
+    assert cal > 0                # but not zero

@@ -16,6 +16,12 @@ planner:
   # Verdict bands for P(requested plan works). Presentation thresholds.
   likely_cutoff: 0.70
   uncertain_cutoff: 0.40
+  # Platt recalibration of P(goal met), fitted on the frozen T6 back-test
+  # (held-out test users): p_cal = sigmoid(a + b * logit(p_raw)). The raw
+  # i.i.d. simulation over trailing surplus history is ~3-5x optimistic
+  # because surplus mean-reverts. Refitted by `python -m ml.evaluate` (T6).
+  calibration_a: -2.4133
+  calibration_b: 0.5291
 
 # ASSUMPTION CASHOUT_DETECTOR: what counts as a "repeat pattern" and how a
 # withdrawal is matched to a later digital-capable merchant payment.

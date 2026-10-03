@@ -9,6 +9,19 @@ Common random numbers (one pre-sampled surplus matrix) make P(goal met)
 monotonic in contribution and in time by construction, which the property
 tests rely on. The essentials safety buffer caps every contribution
 (invariant 16). No option is pre-selected or promoted.
+
+Empirical calibration: the raw simulation resamples trailing history
+i.i.d., but held-out back-tests (docs/eval_report.md T6) showed realised
+goal completion runs ~3-5x below the stated probability — surplus
+mean-reverts, so trailing history flatters the future. Every probability
+this module emits is therefore passed through a Platt (logistic)
+recalibration fitted on the frozen test users:
+    p_cal = sigmoid(A + B * logit(p_raw))
+The constants live in PlannerConfig (config/planner.yaml) and are
+re-derived by `python -m ml.evaluate` (T6). A simulation that succeeds on
+all n paths is capped at 1 - 1/(2n) first: in this data even "certain"
+plans miss, and the calibration must never emit certainty the back-test
+does not support.
 """
 from __future__ import annotations
 
@@ -28,6 +41,10 @@ class PlannerConfig:
     min_monthly_contribution_paisa: int
     likely_cutoff: float = 0.70
     uncertain_cutoff: float = 0.40
+    # Platt recalibration of P(goal met) — derived on the frozen T6 back-test
+    # (ml/evaluate.py refits and reports both raw and calibrated bins).
+    calibration_a: float = -2.4133   # log-odds intercept
+    calibration_b: float = 0.5291    # log-odds slope (< 1 shrinks optimism)
 
 
 @dataclass(frozen=True)
@@ -81,6 +98,23 @@ def _simulate_fixed(S: np.ndarray, target_paisa: int, monthly: int, months: int)
     return float(reached.mean())
 
 
+def _calibrate(p: float, n: int, a: float, b: float) -> float:
+    """Platt recalibration of a raw Monte Carlo probability (see module docstring).
+
+    Monotone (b > 0), maps 0 -> 0, and never claims certainty: an all-paths
+    success is capped at 1 - 1/(2n) before the log-odds transform.
+    """
+    if p <= 0.0:
+        return 0.0
+    if p >= 1.0:
+        p = 1.0 - 0.5 / max(n, 1)
+    z = a + b * math.log(p / (1.0 - p))
+    if z >= 0.0:
+        return 1.0 / (1.0 + math.exp(-z)) if z < 700 else 1.0
+    e = math.exp(z)                     # numerically stable far-left tail
+    return e / (1.0 + e)
+
+
 def _simulate_percent(S_inflow: np.ndarray, target_paisa: int, rate: float, months: int) -> float:
     horizon = min(months, S_inflow.shape[1])
     contrib = np.maximum(S_inflow[:, :horizon], 0) * rate
@@ -114,7 +148,9 @@ def plan_goal(
     I = rng.choice(pool_i, size=(config.n_simulations, config.horizon_cap_months), replace=True)
 
     monthly_required = math.ceil(target_paisa / months)
-    p_requested = _simulate_fixed(S, target_paisa, monthly_required, months)
+    p_requested_raw = _simulate_fixed(S, target_paisa, monthly_required, months)
+    p_requested = _calibrate(p_requested_raw, config.n_simulations,
+                             config.calibration_a, config.calibration_b)
     if p_requested >= config.likely_cutoff:
         verdict = "likely"
     elif p_requested >= config.uncertain_cutoff:
@@ -133,7 +169,8 @@ def plan_goal(
     # --- Option A: extend the timeline at the feasible contribution ---------
     if base > 0:
         months_a = min(math.ceil(target_paisa / base), config.horizon_cap_months)
-        p_a = _simulate_fixed(S, target_paisa, base, months_a)
+        p_a = _calibrate(_simulate_fixed(S, target_paisa, base, months_a),
+                         config.n_simulations, config.calibration_a, config.calibration_b)
         lo, hi = _wilson(p_a, config.n_simulations)
         options.append(PlanOption(
             key="extend_timeline",
@@ -151,7 +188,8 @@ def plan_goal(
         contrib_b = min(base + leakage, max_safe_contribution_paisa)
         if contrib_b > 0:
             months_b = min(math.ceil(target_paisa / contrib_b), config.horizon_cap_months)
-            p_b = _simulate_fixed(S, target_paisa, contrib_b, months_b)
+            p_b = _calibrate(_simulate_fixed(S, target_paisa, contrib_b, months_b),
+                             config.n_simulations, config.calibration_a, config.calibration_b)
             lo, hi = _wilson(p_b, config.n_simulations)
             options.append(PlanOption(
                 key="trim_leakage",
@@ -170,7 +208,8 @@ def plan_goal(
         rate = min(max(rate_needed, 0.05), 0.50)   # 5%-50% sane band
         expected_monthly = int(median_inflow * rate)
         if expected_monthly <= max_safe_contribution_paisa:
-            p_c = _simulate_percent(I, target_paisa, rate, months)
+            p_c = _calibrate(_simulate_percent(I, target_paisa, rate, months),
+                             config.n_simulations, config.calibration_a, config.calibration_b)
             lo, hi = _wilson(p_c, config.n_simulations)
             options.append(PlanOption(
                 key="percent_of_inflow",

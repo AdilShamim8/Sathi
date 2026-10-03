@@ -665,7 +665,7 @@
     }
   },
   "planner_backtest": {
-    "note": "Planned 90 days before as_of; targets = k x median monthly surplus x 3 months, k in {0.5, 0.8, 1.0, 1.3, 2.0}; users with non-positive median surplus are skipped.",
+    "note": "Planned 90 days before as_of; targets = k x median monthly surplus x 3 months, k in {0.5, 0.8, 1.0, 1.3, 2.0}; users with non-positive median surplus are skipped. Raw = simulator without calibration. Calibrated = shipped Platt constants on the report half of users; the constants are refitted on the other half.",
     "n_users": 175,
     "n_goals": 875,
     "bins": [
@@ -688,7 +688,45 @@
         "n": 6
       }
     ],
-    "ece": 0.09904228571428571
+    "ece": 0.09904228571428571,
+    "calibration": {
+      "method": "p_cal = sigmoid(a + b * logit(p_raw)); all-paths success capped at 1 - 1/(2n)",
+      "shipped_constants": {
+        "a": -2.4133,
+        "b": 0.5291,
+        "source": "config/planner.yaml (fitted on the frozen T6 back-test)"
+      },
+      "refit_on_fit_half": {
+        "a": -1.4197551804581605,
+        "b": 0.7550180296550244,
+        "n_goals": 410
+      },
+      "bins_calibrated_report_half": [
+        {
+          "bin": "0.0-0.2",
+          "mean_stated_raw": 0.10331532663316584,
+          "mean_calibrated": 0.026746943393094448,
+          "realised": 0.01256281407035176,
+          "n": 398
+        },
+        {
+          "bin": "0.2-0.4",
+          "mean_stated_raw": 0.2774285714285714,
+          "mean_calibrated": 0.05118645026520103,
+          "realised": 0.0,
+          "n": 63
+        },
+        {
+          "bin": "0.4-0.6",
+          "mean_stated_raw": 0.46774999999999994,
+          "mean_calibrated": 0.0774484500485277,
+          "realised": 0.0,
+          "n": 4
+        }
+      ],
+      "ece_calibrated_report_half": 0.01974155620936208,
+      "n_goals_report_half": 465
+    }
   },
   "shap": {
     "note": "TreeExplainer on the p50 model, 3,000 sampled test rows (scale-free units). Persona is shown for the examples only; it is not a model input.",

@@ -18,6 +18,7 @@ Alert cutoffs are chosen on validation users only.
 from __future__ import annotations
 
 import datetime as dt
+import math
 import json
 from pathlib import Path
 
@@ -374,20 +375,61 @@ def cash_on_hand_eval(panels, as_of: dt.date, first: dt.date) -> dict:
 
 
 # --------------------------------------------------------------------- T6
+def _platt(p, a: float, b: float, n: int = 2000) -> float:
+    """sigmoid(a + b*logit(p)); p clipped so all-paths success is not certainty."""
+    p = min(max(p, 0.5 / max(n, 1)), 1.0 - 0.5 / max(n, 1))
+    z = a + b * math.log(p / (1.0 - p))
+    if z >= 0.0:
+        return 1.0 / (1.0 + math.exp(-z))
+    e = math.exp(z)
+    return e / (1.0 + e)
+
+
+def _fit_platt(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
+    """Weighted logistic regression realised ~ sigmoid(a + b*x) via IRLS."""
+    a, b = 0.0, 1.0
+    for _ in range(60):
+        z = a + b * x
+        p = 1.0 / (1.0 + np.exp(-z))
+        w = np.maximum(p * (1.0 - p), 1e-6)
+        g = np.array([float(np.sum(p - y)), float(np.sum((p - y) * x))])
+        H = np.array([[float(np.sum(w)), float(np.sum(w * x))],
+                      [float(np.sum(w * x)), float(np.sum(w * x * x))]]) + 1e-9 * np.eye(2)
+        try:
+            step = np.linalg.solve(H, g)
+        except np.linalg.LinAlgError:
+            break
+        a, b = a - step[0], b - step[1]
+        if abs(step[0]) < 1e-10 and abs(step[1]) < 1e-12:
+            break
+    return float(a), float(b)
+
+
 def planner_backtest(cfg, panels, seed: int, as_of: dt.date) -> dict:
     """Goals at 5 difficulty levels per test user (k x median monthly surplus
     x 3 months), planned 3 months before as_of from history only; realised =
     the user's actual surplus would have covered the required monthly
-    contribution (same rule as the planner's simulation)."""
+    contribution (same rule as the planner's simulation).
+
+    The planner now ships a Platt recalibration of P(goal met) (the raw
+    i.i.d. simulation over trailing surplus is ~3-5x optimistic — surplus
+    mean-reverts). This table reports the RAW simulator bins, the refit
+    constants on a deterministic fit-half of users, and the CALIBRATED
+    bins using the shipped config constants on the report-half."""
     from core.planner import PlannerConfig, plan_goal
     pcfg = cfg.section("planner")
-    config = PlannerConfig(n_simulations=int(pcfg["n_simulations"]),
-                           horizon_cap_months=int(pcfg["horizon_cap_months"]),
-                           min_monthly_contribution_paisa=int(pcfg["min_monthly_contribution_paisa"]),
-                           likely_cutoff=float(pcfg["likely_cutoff"]),
-                           uncertain_cutoff=float(pcfg["uncertain_cutoff"]))
+    n_sims = int(pcfg["n_simulations"])
+    common = dict(n_simulations=n_sims,
+                  horizon_cap_months=int(pcfg["horizon_cap_months"]),
+                  min_monthly_contribution_paisa=int(pcfg["min_monthly_contribution_paisa"]),
+                  likely_cutoff=float(pcfg["likely_cutoff"]),
+                  uncertain_cutoff=float(pcfg["uncertain_cutoff"]))
+    shipped = PlannerConfig(calibration_a=float(pcfg.get("calibration_a", -2.4133)),
+                            calibration_b=float(pcfg.get("calibration_b", 0.5291)), **common)
+    identity = PlannerConfig(calibration_a=0.0, calibration_b=1.0, **common)
     origin = as_of - dt.timedelta(days=90)
-    stated, realised, users = [], [], 0
+    raw, cal, rea, fit = [], [], [], []
+    users = 0
     for u, p in sorted(panels.items()):
         net = p.irr_net + p.sched_net
         inflow = p.irr_in + np.maximum(p.sched_net, 0)
@@ -401,15 +443,19 @@ def planner_backtest(cfg, panels, seed: int, as_of: dt.date) -> dict:
         if med <= 0 or len(hist) < 3:
             continue
         users += 1
+        fit_half = stable_seed(seed, u, 0) % 2 == 0  # deterministic user split
         for kk in (0.5, 0.8, 1.0, 1.3, 2.0):
             target = int(kk * med * 3)
             plan = plan_goal(target, 3, np.array(hist, dtype=np.int64), np.array(hist_in, dtype=np.int64),
-                             0, 0, max_safe_contribution_paisa=int(med), config=config,
+                             0, 0, max_safe_contribution_paisa=int(med), config=identity,
                              rng=np.random.default_rng(stable_seed(seed, u, kk)), as_of_date=origin)
             req = plan.monthly_required_paisa
-            stated.append(plan.p_requested)
-            realised.append(float(sum(min(req, max(f, 0)) for f in fut) >= target))
-    s, r = np.array(stated), np.array(realised)
+            raw.append(plan.p_requested)  # identity calibration -> raw simulator
+            cal.append(_platt(plan.p_requested, shipped.calibration_a, shipped.calibration_b, n_sims))
+            rea.append(float(sum(min(req, max(f, 0)) for f in fut) >= target))
+            fit.append(fit_half)
+    s, c, r = np.array(raw), np.array(cal), np.array(rea)
+    f = np.array(fit, dtype=bool)
     bins, ece = [], 0.0
     for lo, hi in ((0, .2), (.2, .4), (.4, .6), (.6, .8), (.8, 1.0001)):
         m = (s >= lo) & (s < hi)
@@ -417,10 +463,32 @@ def planner_backtest(cfg, panels, seed: int, as_of: dt.date) -> dict:
             bins.append({"bin": f"{lo:.1f}-{min(hi, 1):.1f}", "mean_stated": float(s[m].mean()),
                          "realised": float(r[m].mean()), "n": int(m.sum())})
             ece += m.sum() / len(s) * abs(s[m].mean() - r[m].mean())
+    # refit constants on the fit half; calibrated bins on the report half
+    eps = 0.5 / max(n_sims, 1)
+    xs = np.log(np.clip(s[f], eps, 1 - eps) / (1 - np.clip(s[f], eps, 1 - eps)))
+    a_refit, b_refit = _fit_platt(xs, r[f]) if f.sum() >= 20 else (float("nan"), float("nan"))
+    cbins, cece = [], 0.0
+    rf = ~f
+    for lo, hi in ((0, .2), (.2, .4), (.4, .6), (.6, .8), (.8, 1.0001)):
+        m = rf & (s >= lo) & (s < hi)
+        if m.sum():
+            cbins.append({"bin": f"{lo:.1f}-{min(hi, 1):.1f}", "mean_stated_raw": float(s[m].mean()),
+                          "mean_calibrated": float(c[m].mean()), "realised": float(r[m].mean()),
+                          "n": int(m.sum())})
+            cece += m.sum() / max(int(rf.sum()), 1) * abs(c[m].mean() - r[m].mean())
     return {"note": "Planned 90 days before as_of; targets = k x median monthly surplus x 3 months, "
-                    "k in {0.5, 0.8, 1.0, 1.3, 2.0}; users with non-positive median surplus are skipped.",
-            "n_users": users, "n_goals": int(len(s)), "bins": bins, "ece": float(ece) if len(s) else None}
-
+                    "k in {0.5, 0.8, 1.0, 1.3, 2.0}; users with non-positive median surplus are skipped. "
+                    "Raw = simulator without calibration. Calibrated = shipped Platt constants on the "
+                    "report half of users; the constants are refitted on the other half.",
+            "n_users": users, "n_goals": int(len(s)), "bins": bins, "ece": float(ece) if len(s) else None,
+            "calibration": {
+                "method": "p_cal = sigmoid(a + b * logit(p_raw)); all-paths success capped at 1 - 1/(2n)",
+                "shipped_constants": {"a": shipped.calibration_a, "b": shipped.calibration_b,
+                                      "source": "config/planner.yaml (fitted on the frozen T6 back-test)"},
+                "refit_on_fit_half": {"a": a_refit, "b": b_refit, "n_goals": int(f.sum())},
+                "bins_calibrated_report_half": cbins,
+                "ece_calibrated_report_half": float(cece) if rf.sum() else None,
+                "n_goals_report_half": int(rf.sum())}}
 
 # --------------------------------------------------------------------- T7
 def shap_eval(fc, panels, festival, as_of, seed, persona_of) -> dict:

@@ -146,10 +146,25 @@ def _t6(pl: dict) -> list[str]:
     if not pl or "bins" not in pl:
         return ["_Not computed._"]
     rows = [[b["bin"], fmt(b["mean_stated"]), fmt(b["realised"]), fmt(b["n"])] for b in pl["bins"]]
-    return [pl.get("note", ""), "",
-            table(["Stated P(goal) bin", "Mean stated", "Realised", "n goals"], rows), "",
-            f"Expected calibration error (weighted |stated − realised|): {fmt(pl.get('ece'))}; "
-            f"{fmt(pl.get('n_goals'))} goals from {fmt(pl.get('n_users'))} test users."]
+    out = [pl.get("note", ""), "",
+           table(["Stated P(goal) bin (raw)", "Mean stated", "Realised", "n goals"], rows), "",
+           f"Expected calibration error, raw (weighted |stated − realised|): {fmt(pl.get('ece'))}; "
+           f"{fmt(pl.get('n_goals'))} goals from {fmt(pl.get('n_users'))} test users.", ""]
+    cal = pl.get("calibration") or {}
+    cb = cal.get("bins_calibrated_report_half") or []
+    if cb:
+        sc = cal.get("shipped_constants") or {}
+        rf = cal.get("refit_on_fit_half") or {}
+        crows = [[b["bin"], fmt(b["mean_stated_raw"]), fmt(b["mean_calibrated"]), fmt(b["realised"]), fmt(b["n"])]
+                 for b in cb]
+        out += [
+            f"After Platt recalibration (shipped a={fmt(sc.get('a'))}, b={fmt(sc.get('b'))}; "
+            f"refit on the fit half: a={fmt(rf.get('a'))}, b={fmt(rf.get('b'))}):", "",
+            table(["Stated P(goal) bin", "Mean raw", "Mean calibrated", "Realised", "n goals"], crows), "",
+            f"Expected calibration error, calibrated (report half): {fmt(cal.get('ece_calibrated_report_half'))}; "
+            f"{fmt(cal.get('n_goals_report_half'))} goals on the report half.",
+        ]
+    return out
 
 
 def _t7(sh: dict) -> list[str]:

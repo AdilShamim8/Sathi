@@ -11,6 +11,15 @@
  * safety buffer caps every contribution. No option is pre-selected or
  * promoted.
  *
+ * Empirical calibration: the raw i.i.d. simulation over trailing history
+ * is systematically optimistic (held-out back-test T6: goals stated at
+ * 10.5% were met 2.8% of the time; at 27.6%, 5.1% — surplus mean-reverts).
+ * Every probability is therefore passed through the same Platt (logistic)
+ * recalibration fitted on the frozen test users as the Python twin:
+ *     p_cal = sigmoid(A + B * logit(p_raw))
+ * An all-paths success is capped at 1 - 1/(2n) first — the planner must
+ * never emit certainty the back-test does not support.
+ *
  * Amounts are whole taka in this port (the app's internal unit).
  */
 
@@ -23,6 +32,11 @@ export interface PlannerConfig {
   minMonthlyContribution: number;
   likelyCutoff: number;
   uncertainCutoff: number;
+  /** Platt recalibration (log-odds). Optional — mirrors the Python config
+   *  defaults so existing constructors keep working. Derived on the frozen
+   *  T6 back-test; see docs/eval_report.md. */
+  calibrationA?: number;
+  calibrationB?: number;
 }
 
 export interface PlanOption {
@@ -61,6 +75,22 @@ export function wilson(p: number, n: number): [number, number] {
   const lo = Math.min(Math.max(0, centre - margin), p);
   const hi = Math.max(Math.min(1, centre + margin), p);
   return [lo, hi];
+}
+
+/** Platt recalibration of a raw Monte Carlo probability (see header).
+ *  Monotone, maps 0 -> 0, and never claims certainty. */
+export function calibrate(
+  p: number,
+  n: number,
+  calibrationA: number,
+  calibrationB: number,
+): number {
+  if (p <= 0) return 0;
+  if (p >= 1) p = 1 - 0.5 / Math.max(n, 1);
+  const z = calibrationA + calibrationB * Math.log(p / (1 - p));
+  if (z >= 0) return 1 / (1 + Math.exp(-z));
+  const e = Math.exp(z); // numerically stable far-left tail
+  return e / (1 + e);
 }
 
 /**
@@ -132,6 +162,11 @@ export function planGoal(params: {
   if (target <= 0 || months <= 0) {
     throw new Error("target and months must be positive");
   }
+  // Platt recalibration constants (see module header) — defaults mirror
+  // core/planner.py so every constructor stays valid.
+  const calA = config.calibrationA ?? -2.4133;
+  const calB = config.calibrationB ?? 0.5291;
+  const cal = (p: number) => calibrate(p, config.nSimulations, calA, calB);
 
   const poolS = monthlySurplusSamples.length ? monthlySurplusSamples : [0];
   const poolI = monthlyInflowSamples.length ? monthlyInflowSamples : [0];
@@ -153,7 +188,7 @@ export function planGoal(params: {
   const I = sample(poolI);
 
   const monthlyRequired = Math.ceil(target / months);
-  const pRequested = simulateFixed(S, target, monthlyRequired, months);
+  const pRequested = cal(simulateFixed(S, target, monthlyRequired, months));
   let verdict: GoalPlan["verdict"];
   if (pRequested >= config.likelyCutoff) verdict = "likely";
   else if (pRequested >= config.uncertainCutoff) verdict = "uncertain";
@@ -170,7 +205,7 @@ export function planGoal(params: {
   // --- Option A: extend the timeline at the feasible contribution ---------
   if (base > 0) {
     const monthsA = Math.min(Math.ceil(target / base), config.horizonCapMonths);
-    const pA = simulateFixed(S, target, base, monthsA);
+    const pA = cal(simulateFixed(S, target, base, monthsA));
     const [lo, hi] = wilson(pA, config.nSimulations);
     options.push({
       key: "extend_timeline",
@@ -189,7 +224,7 @@ export function planGoal(params: {
     const contribB = Math.min(base + leakage, maxSafeContribution);
     if (contribB > 0) {
       const monthsB = Math.min(Math.ceil(target / contribB), config.horizonCapMonths);
-      const pB = simulateFixed(S, target, contribB, monthsB);
+      const pB = cal(simulateFixed(S, target, contribB, monthsB));
       const [lo, hi] = wilson(pB, config.nSimulations);
       options.push({
         key: "trim_leakage",
@@ -210,7 +245,7 @@ export function planGoal(params: {
     const rate = Math.min(Math.max(rateNeeded, 0.05), 0.5); // 5%–50% sane band
     const expectedMonthly = Math.floor(medInflow * rate);
     if (expectedMonthly <= maxSafeContribution) {
-      const pC = simulatePercent(I, target, rate, months);
+      const pC = cal(simulatePercent(I, target, rate, months));
       const [lo, hi] = wilson(pC, config.nSimulations);
       options.push({
         key: "percent_of_inflow",

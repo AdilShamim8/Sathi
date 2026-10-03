@@ -105,15 +105,25 @@ Cash-on-hand estimator vs hidden ground truth (2700 test user-days): MAE v1 (lin
 
 ## T6 — Goal planner back-test
 
-Planned 90 days before as_of; targets = k x median monthly surplus x 3 months, k in {0.5, 0.8, 1.0, 1.3, 2.0}; users with non-positive median surplus are skipped.
+Planned 90 days before as_of; targets = k x median monthly surplus x 3 months, k in {0.5, 0.8, 1.0, 1.3, 2.0}; users with non-positive median surplus are skipped. Raw = simulator without calibration. Calibrated = shipped Platt constants on the report half of users; the constants are refitted on the other half.
 
-| Stated P(goal) bin | Mean stated | Realised | n goals |
+| Stated P(goal) bin (raw) | Mean stated | Realised | n goals |
 |---|---|---|---|
 | 0.0-0.2 | 0.105 | 0.028 | 752 |
 | 0.2-0.4 | 0.276 | 0.051 | 117 |
 | 0.4-0.6 | 0.456 | 0.000 | 6 |
 
-Expected calibration error (weighted |stated − realised|): 0.099; 875 goals from 175 test users.
+Expected calibration error, raw (weighted |stated − realised|): 0.099; 875 goals from 175 test users.
+
+After Platt recalibration (shipped a=-2.413, b=0.529; refit on the fit half: a=-1.420, b=0.755):
+
+| Stated P(goal) bin | Mean raw | Mean calibrated | Realised | n goals |
+|---|---|---|---|---|
+| 0.0-0.2 | 0.103 | 0.027 | 0.013 | 398 |
+| 0.2-0.4 | 0.277 | 0.051 | 0.000 | 63 |
+| 0.4-0.6 | 0.468 | 0.077 | 0.000 | 4 |
+
+Expected calibration error, calibrated (report half): 0.020; 465 goals on the report half.
 
 ## T7 — Explainability (SHAP)
 

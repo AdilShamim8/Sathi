@@ -92,6 +92,12 @@ export const PLANNER_CONFIG = {
   seed: 77031,
   likely_cutoff: 0.7,
   uncertain_cutoff: 0.4,
+  // Platt recalibration of P(goal met), fitted on the frozen T6 back-test
+  // (held-out test users): p_cal = sigmoid(a + b·logit(p_raw)). The raw
+  // i.i.d. simulation over trailing surplus is ~3–5x optimistic because
+  // surplus mean-reverts. Same values as config/app.yaml (Python twin).
+  calibration_a: -2.4133,
+  calibration_b: 0.5291,
 } as const;
 
 export const SIMULATION_CONFIG = {

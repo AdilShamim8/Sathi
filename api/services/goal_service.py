@@ -65,6 +65,11 @@ def create_goal_plan(
         n_simulations=int(cfg.section("planner").get("n_simulations", 1000)),
         horizon_cap_months=int(cfg.section("planner").get("horizon_cap_months", 36)),
         min_monthly_contribution_paisa=min_contrib,
+        likely_cutoff=float(cfg.section("planner").get("likely_cutoff", 0.70)),
+        uncertain_cutoff=float(cfg.section("planner").get("uncertain_cutoff", 0.40)),
+        # Platt recalibration — see config/app.yaml planner section (T6 back-test)
+        calibration_a=float(cfg.section("planner").get("calibration_a", -2.4133)),
+        calibration_b=float(cfg.section("planner").get("calibration_b", 0.5291)),
     )
 
     rng = np.random.default_rng(20261003)

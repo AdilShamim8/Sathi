@@ -47,7 +47,7 @@ export async function GET() {
               objective: "Daily balance quantiles (p10/p50/p90) and P(shortfall) before the next income",
             },
         goal_planner: {
-          architecture: `Monte Carlo over the user's own surplus distribution (${PLANNER_CONFIG.n_simulations} paths, common random numbers)`,
+          architecture: `Monte Carlo over the user's own surplus distribution (${PLANNER_CONFIG.n_simulations} paths, common random numbers) + Platt recalibration of P(goal met) (a=${PLANNER_CONFIG.calibration_a}, b=${PLANNER_CONFIG.calibration_b}) fitted on the frozen T6 back-test — the raw i.i.d. simulation is ~3-5x optimistic`,
           objective: "P(goal met) with Wilson 95% intervals for three honest option types",
         },
       },

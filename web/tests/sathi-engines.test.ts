@@ -9,7 +9,7 @@ import { describe, expect, test } from "bun:test";
 import { applyRate, takaToPaisa, paisaToTaka } from "../src/lib/engine/money";
 import { categorize } from "../src/lib/engine/categorizer";
 import { simulateBalancePaths, shortfallStats, percentile } from "../src/lib/engine/simulation";
-import { planGoal, wilson } from "../src/lib/engine/planner";
+import { planGoal, wilson, calibrate } from "../src/lib/engine/planner";
 import { sanitizeInput, validateNumbers, extractNumbers } from "../src/lib/engine/llmSafety";
 import { render } from "../src/lib/engine/templates";
 import { detectIntent, handleMessage } from "../src/lib/engine/orchestrator";
@@ -161,6 +161,24 @@ describe("Monte Carlo goal planner", () => {
       expect(opt.pGoalMet).toBeLessThanOrEqual(opt.pHigh);
     }
   });
+  test("goal probabilities are Platt-recalibrated (T6 back-test)", () => {
+    // The raw i.i.d. simulation over trailing surplus is ~3-5x optimistic
+    // (frozen T6: stated 10.5% -> realised 2.8%; stated 27.6% -> 5.1%).
+    // Lock the recalibration contract: bin-anchored, monotone, never certain.
+    const A = -2.4133;
+    const B = 0.5291;
+    expect(Math.abs(calibrate(0.105, 2000, A, B) - 0.028)).toBeLessThan(0.004);
+    expect(Math.abs(calibrate(0.276, 2000, A, B) - 0.051)).toBeLessThan(0.004);
+    const ps = Array.from({ length: 101 }, (_, i) => calibrate(i / 100, 2000, A, B));
+    for (let i = 1; i < ps.length; i++) {
+      expect(ps[i]).toBeGreaterThanOrEqual(ps[i - 1] - 1e-12);
+    }
+    const certain = calibrate(1, 2000, A, B); // all-paths success is capped
+    expect(certain).toBeGreaterThanOrEqual(0.7);
+    expect(certain).toBeLessThan(1);
+    expect(calibrate(0, 2000, A, B)).toBe(0);
+  });
+
   test("wilson interval brackets p", () => {
     const [lo, hi] = wilson(0.5, 100);
     expect(lo).toBeLessThan(0.5);
