@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --text: #111827; --text-sub: #6B7280; --text-muted: #9CA3AF;
+    --border: #E5E7EB; --surface: #F8FAFC; --connector: #94A3B8;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+    background: #FFFFFF; color: var(--text); -webkit-font-smoothing: antialiased;
+  }
+  #root { width: fit-content; min-width: 1960px; margin: 0 auto; padding: 56px 64px; background: #FFFFFF; }
+
+  .eyebrow {
+    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 1.2px;
+    color: #334155; background: #F1F5F9; border: 1px solid #E2E8F0;
+    padding: 6px 14px; border-radius: 20px; margin-bottom: 16px;
+  }
+  .flow-title { font-size: 30px; font-weight: 800; letter-spacing: -0.3px; }
+  .flow-subtitle { font-size: 15px; color: var(--text-sub); margin-top: 8px; margin-bottom: 40px; line-height: 1.55; }
+
+  .erd { position: relative; }
+  .erd-connectors {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+  }
+  .erd-connectors path { stroke: var(--connector); stroke-width: 2; fill: none; }
+  .rel-label { font-size: 12.5px; font-weight: 700; fill: #64748B; text-anchor: middle;
+    font-family: -apple-system, 'Segoe UI', sans-serif; paint-order: stroke; stroke: #FFFFFF; stroke-width: 5px; }
+
+  .hub-row { display: flex; justify-content: center; gap: 56px; align-items: flex-start; margin-bottom: 96px; position: relative; z-index: 1; }
+  .children-row { display: flex; justify-content: center; gap: 22px; position: relative; z-index: 1; }
+
+  .entity {
+    background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px;
+    width: 330px; box-shadow: 0 1px 3px rgba(15,23,42,0.05); overflow: hidden;
+  }
+  .entity.hub { border-color: #3B82F6; width: 380px; }
+  .entity.standalone { border-style: dashed; border-color: #8B5CF6; }
+
+  .entity-head { padding: 12px 16px 10px; border-bottom: 1.5px solid var(--border); background: var(--surface); }
+  .entity.hub .entity-head { background: #EFF6FF; }
+  .entity.standalone .entity-head { background: #F5F3FF; }
+  .entity-name { font-size: 16px; font-weight: 800; letter-spacing: -0.2px; }
+  .entity.hub .entity-name { color: #1E40AF; }
+  .entity.standalone .entity-name { color: #5B21B6; }
+  .entity-role { font-size: 11.5px; color: var(--text-sub); margin-top: 2px; line-height: 1.4; }
+
+  .fields { padding: 8px 0; }
+  .field { display: flex; align-items: baseline; gap: 8px; padding: 5px 16px; }
+  .field:nth-child(even) { background: #FAFBFC; }
+  .fname { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 11.5px; color: #111827; font-weight: 550; }
+  .ftype { font-size: 11px; color: var(--text-muted); margin-left: auto; font-family: ui-monospace, Menlo, monospace; }
+  .keybadge {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 0.5px; border-radius: 4px;
+    padding: 1.5px 6px; flex-shrink: 0;
+  }
+  .keybadge.pk { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+  .keybadge.fk { background: #DBEAFE; color: #1E40AF; border: 1px solid #BFDBFE; }
+  .keybadge.idx { background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
+  .keybadge.opt { background: #F0FDF4; color: #065F46; border: 1px solid #D1FAE5; }
+
+  .spacer-note { width: 380px; }
+  .note-card {
+    background: var(--surface); border: 1px solid #E2E8F0; border-radius: 12px;
+    padding: 14px 18px; width: 380px;
+  }
+  .note-title { font-size: 12px; font-weight: 800; letter-spacing: 0.8px; color: #475569; }
+  .note-body { font-size: 12px; color: var(--text-sub); line-height: 1.55; margin-top: 6px; }
+
+  .conventions { display: flex; gap: 18px; justify-content: center; margin-top: 44px; padding: 14px 24px;
+    background: #F9FAFB; border-radius: 10px; border: 1px solid #E5E7EB; width: fit-content; margin-left: auto; margin-right: auto; }
+  .conv { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #4B5563; }
+
+  .footnote { margin-top: 18px; font-size: 11.5px; color: var(--text-muted); text-align: center; }
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="eyebrow">PRISMA + SQLITE · 7 MODELS · WHOLE-TAKA INTEGERS · SYNTHETIC DATA ONLY</div>
+  <div class="flow-title">Database Schema — Entity Relationships</div>
+  <div class="flow-subtitle">One User hub owns every operational record; KnowledgeDoc stands alone as the retrieval corpus. Money is stored as integer BDT (whole taka) and probabilities as floats — no floating-point currency anywhere.</div>
+
+  <div class="erd">
+    <svg class="erd-connectors" id="erdSvg"></svg>
+
+    <!-- HUB ROW -->
+    <div class="hub-row">
+      <div class="entity hub" data-id="user">
+        <div class="entity-head">
+          <div class="entity-name">User</div>
+          <div class="entity-role">the account — owner vs persona role, salary intent, language, opening wallet balance</div>
+        </div>
+        <div class="fields">
+          <div class="field"><span class="keybadge pk">PK</span><span class="fname">id</span><span class="ftype">Int · autoincrement</span></div>
+          <div class="field"><span class="fname">role</span><span class="ftype">String · “persona” — owner for the device account</span></div>
+          <div class="field"><span class="fname">mode</span><span class="ftype">String · “personal” | “demo”</span></div>
+          <div class="field"><span class="keybadge opt">?</span><span class="fname">salaryAmount</span><span class="ftype">Int?</span></div>
+          <div class="field"><span class="keybadge opt">?</span><span class="fname">salaryPayDay</span><span class="ftype">Int? · 1–31</span></div>
+          <div class="field"><span class="keybadge opt">?</span><span class="fname">salaryMerchant</span><span class="ftype">String?</span></div>
+          <div class="field"><span class="fname">openingBalance</span><span class="ftype">Int · default 0</span></div>
+          <div class="field"><span class="fname">preferredLanguage</span><span class="ftype">String · “en”</span></div>
+          <div class="field"><span class="fname">name</span><span class="ftype">String</span></div>
+          <div class="field"><span class="fname">createdAt</span><span class="ftype">DateTime</span></div>
+        </div>
+      </div>
+
+      <div class="note-card">
+        <div class="note-title">DESIGN NOTES</div>
+        <div class="note-body">
+          <b>Salary fields are user intent, not detection.</b> Recurring salary is still learned from transaction history (MAD-regular monthly streams); the explicit fields only refine the user's declared plan — the optional input requested for the demo.
+          <br><br>
+          <b>role/mode separate the device owner from personas.</b> Exactly one User has role “owner” — the real app user (mode “personal” or “demo”). Synthetic reference personas (role “persona”) power the /api/v1 surface and never mix into the owner's numbers; a full reset deletes only owner data.
+          <br><br>
+          <b>ForecastRecord</b> persists every served prediction (probability, pressure, factors, model version) so later real-world outcomes can be scored — the hackathon's future-validation requirement.
+          <br><br>
+          <b>AuditEvent</b> logs LLM interactions and significant engine decisions — the human-oversight trail.
+        </div>
+      </div>
+
+      <div class="entity standalone" data-id="kdoc">
+        <div class="entity-head">
+          <div class="entity-name">KnowledgeDoc</div>
+          <div class="entity-role">RAG corpus — BM25-lite chunks (no relations)</div>
+        </div>
+        <div class="fields">
+          <div class="field"><span class="keybadge pk">PK</span><span class="fname">id</span><span class="ftype">Int</span></div>
+          <div class="field"><span class="fname">sourceId</span><span class="ftype">String</span></div>
+          <div class="field"><span class="fname">title</span><span class="ftype">String</span></div>
+          <div class="field"><span class="fname">topic</span><span class="ftype">String</span></div>
+          <div class="field"><span class="fname">chunkText</span><span class="ftype">String</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHILDREN ROW -->
+    <div class="children-row">
+      <div class="entity" data-id="txn">
+        <div class="entity-head">
+          <div class="entity-name">Transaction</div>
+          <div class="entity-role">the ledger — every taka in / out</div>
+        </div>
+        <div class="fields">
+          <div class="field"><span class="keybadge pk">PK</span><span class="fname">id</span><span class="ftype">Int</span></div>
+          <div class="field"><span class="keybadge fk">FK</span><span class="fname">userId</span><span class="ftype">→ User.id</span></div>
+          <div class="field"><span class="keybadge idx">IDX</span><span class="fname">timestamp</span><span class="ftype">DateTime</span></div>
+          <div class="field"><span class="fname">amount</span><span class="ftype">Int · BDT</span></div>
+          <div class="field"><span class="fname">direction</span><span class="ftype">“in” | “out”</span></div>
+          <div class="field"><span class="fname">category · subcategory</span><span class="ftype">String · String?</span></div>
+          <div class="field"><span class="fname">merchant · channel</span><span class="ftype">String? · “wallet”</span></div>
+          <div class="field"><span class="fname">source</span><span class="ftype">synthetic | nl_input | manual</span></div>
+          <div class="field"><span class="fname">classificationConfidence</span><span class="ftype">Float</span></div>
+        </div>
+      </div>
+
+      <div class="entity" data-id="goal">
+        <div class="entity-head">
+          <div class="entity-name">Goal</div>
+          <div class="entity-role">savings targets the planner simulates against</div>
+        </div>
+        <div class="fields">
+          <div class="field"><span class="keybadge pk">PK</span><span class="fname">id</span><span class="ftype">Int</span></div>
+          <div class="field"><span class="keybadge fk">FK</span><span class="fname">userId</span><span class="ftype">→ User.id</span></div>
+          <div class="field"><span class="keybadge idx">IDX</span><span class="fname">status</span><span class="ftype">active | achieved | dropped</span></div>
+          <div class="field"><span class="fname">name</span><span class="ftype">String</span></div>
+          <div class="field"><span class="fname">targetAmount · targetDate</span><span class="ftype">Int · DateTime</span></div>
+          <div class="field"><span class="fname">savedSoFar</span><span class="ftype">Int · default 0</span></div>
+          <div class="field"><span class="fname">monthlyCommitment</span><span class="ftype">Int · default 0</span></div>
+        </div>
+      </div>
+
+      <div class="entity" data-id="insight">
+        <div class="entity-head">
+          <div class="entity-name">Insight</div>
+          <div class="entity-role">generated findings — always with evidence</div>
+        </div>
+        <div class="fields">
+          <div class="field"><span class="keybadge pk">PK</span><span class="fname">id</span><span class="ftype">Int</span></div>
+          <div class="field"><span class="keybadge fk">FK</span><span class="fname">userId</span><span class="ftype">→ User.id</span></div>
+          <div class="field"><span class="keybadge idx">IDX</span><span class="fname">generatedAt</span><span class="ftype">DateTime</span></div>
+          <div class="field"><span class="fname">insightType · severity</span><span class="ftype">String · 4 levels</span></div>
+          <div class="field"><span class="fname">title · body</span><span class="ftype">String</span></div>
+          <div class="field"><span class="fname">evidenceJson</span><span class="ftype">[{label, value}]</span></div>
+          <div class="field"><span class="fname">optionsJson · modelVersion</span><span class="ftype">String[] · String</span></div>
+        </div>
+      </div>
+
+      <div class="entity" data-id="audit">
+        <div class="entity-head">
+          <div class="entity-name">AuditEvent</div>
+          <div class="entity-role">append-only trail — human oversight</div>
+        </div>
+        <div class="fields">
+          <div class="field"><span class="keybadge pk">PK</span><span class="fname">id</span><span class="ftype">Int</span></div>
+          <div class="field"><span class="keybadge fk">FK</span><span class="fname">userId</span><span class="ftype">→ User.id</span></div>
+          <div class="field"><span class="keybadge idx">IDX</span><span class="fname">createdAt</span><span class="ftype">DateTime</span></div>
+          <div class="field"><span class="fname">kind</span><span class="ftype">String</span></div>
+          <div class="field"><span class="fname">payloadJson</span><span class="ftype">String · JSON</span></div>
+        </div>
+      </div>
+
+      <div class="entity" data-id="frec">
+        <div class="entity-head">
+          <div class="entity-name">ForecastRecord</div>
+          <div class="entity-role">every served prediction — scoreable later</div>
+        </div>
+        <div class="fields">
+          <div class="field"><span class="keybadge pk">PK</span><span class="fname">id</span><span class="ftype">Int</span></div>
+          <div class="field"><span class="keybadge fk">FK</span><span class="fname">userId</span><span class="ftype">→ User.id</span></div>
+          <div class="field"><span class="keybadge idx">IDX</span><span class="fname">forecastDate</span><span class="ftype">DateTime</span></div>
+          <div class="field"><span class="fname">horizonDays</span><span class="ftype">Int</span></div>
+          <div class="field"><span class="fname">predictedInflow · Outflow</span><span class="ftype">Int · Int</span></div>
+          <div class="field"><span class="fname">shortfallProb</span><span class="ftype">Float · ML</span></div>
+          <div class="field"><span class="fname">pressure · factorsJson</span><span class="ftype">String · JSON</span></div>
+          <div class="field"><span class="fname">modelVersion</span><span class="ftype">String</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="conventions">
+    <div class="conv"><span class="keybadge pk">PK</span> primary key</div>
+    <div class="conv"><span class="keybadge fk">FK</span> foreign key → User.id</div>
+    <div class="conv"><span class="keybadge idx">IDX</span> composite index with userId</div>
+    <div class="conv"><span class="keybadge opt">?</span> optional — user-provided intent</div>
+    <div class="conv" style="color:#64748B;">── 1 : N ──&nbsp; one User owns many child rows</div>
+  </div>
+
+  <div class="footnote">prisma/schema.prisma · SQLite via DATABASE_URL · demo data auto-seeds on first run (6 personas + demo user, salary ৳30,000)</div>
+</div>
+
+<script>
+  function draw() {
+    const svg = document.getElementById('erdSvg');
+    const container = svg.parentElement;
+    const cRect = container.getBoundingClientRect();
+    svg.setAttribute('width', cRect.width);
+    svg.setAttribute('height', cRect.height);
+    svg.setAttribute('viewBox', `0 0 ${cRect.width} ${cRect.height}`);
+    svg.innerHTML = '<defs><marker id="crow" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto"><path d="M0,6 L8,1.5 M0,6 L8,6 M0,6 L8,10.5" stroke="#94A3B8" stroke-width="1.6" fill="none"/></marker></defs>';
+
+    const user = document.querySelector('[data-id="user"]');
+    const u = user.getBoundingClientRect();
+    const ux = u.left + u.width / 2 - cRect.left;
+    const uy = u.bottom - cRect.top;
+
+    const targets = ['txn', 'goal', 'insight', 'audit', 'frec'];
+    targets.forEach(id => {
+      const el = document.querySelector(`[data-id="${id}"]`);
+      const r = el.getBoundingClientRect();
+      const tx = r.left + r.width / 2 - cRect.left;
+      const ty = r.top - cRect.top;
+      const midY = (uy + ty) / 2;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${ux} ${uy + 2} L ${ux} ${midY} L ${tx} ${midY} L ${tx} ${ty - 3}`);
+      path.setAttribute('marker-end', 'url(#crow)');
+      svg.appendChild(path);
+      const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      label.setAttribute('x', (ux + tx) / 2);
+      label.setAttribute('y', midY - 8);
+      label.setAttribute('class', 'rel-label');
+      label.textContent = '1 : N';
+      svg.appendChild(label);
+    });
+  }
+  window.addEventListener('load', () => setTimeout(draw, 120));
+</script>
+</body>
+</html>

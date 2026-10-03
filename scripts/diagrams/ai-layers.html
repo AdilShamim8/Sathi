@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --text: #111827; --text-sub: #6B7280; --text-muted: #9CA3AF;
+    --border: #E5E7EB; --surface: #F8FAFC; --connector: #94A3B8;
+    --det-bg: #EFF6FF; --det-border: #3B82F6; --det-text: #1E40AF;
+    --ml-bg: #F0FDF4; --ml-border: #10B981; --ml-text: #065F46;
+    --llm-bg: #FFF7ED; --llm-border: #F59E0B; --llm-text: #92400E;
+    --rag-bg: #F5F3FF; --rag-border: #8B5CF6; --rag-text: #5B21B6;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+    background: #FFFFFF; color: var(--text); -webkit-font-smoothing: antialiased;
+  }
+  #root { width: fit-content; min-width: 1680px; margin: 0 auto; padding: 56px 64px; background: #FFFFFF; }
+
+  .eyebrow {
+    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 1.2px;
+    color: #334155; background: #F1F5F9; border: 1px solid #E2E8F0;
+    padding: 6px 14px; border-radius: 20px; margin-bottom: 16px;
+  }
+  .flow-title { font-size: 30px; font-weight: 800; letter-spacing: -0.3px; }
+  .flow-subtitle { font-size: 15px; color: var(--text-sub); margin-top: 8px; margin-bottom: 34px; line-height: 1.55; max-width: 1200px; }
+
+  /* ── four layer columns ── */
+  .columns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .col {
+    border-radius: 14px; padding: 18px 18px 16px; border: 1.5px solid;
+    background: #FFFFFF;
+  }
+  .col.det { background: var(--det-bg); border-color: var(--det-border); }
+  .col.ml  { background: var(--ml-bg);  border-color: var(--ml-border); }
+  .col.llm { background: var(--llm-bg); border-color: var(--llm-border); }
+  .col.rag { background: var(--rag-bg); border-color: var(--rag-border); }
+
+  .col-kicker { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; }
+  .col.det .col-kicker { color: var(--det-text); }
+  .col.ml  .col-kicker { color: var(--ml-text); }
+  .col.llm .col-kicker { color: var(--llm-text); }
+  .col.rag .col-kicker { color: var(--rag-text); }
+
+  .col-name { font-size: 17px; font-weight: 800; margin-top: 5px; color: #111827; }
+  .col-role { font-size: 12.5px; font-weight: 600; margin-top: 3px; }
+  .col.det .col-role { color: var(--det-text); }
+  .col.ml  .col-role { color: var(--ml-text); }
+  .col.llm .col-role { color: var(--llm-text); }
+  .col.rag .col-role { color: var(--rag-text); }
+
+  .owns { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .own {
+    background: #FFFFFF; border: 1px solid var(--border); border-radius: 7px;
+    padding: 7px 10px; font-size: 12px; color: #374151; line-height: 1.45;
+  }
+  .own b { font-weight: 650; color: #111827; }
+  .own .mono { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 11px; }
+
+  .verdict {
+    margin-top: 12px; border-radius: 8px; padding: 9px 12px;
+    font-size: 12px; line-height: 1.5; font-weight: 650;
+    background: #FFFFFF; border: 1.5px dashed;
+  }
+  .col.det .verdict { color: var(--det-text); border-color: var(--det-border); }
+  .col.ml  .verdict { color: var(--ml-text);  border-color: var(--ml-border); }
+  .col.llm .verdict { color: var(--llm-text); border-color: var(--llm-border); }
+  .col.rag .verdict { color: var(--rag-text); border-color: var(--rag-border); }
+  .verdict span { display: block; font-weight: 400; color: var(--text-sub); font-size: 11.5px; margin-top: 2px; }
+
+  .io-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 12px; }
+  .io {
+    background: var(--surface); border: 1px solid #E2E8F0; border-radius: 10px;
+    padding: 10px 14px; font-size: 12px; color: #374151; line-height: 1.5;
+  }
+  .io b { font-size: 11px; letter-spacing: 1px; color: #64748B; display: block; margin-bottom: 3px; font-weight: 700; }
+  .io .mono { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 11.5px; }
+
+  /* ── fail-closed pipeline ── */
+  .pipeline-wrap { margin-top: 30px; background: var(--surface); border: 1px solid #E2E8F0; border-radius: 16px; padding: 22px 26px; }
+  .pl-title { font-size: 16px; font-weight: 800; }
+  .pl-title span { font-weight: 500; font-size: 12.5px; color: var(--text-sub); margin-left: 8px; }
+  .pipeline { display: flex; align-items: stretch; gap: 0; margin-top: 16px; }
+  .stage {
+    flex: 1; background: #FFFFFF; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; position: relative;
+  }
+  .stage + .stage { margin-left: 34px; }
+  .stage + .stage::before {
+    content: ''; position: absolute; left: -26px; top: 50%; margin-top: -7px;
+    border-top: 7px solid transparent; border-bottom: 7px solid transparent;
+    border-left: 12px solid var(--connector);
+  }
+  .stage-no { font-size: 10.5px; font-weight: 800; letter-spacing: 1px; color: #64748B; }
+  .stage-name { font-size: 13.5px; font-weight: 700; margin-top: 3px; color: #111827; }
+  .stage-desc { font-size: 11.5px; color: var(--text-sub); margin-top: 4px; line-height: 1.45; }
+  .stage.ok  { border-color: #10B981; }
+  .stage.bad { border-color: #EF4444; }
+  .branch { display: flex; gap: 34px; margin-top: 12px; }
+  .branch .stage { flex: 1; }
+
+  /* ── evidence strip ── */
+  .evidence { margin-top: 22px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .ev {
+    background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .ev-label { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: #64748B; }
+  .ev-value { font-size: 25px; font-weight: 800; margin-top: 6px; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
+  .ev-value small { font-size: 13px; font-weight: 600; color: var(--text-sub); margin-left: 4px; }
+  .ev-note { font-size: 11.5px; color: var(--text-sub); margin-top: 5px; line-height: 1.45; }
+  .ev.good .ev-value { color: #065F46; }
+  .ev .simchip {
+    display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
+    color: #92400E; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 12px; padding: 2px 8px;
+  }
+
+  .footnote { margin-top: 18px; font-size: 11.5px; color: var(--text-muted); text-align: center; }
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="eyebrow">RESPONSIBLE AI BY DESIGN · HACKATHON §14 — EXPLAINABILITY · TRANSPARENCY · NO HARMFUL AUTOMATION</div>
+  <div class="flow-title">The AI Layer Split — who computes what</div>
+  <div class="flow-subtitle">Four strictly separated layers. Money math is deterministic and auditable; ML adds calibrated probabilities with baselines always reported; the LLM only chooses words for numbers it is given; RAG grounds conversation in a curated corpus. Any answer that breaks the contract is discarded — fail-closed.</div>
+
+  <div class="columns">
+    <div class="col det">
+      <div class="col-kicker">LAYER 1 · DETERMINISTIC</div>
+      <div class="col-name">Rule Engines</div>
+      <div class="col-role">single source of truth for every ৳ figure</div>
+      <div class="owns">
+        <div class="own"><b>Safe-to-spend</b> — liquid − commitments − buffer − prorated goals <span class="mono">(safeToSpend.ts)</span></div>
+        <div class="own"><b>Recurring detection</b> — MAD regularity + monthly anchors, from history only</div>
+        <div class="own"><b>Categorizer</b> — rule chain, reason trace per txn (bn/en)</div>
+        <div class="own"><b>Fee &amp; cash-out math</b> — bps half-up rounding, agent audit</div>
+      </div>
+      <div class="verdict">EXACT — auditable<span>same inputs ⇒ same taka, every time · 40 ported engine tests</span></div>
+    </div>
+
+    <div class="col ml">
+      <div class="col-kicker">LAYER 2 · MACHINE LEARNING</div>
+      <div class="col-name">Forecast &amp; Risk</div>
+      <div class="col-role">calibrated probability, never raw point guesses</div>
+      <div class="owns">
+        <div class="own"><b>LightGBM quantile ensemble</b> — 9 quantiles, direct 1–35-day horizon <span class="mono">(lightgbm.ts)</span></div>
+        <div class="own"><b>P(shortfall)</b> — Platt-calibrated, split-conformal widening</div>
+        <div class="own"><b>Liquidity paths</b> — block-correlated simulation, zero-floor wallet</div>
+        <div class="own"><b>30 leakage-safe features</b> — scale-free, no persona/id/ground-truth inputs</div>
+      </div>
+      <div class="verdict">VALIDATED — vs baselines<span>Brier · pinball · coverage · PR-AUC, on frozen held-out users</span></div>
+    </div>
+
+    <div class="col llm">
+      <div class="col-kicker">LAYER 3 · LLM</div>
+      <div class="col-name">Language Only</div>
+      <div class="col-role">words for numbers it is handed — nothing else</div>
+      <div class="owns">
+        <div class="own"><b>Intent routing</b> — 10 copilot intents, deterministic dispatch</div>
+        <div class="own"><b>Phrasing</b> — Bangla / English explanation drafts</div>
+        <div class="own"><b>Template rendering</b> — 13 templates × 2 locales, always available</div>
+        <div class="own"><b>Forbidden</b> — arithmetic, new numbers, advice not backed by evidence</div>
+      </div>
+      <div class="verdict">GROUNDED — or discarded<span>numeric parity check on every draft · audit-logged</span></div>
+    </div>
+
+    <div class="col rag">
+      <div class="col-kicker">LAYER 4 · RAG</div>
+      <div class="col-name">Knowledge</div>
+      <div class="col-role">curated corpus, retrieved — never invented</div>
+      <div class="owns">
+        <div class="own"><b>BM25-lite retrieval</b> — 10 financial-knowledge docs <span class="mono">(knowledge.ts)</span></div>
+        <div class="own"><b>Chunk citations</b> — source id + title shown with every use</div>
+        <div class="own"><b>Scope</b> — product &amp; financial-literacy Q&amp;A only</div>
+        <div class="own"><b>Separation</b> — retrieval feeds context; it cannot touch money math</div>
+      </div>
+      <div class="verdict">CITED — or omitted<span>no retrieval hit ⇒ the assistant says what it doesn't know</span></div>
+    </div>
+  </div>
+
+  <div class="io-row">
+    <div class="io"><b>OUTPUTS</b>Exact ৳ amounts, category labels, reason traces, fee totals</div>
+    <div class="io"><b>OUTPUTS</b>p10 / p50 / p90 daily paths, P(shortfall) 7-day, trough date</div>
+    <div class="io"><b>OUTPUTS</b>bn/en sentences — numbers unchanged from Layers 1–2</div>
+    <div class="io"><b>OUTPUTS</b>Ranked doc chunks with citations for the answer</div>
+  </div>
+
+  <!-- FAIL-CLOSED PIPELINE -->
+  <div class="pipeline-wrap">
+    <div class="pl-title">Fail-closed conversation pipeline <span>every Copilot / v1 chat message walks this path — a draft that fails any gate is replaced, never shown</span></div>
+    <div class="pipeline">
+      <div class="stage">
+        <div class="stage-no">GATE 1</div>
+        <div class="stage-name">Sanitize</div>
+        <div class="stage-desc">14 prompt-injection patterns (EN + বাংলা), NFC normalization, system-prompt extraction blocked</div>
+      </div>
+      <div class="stage">
+        <div class="stage-no">GATE 2</div>
+        <div class="stage-name">Ground</div>
+        <div class="stage-desc">Context built from deterministic + ML outputs only; numbers injected with their evidence</div>
+      </div>
+      <div class="stage">
+        <div class="stage-no">GATE 3</div>
+        <div class="stage-name">Draft</div>
+        <div class="stage-desc">LLM writes bn/en prose. Instruction: use the provided numbers verbatim</div>
+      </div>
+      <div class="stage">
+        <div class="stage-no">GATE 4</div>
+        <div class="stage-name">Validate</div>
+        <div class="stage-desc">Every number in the draft parsed (Bangla digits normalized) and checked for parity with the grounded figures</div>
+      </div>
+      <div class="stage ok">
+        <div class="stage-no">PASS</div>
+        <div class="stage-name">Ship + audit</div>
+        <div class="stage-desc">Answer shown with evidence chips; interaction written to AuditEvent log</div>
+      </div>
+      <div class="stage bad">
+        <div class="stage-no">FAIL</div>
+        <div class="stage-name">Template fallback</div>
+        <div class="stage-desc">Deterministic bn/en template answers instead — the user always gets correct numbers</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVIDENCE STRIP -->
+  <div class="evidence">
+    <div class="ev">
+      <div class="ev-label">BRIER SCORE · P(SHORTFALL)</div>
+      <div class="ev-value">0.024 <small>vs rule 0.053</small></div>
+      <div class="ev-note">−55% vs the deterministic rule baseline, on 300 frozen held-out test users</div>
+      <span class="simchip">SIMULATED — SYNTHETIC DATA</span>
+    </div>
+    <div class="ev">
+      <div class="ev-label">PINBALL LOSS · QUANTILE FORECAST</div>
+      <div class="ev-value">0.242 <small>vs 0.255 best baseline</small></div>
+      <div class="ev-note">Beats the strongest of 4 baselines incl. user's own 90-day empirical quantiles</div>
+      <span class="simchip">SIMULATED — SYNTHETIC DATA</span>
+    </div>
+    <div class="ev">
+      <div class="ev-label">COVERAGE · P10–P90 BAND</div>
+      <div class="ev-value">84.7% <small>nominal 80%</small></div>
+      <div class="ev-note">Conformal widening holds honest intervals over 35-day horizons</div>
+      <span class="simchip">SIMULATED — SYNTHETIC DATA</span>
+    </div>
+    <div class="ev">
+      <div class="ev-label">7-DAY EARLY WARNING · RECALL</div>
+      <div class="ev-value">50% <small>vs rule 29%</small></div>
+      <div class="ev-note">Catches true shortfalls ~1.7× more often; precision trade-off reported in the model card</div>
+      <span class="simchip">SIMULATED — SYNTHETIC DATA</span>
+    </div>
+  </div>
+
+  <div class="footnote">Metrics generated by the ml/ pipeline (ml.evaluate, T1–T7 suite), served verbatim from docs/metrics — never hand-typed · model fc-2026-09-30-15d8427d</div>
+</div>
+</body>
+</html>

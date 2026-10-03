@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --text: #111827; --text-sub: #6B7280; --text-muted: #9CA3AF;
+    --border: #E5E7EB; --surface: #F8FAFC; --connector: #94A3B8;
+    --det-bg: #EFF6FF; --det-border: #3B82F6; --det-text: #1E40AF;
+    --ml-bg: #F0FDF4; --ml-border: #10B981; --ml-text: #065F46;
+    --llm-bg: #FFF7ED; --llm-border: #F59E0B; --llm-text: #92400E;
+    --rag-bg: #F5F3FF; --rag-border: #8B5CF6; --rag-text: #5B21B6;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+    background: #FFFFFF; color: var(--text); -webkit-font-smoothing: antialiased;
+  }
+  #root { width: fit-content; min-width: 1600px; margin: 0 auto; padding: 56px 64px; background: #FFFFFF; }
+
+  .eyebrow {
+    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 1.2px;
+    color: #334155; background: #F1F5F9; border: 1px solid #E2E8F0;
+    padding: 6px 14px; border-radius: 20px; margin-bottom: 16px;
+  }
+  .flow-title { font-size: 30px; font-weight: 800; letter-spacing: -0.3px; }
+  .flow-subtitle { font-size: 15px; color: var(--text-sub); margin-top: 8px; margin-bottom: 36px; line-height: 1.55; }
+
+  /* ── layer cards ── */
+  .layer {
+    display: grid; grid-template-columns: 212px 1fr; gap: 28px;
+    background: var(--surface); border: 1px solid #E2E8F0; border-radius: 16px;
+    padding: 24px 28px; align-items: start;
+  }
+  .layer-head .layer-no {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #64748B;
+  }
+  .layer-head .layer-name { font-size: 17px; font-weight: 700; margin-top: 6px; line-height: 1.3; }
+  .layer-head .layer-note { font-size: 12.5px; color: var(--text-sub); margin-top: 8px; line-height: 1.5; }
+
+  .layer-body { display: flex; flex-direction: column; gap: 14px; }
+  .subpanel {
+    background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
+  }
+  .subpanel-title { font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 10px; }
+  .subpanel-title .tag { font-weight: 600; font-size: 11px; color: #64748B; margin-left: 6px; }
+
+  .chip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .chip-grid.cols2 { grid-template-columns: repeat(2, 1fr); }
+  .chip {
+    background: #FFFFFF; border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 12px; font-size: 12.5px; color: #374151; line-height: 1.45;
+  }
+  .chip b { font-weight: 650; color: #111827; }
+  .chip .mono { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 11.5px; }
+  .chip .desc { color: var(--text-sub); font-size: 11.5px; display: block; margin-top: 2px; }
+
+  /* AI family coloring (borders saturated, backgrounds pale) */
+  .fam-det { border-left: 3px solid var(--det-border); }
+  .fam-ml  { border-left: 3px solid var(--ml-border); }
+  .fam-lang{ border-left: 3px solid var(--llm-border); }
+  .fam-data{ border-left: 3px solid var(--rag-border); }
+  .fam-det .subpanel-title { color: var(--det-text); }
+  .fam-ml  .subpanel-title { color: var(--ml-text); }
+  .fam-lang .subpanel-title{ color: var(--llm-text); }
+  .fam-data .subpanel-title{ color: var(--rag-text); }
+
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ── arrows between layers ── */
+  .flow-arrow {
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    margin: 10px 0;
+  }
+  .flow-arrow svg { display: block; }
+  .flow-arrow .arrow-caption { font-size: 12px; color: var(--text-sub); background: #FFFFFF;
+    border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; }
+
+  /* ── guardrail bar ── */
+  .guardrails {
+    margin-top: 26px; background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+    border-radius: 16px; padding: 22px 28px; color: #FFFFFF;
+  }
+  .guardrails .gr-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+  .guardrails .gr-title span { color: #94A3B8; font-weight: 500; font-size: 12.5px; margin-left: 8px; }
+  .gr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .gr-chip {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 8px; padding: 10px 14px; font-size: 12.5px; color: #E2E8F0; line-height: 1.5;
+  }
+  .gr-chip b { color: #FFFFFF; display: block; font-size: 13px; margin-bottom: 3px; }
+
+  .footnote { margin-top: 18px; font-size: 11.5px; color: var(--text-muted); text-align: center; }
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="eyebrow">SATHI (সাথী) · AI DEV FEST 2026 · TRACK 03 — CUSTOMER INNOVATION &amp; FINANCIAL INDEPENDENCE</div>
+  <div class="flow-title">Sathi — System Architecture</div>
+  <div class="flow-subtitle">One deployable Next.js product: deterministic money math, validated ML forecasting, fail-closed LLM wording, and evidence on every number. All data is synthetic.</div>
+
+  <!-- LAYER 1 : CLIENTS -->
+  <div class="layer">
+    <div class="layer-head">
+      <div class="layer-no">LAYER 1</div>
+      <div class="layer-name">Clients</div>
+      <div class="layer-note">Mobile-first PWA + installable Android shell. The UI is bilingual (EN / বাংলা) and identical on both targets.</div>
+    </div>
+    <div class="layer-body">
+      <div class="subpanel">
+        <div class="subpanel-title">7 Views <span class="tag">Next.js App Router · React Server Components</span></div>
+        <div class="chip-grid">
+          <div class="chip"><b>Home</b><span class="desc">safe-to-spend hero · 7-day risk gauge · salary card</span></div>
+          <div class="chip"><b>Transactions</b><span class="desc">natural-language capture (Bangla / Banglish / EN)</span></div>
+          <div class="chip"><b>Spending</b><span class="desc">category intelligence · recurring streams</span></div>
+          <div class="chip"><b>CashFlow</b><span class="desc">day-by-day forecast · WHY evidence · actions</span></div>
+          <div class="chip"><b>Goals</b><span class="desc">Monte Carlo plan · what-if scenarios</span></div>
+          <div class="chip"><b>Copilot</b><span class="desc">grounded chat · suggested chips · evidence</span></div>
+          <div class="chip"><b>Insights</b><span class="desc">evidence cards · model health · reliability chart</span></div>
+          <div class="chip"><b>Android shell</b><span class="desc">Capacitor · com.upay.sathi · CI builds APK</span></div>
+          <div class="chip"><b>i18n</b><span class="desc">EN ⇄ বাংলা toggle · Bangla digits &amp; ৳ formatting</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">
+    <svg width="18" height="26" viewBox="0 0 18 26"><path d="M9 0 L9 18 M3 13 L9 20 L15 13" stroke="#94A3B8" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+    <div class="arrow-caption">fetch JSON — every response carries an evidence block</div>
+  </div>
+
+  <!-- LAYER 2 : API -->
+  <div class="layer">
+    <div class="layer-head">
+      <div class="layer-no">LAYER 2</div>
+      <div class="layer-name">API — 26 Routes · 32 Handlers</div>
+      <div class="layer-note">Next.js route handlers. The v1 surface mirrors the Sathi reference repo: envelope <span style="font-family:ui-monospace,Menlo,monospace;font-size:11px">{data, evidence}</span>, paisa integers, bn display strings.</div>
+    </div>
+    <div class="layer-body">
+      <div class="duo">
+        <div class="subpanel fam-det">
+          <div class="subpanel-title">Product API — /api/* <span class="tag">19 routes · 26 handlers</span></div>
+          <div class="chip-grid cols2">
+            <div class="chip"><span class="mono">boot · onboarding · user · reset</span><span class="desc">owner lifecycle &amp; delete-all-data</span></div>
+            <div class="chip"><span class="mono">transactions · parse · manual · [id]</span><span class="desc">full ledger CRUD — NL + form</span></div>
+            <div class="chip"><span class="mono">spending · insights</span><span class="desc">category intel &amp; evidence cards</span></div>
+            <div class="chip"><span class="mono">forecast</span><span class="desc">7-day risk + action simulation (POST)</span></div>
+            <div class="chip"><span class="mono">goals · [id] · analyze · simulate</span><span class="desc">goal planning, editing &amp; scenarios</span></div>
+            <div class="chip"><span class="mono">copilot · salary · metrics</span><span class="desc">grounded chat · settings · ML health</span></div>
+          </div>
+        </div>
+        <div class="subpanel fam-ml">
+          <div class="subpanel-title">Sathi v1 API — /api/v1/* <span class="tag">13 routes · 14 handlers · reference-compatible</span></div>
+          <div class="chip-grid cols2">
+            <div class="chip"><span class="mono">healthz · demo-users · auth/demo-login</span><span class="desc">platform + HMAC demo tokens (24 h)</span></div>
+            <div class="chip"><span class="mono">me/summary · me/transactions</span><span class="desc">model-driven summary · reason traces</span></div>
+            <div class="chip"><span class="mono">me/forecast · me/benchmark</span><span class="desc">p10/p50/p90 paths · generated eval metrics</span></div>
+            <div class="chip"><span class="mono">me/goal-plan · me/goals</span><span class="desc">Monte Carlo options · goal CRUD</span></div>
+            <div class="chip"><span class="mono">me/cashout-insights</span><span class="desc">repeat-agent fees · replaceability</span></div>
+            <div class="chip"><span class="mono">meta/model-card · chat · parse-amount</span><span class="desc">model registry · grounded chat</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="subpanel">
+        <div class="subpanel-title">Edge controls <span class="tag">applied at the route boundary</span></div>
+        <div class="chip-grid">
+          <div class="chip"><b>Auth</b> — bearer demo tokens, HMAC-signed, 24 h expiry</div>
+          <div class="chip"><b>Rate limiting</b> — in-memory sliding window per token</div>
+          <div class="chip"><b>Evidence envelopes</b> — every number traceable to its computation</div>
+          <div class="chip"><b>Idempotent seeding</b> — persona datasets seeded once per user</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">
+    <svg width="18" height="26" viewBox="0 0 18 26"><path d="M9 0 L9 18 M3 13 L9 20 L15 13" stroke="#94A3B8" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+    <div class="arrow-caption">pure function calls — no network hops inside the intelligence layer</div>
+  </div>
+
+  <!-- LAYER 3 : INTELLIGENCE -->
+  <div class="layer">
+    <div class="layer-head">
+      <div class="layer-no">LAYER 3</div>
+      <div class="layer-name">Intelligence — src/lib/engine · 32 modules</div>
+      <div class="layer-note">Strict AI layer split (see companion diagram). Deterministic math is the single source of truth; ML adds calibrated probability; the LLM only words.</div>
+    </div>
+    <div class="layer-body">
+      <div class="duo">
+        <div class="subpanel fam-det">
+          <div class="subpanel-title">Deterministic engines <span class="tag">exact ৳ math — source of truth</span></div>
+          <div class="chip-grid cols2">
+            <div class="chip"><span class="mono">safeToSpend</span><span class="desc">liquid − commitments − buffer − prorated goals</span></div>
+            <div class="chip"><span class="mono">cashOnHand v2 · liquidity</span><span class="desc">per-user decay · calibrated path simulation</span></div>
+            <div class="chip"><span class="mono">recurringStreams</span><span class="desc">MAD-regular streams + monthly anchors</span></div>
+            <div class="chip"><span class="mono">categorizer</span><span class="desc">rule chain with bn/en reason traces</span></div>
+            <div class="chip"><span class="mono">analytics · metricsEngine</span><span class="desc">savings rate · volatility · fee leakage</span></div>
+            <div class="chip"><span class="mono">cashout · money · timeutils</span><span class="desc">agent fees · bps half-up · Dhaka calendar</span></div>
+          </div>
+        </div>
+        <div class="subpanel fam-ml">
+          <div class="subpanel-title">ML serving <span class="tag">calibrated probability &amp; bands</span></div>
+          <div class="chip-grid cols2">
+            <div class="chip"><span class="mono">lightgbm</span><span class="desc">text-booster parser — bit-identical to Python</span></div>
+            <div class="chip"><span class="mono">forecaster</span><span class="desc">9 quantiles + Platt map + conformal widening</span></div>
+            <div class="chip"><span class="mono">panel</span><span class="desc">30 leakage-safe, scale-free features</span></div>
+            <div class="chip"><span class="mono">ml · simulation</span><span class="desc">shortfall classifier + block bootstrap</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="duo">
+        <div class="subpanel fam-lang">
+          <div class="subpanel-title">Language layer <span class="tag">words only — never money math</span></div>
+          <div class="chip-grid cols2">
+            <div class="chip"><span class="mono">llmSafety · orchestrator</span><span class="desc">sanitize → ground → validate → fail-closed</span></div>
+            <div class="chip"><span class="mono">nlp · copilot · templates</span><span class="desc">Bangla parser · 10 intents · 13×2 templates</span></div>
+          </div>
+        </div>
+        <div class="subpanel fam-data">
+          <div class="subpanel-title">Planning &amp; knowledge <span class="tag">decisions on the user's own data</span></div>
+          <div class="chip-grid cols2">
+            <div class="chip"><span class="mono">planner · goals · actions</span><span class="desc">Monte Carlo (2,000 paths) · 3 honest options</span></div>
+            <div class="chip"><span class="mono">knowledge</span><span class="desc">BM25-lite RAG over 10 financial-knowledge docs</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">
+    <svg width="18" height="26" viewBox="0 0 18 26"><path d="M9 0 L9 18 M3 13 L9 20 L15 13" stroke="#94A3B8" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+    <div class="arrow-caption">typed reads / artifact loads — read-only from the engines' perspective</div>
+  </div>
+
+  <!-- LAYER 4 : DATA -->
+  <div class="layer">
+    <div class="layer-head">
+      <div class="layer-no">LAYER 4</div>
+      <div class="layer-name">Data &amp; Model Assets</div>
+      <div class="layer-note">Everything on disk ships in the repository. The app regenerates demo data on first run; the Python repo is the training/evaluation twin of the serving code.</div>
+    </div>
+    <div class="layer-body">
+      <div class="chip-grid">
+        <div class="chip"><b>Prisma + SQLite</b> — 7 models: User · Transaction · Goal · Insight · KnowledgeDoc · AuditEvent · ForecastRecord <span class="desc">whole-taka integers · no real PII, synthetic only</span></div>
+        <div class="chip"><b>ml-artifacts/forecast/…15d8427d</b> — 9 LightGBM quantile boosters + split-conformal calibration + Platt map <span class="desc">6.9 MB · config-hash pinned · served by the TS predictor</span></div>
+        <div class="chip"><b>ml/</b> — training &amp; evaluation pipeline <span class="desc">leakage-safe features · T1–T7 eval suite · 78 pytest green · 2,000-user synthetic panel + drifted cohort</span></div>
+        <div class="chip"><b>docs/metrics/</b> — generated evidence <span class="desc">eval.json · benchmark.json · reliability.png — served verbatim by /api/v1/me/benchmark, never hand-typed</span></div>
+        <div class="chip"><b>public/demo/*.json</b> — offline persona bundles <span class="desc">5 personas: garment worker · gig driver · remittance household · shopkeeper · student</span></div>
+        <div class="chip"><b>AuditEvent log</b> — every LLM interaction recorded <span class="desc">kind · payload · timestamp — human oversight trail</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GUARDRAILS -->
+  <div class="guardrails">
+    <div class="gr-title">Cross-cutting guardrails <span>enforced on every request, at every layer</span></div>
+    <div class="gr-grid">
+      <div class="gr-chip"><b>Fail-closed LLM</b>Answers that fail numeric validation fall back to deterministic templates — the app never shows an unverified number.</div>
+      <div class="gr-chip"><b>Evidence on every number</b>Each ৳ figure ships with the computation that produced it — formula, inputs, and model version.</div>
+      <div class="gr-chip"><b>Baselines kept honest</b>Rule and bootstrap baselines run beside the model and are always reported — no metric without a comparator.</div>
+      <div class="gr-chip"><b>Synthetic data only</b>No real PII anywhere. All metrics labelled “SIMULATED — real validation requires governed data.”</div>
+    </div>
+  </div>
+
+  <div class="footnote">Sathi v3 · Next.js 16 App Router · TypeScript · Prisma (SQLite) · LightGBM (served via pure-TS predictor) · z-ai LLM SDK</div>
+</div>
+</body>
+</html>

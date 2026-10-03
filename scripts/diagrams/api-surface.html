@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --text: #111827; --text-sub: #6B7280; --text-muted: #9CA3AF;
+    --border: #E5E7EB; --surface: #F8FAFC; --connector: #94A3B8;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+    background: #FFFFFF; color: var(--text); -webkit-font-smoothing: antialiased;
+  }
+  #root { width: fit-content; min-width: 1720px; margin: 0 auto; padding: 56px 64px; background: #FFFFFF; }
+
+  .eyebrow {
+    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 1.2px;
+    color: #334155; background: #F1F5F9; border: 1px solid #E2E8F0;
+    padding: 6px 14px; border-radius: 20px; margin-bottom: 16px;
+  }
+  .flow-title { font-size: 30px; font-weight: 800; letter-spacing: -0.3px; }
+  .flow-subtitle { font-size: 15px; color: var(--text-sub); margin-top: 8px; margin-bottom: 34px; line-height: 1.55; max-width: 1240px; }
+
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .panel {
+    background: var(--surface); border: 1px solid #E2E8F0; border-radius: 16px; padding: 22px 24px;
+  }
+  .panel-title { font-size: 17px; font-weight: 800; }
+  .panel-title span { font-size: 12px; font-weight: 600; color: #64748B; margin-left: 8px; }
+  .panel-desc { font-size: 12.5px; color: var(--text-sub); margin-top: 4px; margin-bottom: 16px; line-height: 1.5; }
+
+  .group { background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; margin-bottom: 10px; }
+  .group-title { font-size: 12px; font-weight: 800; letter-spacing: 0.8px; color: #475569; margin-bottom: 9px; }
+
+  .ep { display: flex; align-items: baseline; gap: 10px; padding: 5px 6px; border-radius: 6px; }
+  .ep:nth-child(even) { background: #FAFBFC; }
+  .method {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.6px; border-radius: 4px;
+    padding: 2px 7px; flex-shrink: 0; font-family: ui-monospace, Menlo, monospace;
+  }
+  .method.get  { background: #DBEAFE; color: #1E40AF; }
+  .method.post { background: #D1FAE5; color: #065F46; }
+  .method.patch { background: #FEF3C7; color: #92400E; }
+  .method.del { background: #FEE2E2; color: #991B1B; }
+  .path { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 12px; color: #111827; font-weight: 600; }
+  .ep-desc { font-size: 11.5px; color: var(--text-sub); margin-left: auto; text-align: right; max-width: 46%; line-height: 1.4; }
+
+  .edgebar {
+    margin-top: 20px; background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 20px; display: flex; gap: 28px; align-items: center; justify-content: center; flex-wrap: wrap;
+  }
+  .edge-item { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: #374151; }
+  .edge-item b { font-weight: 700; color: #111827; }
+  .edge-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .footnote { margin-top: 18px; font-size: 11.5px; color: var(--text-muted); text-align: center; }
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="eyebrow">32 API ROUTES · 40 METHOD HANDLERS · NEXT.JS APP ROUTER · EVERY RESPONSE CARRIES EVIDENCE</div>
+  <div class="flow-title">API Surface — Product &amp; Reference-Compatible v1</div>
+  <div class="flow-subtitle">Two surfaces, one engine core. The product API powers the shipped UI; the v1 API reproduces the Sathi reference repo's contract — envelope <span style="font-family:ui-monospace,Menlo,monospace;font-size:12.5px">{data, evidence}</span>, paisa integers, bn display strings — so the original test-suite and clients run unmodified.</div>
+
+  <div class="panels">
+    <!-- PRODUCT API -->
+    <div class="panel">
+      <div class="panel-title">Product API <span>/api/* · 19 routes · 26 handlers · powers the UI</span></div>
+      <div class="panel-desc">Owner-account scoped (single local owner; onboarding-gated, 409 before setup). JSON in, JSON + evidence out.</div>
+
+      <div class="group">
+        <div class="group-title">ACCOUNT &amp; DATA CONTROL</div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/boot</span><span class="ep-desc">owner status — needsOnboarding flag + mode</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/onboarding</span><span class="ep-desc">create owner — name, salary, balance, fresh|demo</span></div>
+        <div class="ep"><span class="method patch">PATCH</span><span class="path">/api/user</span><span class="ep-desc">rename · language · starting wallet balance</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/reset</span><span class="ep-desc">delete all owner data → back to onboarding</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">CAPTURE — FULL CRUD</div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/transactions</span><span class="ep-desc">ledger with categories &amp; recurring flags</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/transactions</span><span class="ep-desc">natural-language capture → categorized row</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/transactions/manual</span><span class="ep-desc">structured form entry — income &amp; expenses</span></div>
+        <div class="ep"><span class="method patch">PATCH</span><span class="path">/api/transactions/[id]</span><span class="ep-desc">edit amount / category / merchant / date</span></div>
+        <div class="ep"><span class="method del">DEL</span><span class="path">/api/transactions/[id]</span><span class="ep-desc">delete a wrong entry entirely</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/parse</span><span class="ep-desc">Bangla / Banglish / EN amount+merchant parse</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">INTELLIGENCE</div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/summary</span><span class="ep-desc">safe-to-spend + 7-day risk + model status</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/spending</span><span class="ep-desc">category intelligence &amp; trend deltas</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/forecast</span><span class="ep-desc">day-by-day liquidity forecast + WHY</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/forecast</span><span class="ep-desc">scenario simulation — 3 actions, simulated impact</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/insights</span><span class="ep-desc">evidence cards incl. fee audit &amp; health metrics</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/insights</span><span class="ep-desc">generate + persist fresh insights</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/metrics</span><span class="ep-desc">ML validation: Brier · BSS · PR-AUC · reliability</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">PLANNING &amp; ASSIST</div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/goals</span><span class="ep-desc">active goals (multiple supported)</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/goals</span><span class="ep-desc">create goal — never drops existing goals</span></div>
+        <div class="ep"><span class="method patch">PATCH</span><span class="path">/api/goals/[id]</span><span class="ep-desc">rename · retarget · update saved · status</span></div>
+        <div class="ep"><span class="method del">DEL</span><span class="path">/api/goals/[id]</span><span class="ep-desc">delete a goal</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/goals/analyze</span><span class="ep-desc">Monte Carlo feasibility + 3 honest options</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/goals/simulate</span><span class="ep-desc">what-if: amount, date, commitment changes</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/copilot</span><span class="ep-desc">grounded chat — fail-closed LLM pipeline</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/salary</span><span class="ep-desc">salary settings (detected + user-set)</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/salary</span><span class="ep-desc">set salary amount / pay-day / merchant</span></div>
+      </div>
+    </div>
+
+    <!-- V1 API -->
+    <div class="panel">
+      <div class="panel-title">Sathi v1 API <span>/api/v1/* · 13 routes · 14 handlers · reference-compatible</span></div>
+      <div class="panel-desc">Bearer demo tokens (HMAC, 24 h) on <span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;">/v1/me/*</span>; sliding-window rate limits.</div>
+
+      <div class="group">
+        <div class="group-title">PLATFORM</div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/v1/healthz</span><span class="ep-desc">liveness + config hash</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/v1/demo-users</span><span class="ep-desc">the five Sathi personas</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/v1/auth/demo-login</span><span class="ep-desc">persona → bearer demo token</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/v1/parse-amount</span><span class="ep-desc">amount parsing (bn/en digits)</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">USER DATA</div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/v1/me/summary</span><span class="ep-desc">model-driven safe-to-spend + method + rule baseline</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/v1/me/transactions</span><span class="ep-desc">ledger rows with categorizer reason traces</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">ML INTELLIGENCE</div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/v1/me/forecast</span><span class="ep-desc">p10/p50/p90 paths · trough date · method</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/v1/me/benchmark</span><span class="ep-desc">generated eval metrics — served verbatim</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/v1/meta/model-card</span><span class="ep-desc">model registry + invariants</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">PLANNING · AUDIT · CHAT</div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/v1/me/goal-plan</span><span class="ep-desc">Monte Carlo options with Wilson 95% CI</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/v1/me/goals</span><span class="ep-desc">persona goals</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/v1/me/goals</span><span class="ep-desc">create goal</span></div>
+        <div class="ep"><span class="method get">GET</span><span class="path">/api/v1/me/cashout-insights</span><span class="ep-desc">repeat-agent fees + replaceability signal</span></div>
+        <div class="ep"><span class="method post">POST</span><span class="path">/api/v1/chat</span><span class="ep-desc">grounded chat — sanitizer + validator gates</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="edgebar">
+    <div class="edge-item"><span class="edge-dot" style="background:#3B82F6;"></span><b>Envelope contract</b>&nbsp;— v1 responses: {data, evidence, meta}</div>
+    <div class="edge-item"><span class="edge-dot" style="background:#10B981;"></span><b>Money as integers</b>&nbsp;— paisa in v1, whole taka in product API</div>
+    <div class="edge-item"><span class="edge-dot" style="background:#F59E0B;"></span><b>Fail-closed</b>&nbsp;— model unavailable ⇒ rule/bootstrap baseline answers</div>
+    <div class="edge-item"><span class="edge-dot" style="background:#8B5CF6;"></span><b>Audited</b>&nbsp;— chat + significant decisions logged</div>
+  </div>
+
+  <div class="footnote">Contract tested by tests/sathi-ml.test.ts + tests/sathi-engines.test.ts (65 TS) and the reference suite inside ml/ (78 pytest)</div>
+</div>
+</body>
+</html>
