@@ -4,6 +4,7 @@ import { getInsights, insertInsights, clearInsights, getUserTransactions, audit 
 import { computeAll } from "@/lib/server/compute";
 import { generateInsights } from "@/lib/engine/insights";
 import { MODEL_VERSION } from "@/lib/engine/domain";
+import { getOwnerLiquidity } from "@/lib/server/userInputs";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +20,10 @@ export async function GET() {
       const txns = await getUserTransactions(user.id);
       if (txns.length > 0) {
         const anchor = new Date();
+        const liquidity = await getOwnerLiquidity(user.id, txns, anchor);
         const { intel, cash, risk, sts } = computeAll(txns, anchor, user.openingBalance, {
           amount: user.salaryAmount, payDay: user.salaryPayDay,
-        });
+        }, 7, liquidity);
         const generated = generateInsights(intel, txns, anchor, cash.walletBalance, sts, risk);
         await insertInsights(user.id, generated, MODEL_VERSION);
         rows = await getInsights(user.id);
@@ -45,9 +47,10 @@ export async function POST() {
       await clearInsights(user.id);
       return NextResponse.json([]);
     }
+    const liquidity = await getOwnerLiquidity(user.id, txns, anchor);
     const { intel, cash, risk, sts } = computeAll(txns, anchor, user.openingBalance, {
       amount: user.salaryAmount, payDay: user.salaryPayDay,
-    });
+    }, 7, liquidity);
     const generated = generateInsights(intel, txns, anchor, cash.walletBalance, sts, risk);
 
     await clearInsights(user.id);
@@ -60,4 +63,3 @@ export async function POST() {
     return NextResponse.json({ error: "Failed to refresh insights" }, { status: 500 });
   }
 }
-

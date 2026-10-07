@@ -67,8 +67,8 @@ export function calculateSafeToSpend(params: {
     status = "cautious";
     statusLabelEn = "Cautious";
     statusLabelBn = "সতর্কতামূলক";
-    adviceEn = `Spending up to ${t(dailyBudget)}/day maintains full financial stability.`;
-    adviceBn = `দৈনিক সর্বোচ্চ ${t(dailyBudget)} খরচ করলে আগামী ${horizonDays} দিন কোনো টানাপোড়েন ছাড়াই চলবে।`;
+    adviceEn = `Keeping spending within ${t(dailyBudget)}/day helps protect your planned obligations; unexpected costs can still create a shortfall.`;
+    adviceBn = `দৈনিক ${t(dailyBudget)}-এর মধ্যে খরচ রাখলে আগামী ${horizonDays} দিনের পরিকল্পিত দায়দেনা সামলাতে সাহায্য করে। অপ্রত্যাশিত খরচে ঘাটতি হতে পারে।`;
   } else {
     status = "comfortable";
     statusLabelEn = "Comfortable";

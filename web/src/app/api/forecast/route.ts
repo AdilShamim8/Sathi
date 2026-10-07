@@ -5,6 +5,7 @@ import { computeAll } from "@/lib/server/compute";
 import { buildActionCards } from "@/lib/engine/actions";
 import { shortfallRisk } from "@/lib/engine/ml";
 import { calculateSafeToSpend } from "@/lib/engine/safeToSpend";
+import { getOwnerLiquidity } from "@/lib/server/userInputs";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,8 @@ export async function GET(req: NextRequest) {
     const goals = await getActiveGoals(user.id);
     const salary = { amount: user.salaryAmount, payDay: user.salaryPayDay };
 
-    const { intel, cash, fc, risk, sts } = computeAll(txns, anchor, user.openingBalance, salary, horizonDays);
+    const liquidity = await getOwnerLiquidity(user.id, txns, anchor);
+    const { intel, cash, fc, risk, sts } = computeAll(txns, anchor, user.openingBalance, salary, horizonDays, liquidity);
     const activeGoal = goals.find((g) => g.status === "active") ?? null;
     const actions = buildActionCards({ txns, anchor, intel, risk, sts, activeGoal });
 
@@ -70,7 +72,8 @@ export async function POST(req: NextRequest) {
     const txns = await getUserTransactions(user.id);
     const goals = await getActiveGoals(user.id);
     const salary = { amount: user.salaryAmount, payDay: user.salaryPayDay };
-    const { intel, cash, risk, sts, capacity } = computeAll(txns, anchor, user.openingBalance, salary);
+    const liquidity = await getOwnerLiquidity(user.id, txns, anchor);
+    const { intel, cash, risk, sts, capacity } = computeAll(txns, anchor, user.openingBalance, salary, 7, liquidity);
     const activeGoal = goals.find((g) => g.status === "active") ?? null;
 
     // determine freed monthly amount for the action
@@ -97,6 +100,7 @@ export async function POST(req: NextRequest) {
       dailyEssentials: cash.dailyEssentials,
       horizonDays: 7,
       monthlySavingsTarget: Math.round(capacity * 0.3),
+      ...liquidity,
     });
 
     // recompute shortfall risk with the adjusted balance (same model)
@@ -141,4 +145,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to simulate action" }, { status: 500 });
   }
 }
-

@@ -24,6 +24,7 @@ import { analyzeGoal, simulateGoal } from "./goals";
 import { retrieveKnowledge, type KnowledgeChunk } from "./knowledge";
 import { shortfallRisk } from "./ml";
 import { calculateSafeToSpend, upcomingCommitments } from "./safeToSpend";
+import { extractNumbers, validateNumbers } from "./llmSafety";
 
 export type Intent =
   | "where_money_going"
@@ -68,6 +69,7 @@ export interface CopilotContext {
   anchor: Date;
   openingBalance: number;
   salary: { amount: number | null; payDay: number | null };
+  liquidity?: { cashOnHand: number; otherLiquid: number };
   /** Kill switch / daily budget verdict from the route (default: allowed). */
   llmAllowed?: boolean;
   /** Secondary server-side draft generator (e.g. OpenRouter via env key) used
@@ -91,6 +93,8 @@ export async function answerQuestion(question: string, ctx: CopilotContext): Pro
     dailyEssentials: cash.dailyEssentials,
     horizonDays: 7,
     monthlySavingsTarget: capacity > 0 ? Math.round(capacity * 0.3) : 0,
+    cashOnHand: ctx.liquidity?.cashOnHand ?? 0,
+    otherLiquid: ctx.liquidity?.otherLiquid ?? 0,
   });
 
   const knowledgeHits = retrieveKnowledge(question, ctx.knowledge, 3);
@@ -170,7 +174,7 @@ function buildDeterministicAnswer(
       );
       evidence.push(...sts.breakdown.map((b) => ({ label: b.label, value: money(Math.abs(b.amount)) })));
       options.push(
-        { title: "Keep discretionary under the daily budget", description: `Spending up to ${money(sts.dailySafeBudget)}/day keeps every commitment covered.`, impact: "No shortfall risk" },
+        { title: "Keep discretionary under the daily budget", description: `Keeping spending within ${money(sts.dailySafeBudget)}/day helps protect your planned commitments.`, impact: "Helps reduce shortfall risk" },
         { title: "Defer one discretionary purchase", description: "Moving it past the next salary date frees the whole amount.", impact: "Protects the buffer" },
       );
       assumptions.push("Safe-to-spend = cash on hand − commitments − buffer − prorated savings", "Commitments learned from recurring patterns in your history");
@@ -349,25 +353,13 @@ function buildDeterministicAnswer(
   };
 }
 
-/** Every ৳-amount in the LLM text must already exist in our computed evidence. */
+/** Every numeric claim must match the deterministic answer or its evidence. */
 export function numbersAreGrounded(llmText: string, base: CopilotAnswer): boolean {
-  const groundTruth = new Set<string>();
-  const collect = (items: EvidenceItem[]) => {
-    for (const it of items) {
-      for (const m of it.value.match(/[\d,]+/g) ?? []) {
-        groundTruth.add(m.replace(/,/g, ""));
-      }
-    }
-  };
-  collect(base.numbers);
-  collect(base.evidence);
-  // bare small integers (counts, days) are allowed — only ৳-figures are validated
-  const cited = llmText.match(/৳\s*([\d,]+(?:\.\d+)?)/g) ?? [];
-  for (const c of cited) {
-    const n = c.replace(/[৳\s,]/g, "").replace(/\.\d+$/, "");
-    if (!groundTruth.has(n)) return false;
+  const groundTruth = extractNumbers(base.summary);
+  for (const item of [...base.numbers, ...base.evidence]) {
+    for (const value of extractNumbers(item.value)) groundTruth.add(value);
   }
-  return true;
+  return validateNumbers(llmText, groundTruth).passed;
 }
 
 /* ---------------- LLM enhancement (server-side, fail-closed) ---------------- */

@@ -112,7 +112,7 @@ export async function ensurePersonaUser(personaId: string): Promise<User> {
   await ensureSchema(); // cold-start safe: creates tables on a fresh database
   const spec = SATHI_PERSONAS[personaId];
   if (!spec) throw new NotFoundError(`Unknown persona: ${personaId}`);
-  const existing = await db.user.findFirst({ where: { name: spec.name } });
+  const existing = await db.user.findFirst({ where: { name: spec.name, role: "persona" } });
   if (existing) {
     const kbCount = await db.knowledgeDoc.count();
     if (kbCount === 0) await seedKnowledgeDocs();

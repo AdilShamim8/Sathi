@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
-import { getUserTransactions } from "@/lib/server/data";
+import { getUserTransactions, clearInsights } from "@/lib/server/data";
 import { getUserInputs, upsertUserInputs, effectiveCashOnHand } from "@/lib/server/userInputs";
 
 export const dynamic = "force-dynamic";
@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
     }
 
     const saved = await upsertUserInputs(user.id, patch);
+    await clearInsights(user.id);
     return NextResponse.json({
       cashOnHandTaka: saved.cashOnHandTaka,
       incomeDay: saved.incomeDay,

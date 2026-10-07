@@ -281,6 +281,9 @@ Record after every `web/` unit and at the end of every phase.
 
 ## 19. Session Notes
 
+- **7 October 2026 — local deadline review:** focused corrections made for goal timeline PATCH (request-only `months` reaching Prisma), declared-liquidity consistency, insight invalidation, copilot numeric grounding, persona/owner name collisions, declared-input reset cleanup, and overconfident financial wording. See `docs/review-2026-10-07.md` for evidence and remaining priorities. Web: 98 tests, lint, types and standalone production build passed. Python: 90 tests passed. Development and standalone-production API/model smoke checks passed using disposable web databases. Real-user authentication, durable serverless storage and physical-phone checks remain outstanding. Changes are local; no GitHub push or deployment was performed. Earlier static-export/pre-T+0 statements in this tracker describe a historical plan and require reconciliation with the current Next.js server app.
+- **Pre-push verification requested by the user:** reran all web/Python tests, web lint/types, production build and standalone workflow regressions. Backend Ruff reports 83 findings and mypy 31 errors; comparison against the original GitHub commit confirms zero new Ruff findings and identical mypy output. These baseline issues and the unresolved owner-authentication risk remain documented in the review. Commit/push authorization does not authorize a separate deployment.
+
 - Resume here: read this file, then `context/specs/00-build-plan.md`, then the current unit spec.
 - Do not write Sathi feature code until T+0 is published. Keep Sathi context files local until then.
 - Debug protocol: reproduce, read the first error, change ONE thing, re-run, log it in §17. Three failed attempts means stop and log it in §16. A P0 bug that has eaten 90 minutes is escalated (simplify, use the fallback, or cut).

@@ -165,6 +165,7 @@ export async function resetAllData(): Promise<void> {
   await db.insight.deleteMany({ where: { userId: { in: ids } } });
   await db.auditEvent.deleteMany({ where: { userId: { in: ids } } });
   await db.forecastRecord.deleteMany({ where: { userId: { in: ids } } });
+  await db.userInput.deleteMany({ where: { userId: { in: ids } } });
   await db.user.deleteMany({ where: { id: { in: ids } } });
   rolesMigrated = true; // no owner exists; onboarding will create the next one
 }
