@@ -16,7 +16,7 @@
 const ENABLED_KEY = "sathi-openrouter-enabled";
 const API_KEY_STORE = "sathi-openrouter-key";
 const MODEL_STORE = "sathi-openrouter-model";
-export const DEFAULT_MODEL = "openrouter/auto";
+export const DEFAULT_MODEL = "openrouter/free";
 
 import { toEnglishDigits } from "./formatting";
 import { extractNumberWords } from "./llmSafety";
@@ -81,9 +81,9 @@ export async function enhanceWithOpenRouter(params: {
     `Draft answer to rewrite: "${params.deterministicSummary}"`,
   ].join("\n");
 
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), params.timeoutMs ?? 20000);
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), params.timeoutMs ?? 20000);
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       signal: controller.signal,
@@ -107,7 +107,6 @@ export async function enhanceWithOpenRouter(params: {
         max_tokens: 900,
       }),
     });
-    clearTimeout(timer);
     if (!resp.ok) return null;
     const data = (await resp.json()) as { choices?: { message?: { content?: string } }[] };
     const content = data.choices?.[0]?.message?.content?.trim();
@@ -119,6 +118,8 @@ export async function enhanceWithOpenRouter(params: {
     return rendered;
   } catch {
     return null; // offline / timeout / CORS — deterministic answer stands
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -145,9 +146,9 @@ export async function testOpenRouterKey(
     "Reply with ONE short sentence that refers to the amount ONLY through the slot token {{f1}}.",
     "NEVER write digits or number words yourself. SLOTS: {{f1}} = ৳123",
   ].join("\n");
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20000);
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 20000);
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       signal: controller.signal,
@@ -167,10 +168,9 @@ export async function testOpenRouterKey(
         max_tokens: 900,
       }),
     });
-    clearTimeout(timer);
     if (resp.status === 401) return { ok: false, reason: "Key rejected (401) — check or regenerate it at openrouter.ai." };
     if (resp.status === 402) return { ok: false, reason: "Key has no credits (402) — top up or pick a :free model." };
-    if (resp.status === 429) return { ok: false, reason: "Rate limited (429) — free keys allow ~50 requests/day; wait a moment." };
+    if (resp.status === 429) return { ok: false, reason: "Usage limit reached (429) — wait and check your account's current free-tier limits." };
     if (resp.status === 404) return { ok: false, reason: `Model “${model}” not found (404) — pick another model.` };
     if (!resp.ok) return { ok: false, reason: `OpenRouter returned HTTP ${resp.status}.` };
     const data = (await resp.json()) as { choices?: { message?: { content?: string } }[]; model?: string };
@@ -185,6 +185,8 @@ export async function testOpenRouterKey(
     return { ok: true, reason: `Key + model ${data.model ?? model} work — AI answers will appear in the Copilot when it validates.` };
   } catch {
     return { ok: false, reason: "Could not reach openrouter.ai — check your connection." };
+  } finally {
+    clearTimeout(timer);
   }
 }
 

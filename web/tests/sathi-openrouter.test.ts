@@ -10,7 +10,10 @@
  * Plus the server-side fallback contract in the copilot engine.
  */
 import { describe, test, expect, beforeEach, afterEach, mock } from "bun:test";
-import { enhanceWithOpenRouter } from "@/lib/engine/openrouterChat";
+import { enhanceWithOpenRouter, getOpenRouterConfig, setOpenRouterConfig } from "@/lib/engine/openrouterChat";
+import { generateServerAI, hasServerAISelection, serverAIStatus } from "@/lib/server/aiProvider";
+import { GET as getAIStatus } from "@/app/api/ai/status/route";
+import { handleMessage } from "@/lib/engine/orchestrator";
 import { answerQuestion } from "@/lib/engine/copilot";
 import type { Txn, Goal, KnowledgeChunk } from "@/lib/engine/domain";
 
@@ -56,6 +59,156 @@ beforeEach(() => {
   localStorage.setItem("sathi-openrouter-enabled", "1");
   localStorage.setItem("sathi-openrouter-key", "sk-or-v1-test");
   localStorage.setItem("sathi-openrouter-model", "openrouter/auto");
+});
+
+describe("configured server AI providers", () => {
+  const envNames = ["SATHI_AI_PROVIDER", "SATHI_GROQ_API_KEY", "SATHI_GROQ_MODEL", "SATHI_OPENROUTER_API_KEY", "SATHI_OPENROUTER_MODEL", "SATHI_OPENAI_API_KEY", "SATHI_OPENAI_MODEL", "SATHI_LLM_ENABLED"];
+  let saved: Record<string, string | undefined>;
+  beforeEach(() => {
+    saved = Object.fromEntries(envNames.map(name => [name, process.env[name]]));
+    for (const name of envNames) delete process.env[name];
+  });
+  afterEach(() => {
+    for (const name of envNames) {
+      if (saved[name] === undefined) delete process.env[name];
+      else process.env[name] = saved[name];
+    }
+  });
+
+  test("no key: status is explicit and generation never makes a request", async () => {
+    globalThis.fetch = (() => { throw new Error("Must not call provider"); }) as typeof fetch;
+    expect(serverAIStatus().state).toBe("not_configured");
+    expect(hasServerAISelection()).toBe(false);
+    expect((await generateServerAI("system", "user")).state).toBe("not_configured");
+  });
+
+  test("an explicit provider never switches to a different account", async () => {
+    process.env.SATHI_AI_PROVIDER = "groq";
+    process.env.SATHI_OPENROUTER_API_KEY = "test-server-key";
+    expect(hasServerAISelection()).toBe(true);
+    expect(serverAIStatus()).toEqual({ state: "not_configured", provider: "groq", model: "llama-3.3-70b-versatile" });
+    expect((await generateServerAI("system", "user")).content).toBeNull();
+  });
+
+  test("invalid provider fails closed instead of using a configured paid account", () => {
+    process.env.SATHI_AI_PROVIDER = "https://untrusted.example";
+    process.env.SATHI_OPENAI_API_KEY = "test-server-key";
+    expect(serverAIStatus().state).toBe("invalid_provider");
+    expect(hasServerAISelection()).toBe(true);
+  });
+
+  test("Groq uses its fixed HTTPS endpoint and returns only public metadata", async () => {
+    process.env.SATHI_GROQ_API_KEY = "test-server-key";
+    mockFetchOnce((url, init) => {
+      expect(url).toBe("https://api.groq.com/openai/v1/chat/completions");
+      expect((init?.headers as Record<string, string>).Authorization).toBe("Bearer test-server-key");
+      const body = JSON.parse(String(init?.body));
+      expect(body.model).toBe("llama-3.3-70b-versatile");
+      expect(body.max_tokens).toBe(900);
+      return { status: 200, body: { choices: [{ message: { content: "A grounded explanation." } }] } };
+    });
+    expect((await generateServerAI("system", "user")).content).toBe("A grounded explanation.");
+    const response = await getAIStatus();
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    const body = await response.text();
+    expect(body).not.toContain("test-server-key");
+    expect(JSON.parse(body).provider).toBe("groq");
+  });
+
+  test("OpenRouter defaults to free routing and preserves explicit models", async () => {
+    process.env.SATHI_OPENROUTER_API_KEY = "test-server-key";
+    expect(serverAIStatus().model).toBe("openrouter/free");
+    process.env.SATHI_OPENROUTER_MODEL = "chosen/model";
+    mockFetchOnce((url, init) => {
+      expect(url).toBe("https://openrouter.ai/api/v1/chat/completions");
+      expect(JSON.parse(String(init?.body)).model).toBe("chosen/model");
+      return { status: 200, body: { choices: [{ message: { content: "A grounded explanation." } }] } };
+    });
+    expect((await generateServerAI("s", "u")).state).toBe("ready");
+  });
+
+  test("OpenAI uses its own key and model with no automatic cross-provider retry", async () => {
+    process.env.SATHI_AI_PROVIDER = "openai";
+    process.env.SATHI_OPENAI_API_KEY = "test-server-key";
+    process.env.SATHI_GROQ_API_KEY = "other-test-key";
+    mockFetchOnce((url, init) => {
+      expect(url).toBe("https://api.openai.com/v1/chat/completions");
+      expect(JSON.parse(String(init?.body)).model).toBe("gpt-4.1-mini");
+      return { status: 200, body: { choices: [{ message: { content: "A grounded explanation." } }] } };
+    });
+    expect((await generateServerAI("s", "u")).provider).toBe("openai");
+  });
+
+  for (const [code, state] of [[401, "invalid_key"], [403, "invalid_key"], [402, "no_credits"], [429, "rate_limited"], [404, "model_unavailable"], [500, "unavailable"]] as const) {
+    test(`HTTP ${code} keeps the answer available and reports ${state}`, async () => {
+      process.env.SATHI_GROQ_API_KEY = "test-server-key";
+      mockFetchOnce(() => ({ status: code, body: { error: { message: "private provider error" } } }));
+      const result = await generateServerAI("system", "user");
+      expect(result.content).toBeNull();
+      expect(result.state).toBe(state);
+      expect(JSON.stringify(result)).not.toContain("private provider error");
+    });
+  }
+
+  test("kill switch prevents network requests even when a key is configured", async () => {
+    process.env.SATHI_GROQ_API_KEY = "test-server-key";
+    process.env.SATHI_LLM_ENABLED = "false";
+    globalThis.fetch = (() => { throw new Error("Must not call provider"); }) as typeof fetch;
+    expect((await generateServerAI("s", "u")).state).toBe("disabled");
+  });
+
+  for (const content of [null, {}, "", "x", "x".repeat(4001)]) {
+    test(`malformed or oversized response (${typeof content}, ${String(content).length}) fails closed`, async () => {
+      process.env.SATHI_GROQ_API_KEY = "test-server-key";
+      mockFetchOnce(() => ({ status: 200, body: { choices: [{ message: { content } }] } }));
+      expect((await generateServerAI("s", "u")).state).toBe("empty_response");
+    });
+  }
+
+  test("network failure and invalid JSON do not break chat", async () => {
+    process.env.SATHI_GROQ_API_KEY = "test-server-key";
+    globalThis.fetch = (async () => { throw new Error("offline"); }) as typeof fetch;
+    expect((await generateServerAI("s", "u")).state).toBe("unavailable");
+    globalThis.fetch = (async () => new Response("not json", { status: 200 })) as typeof fetch;
+    expect((await generateServerAI("s", "u")).state).toBe("unavailable");
+  });
+
+  test("configured provider preserves financial grounding and does not invoke secondary fallback", async () => {
+    const ctx = { txns: [], goals: [], knowledge: [], anchor: new Date("2026-10-07T00:00:00Z"), openingBalance: 10000, salary: { amount: null, payDay: null } };
+    let secondaryCalls = 0;
+    const bad = await answerQuestion("How much can I safely spend?", {
+      ...ctx, llmGenerate: async () => "Spend ৳999,999,999 freely!",
+      llmFallback: async () => { secondaryCalls++; return "Another provider's answer."; },
+    });
+    expect(bad.llmEnhanced).toBe(false);
+    expect(bad.summary).not.toContain("999,999,999");
+    expect(secondaryCalls).toBe(0);
+    const good = await answerQuestion("How much can I safely spend?", { ...ctx, llmGenerate: async () => "Review your budget before deciding to spend." });
+    expect(good.llmEnhanced).toBe(true);
+    const off = await answerQuestion("How much can I safely spend?", { ...ctx, llmAllowed: false, llmGenerate: async () => { throw new Error("Must not call provider"); } });
+    expect(off.llmEnhanced).toBe(false);
+  });
+
+  test("v1 slot guard accepts trusted slots and rejects invented figures from the new provider", async () => {
+    process.env.SATHI_GROQ_API_KEY = "test-server-key";
+    const generateDraft = async (_text: string, _intent: string, system: string) => (await generateServerAI(system, _text)).content;
+    mockFetchOnce(() => ({ status: 200, body: { choices: [{ message: { content: "Your balance is {{f1}}." } }] } }));
+    const opts = { userMessage: "How much can I spend?", contextData: { balance: 10000, safe_to_spend: 9000 }, locale: "en" as const, llmEnabled: true, generateDraft };
+    const good = await handleMessage(opts);
+    expect(good.generatedText).toBe(true);
+    expect(good.reply).toContain("10000");
+    mockFetchOnce(() => ({ status: 200, body: { choices: [{ message: { content: "Spend 99999999 taka freely." } }] } }));
+    const bad = await handleMessage(opts);
+    expect(bad.fallbackUsed).toBe(true);
+    expect(bad.validatorPassed).toBe(false);
+  });
+
+  test("browser defaults to free models without replacing a saved model", () => {
+    localStorage.removeItem("sathi-openrouter-model");
+    expect(getOpenRouterConfig().model).toBe("openrouter/free");
+    setOpenRouterConfig({ model: "chosen/model" });
+    expect(getOpenRouterConfig().model).toBe("chosen/model");
+  });
 });
 
 afterEach(() => {

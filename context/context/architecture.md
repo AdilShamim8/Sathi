@@ -463,3 +463,6 @@ Each violation is a bug even if the demo works. **Critical** invariants (C) may 
 | A12 **[NEW]** | Value of `dataset.as_of_date` and the festival calendar dates for the synthetic window | Set in Unit 02 and document in `docs/assumptions.md` |
 
 (A2 and A5 are absent as in your draft. Numbers are kept as they were, in case other files cite them.)
+## 7 October 2026: current deployed chat configuration
+
+The implemented Next.js server app uses `web/src/lib/server/aiProvider.ts` for shared Groq, OpenRouter and OpenAI chat. `SATHI_AI_PROVIDER` selects one account; no cross-provider retry occurs on errors. Server keys remain server-only, destinations are fixed, and each request has a bounded timeout. The owner Copilot retains numeric grounding; `/api/v1/chat` retains slot rendering and numeric validation. Missing keys, quota/network failures and rejected drafts retain computed answers. Personal OpenRouter keys remain device-local and skip shared server generation. `GET /api/ai/status` returns only configuration metadata, without provider calls. Earlier static-export descriptions are historical; hosted ledgers are stored server-side, and enabled AI sends the question and relevant evidence to its provider.
