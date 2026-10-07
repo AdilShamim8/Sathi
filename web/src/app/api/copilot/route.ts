@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireOwner, onboardingRequiredResponse, isOnboardingRequiredError } from "@/lib/server/guard";
 import { getUserTransactions, getActiveGoals, getKnowledgeChunks, audit } from "@/lib/server/data";
 import { rateLimit, clientKey, LLM_ENABLED, llmBudgetAllowed } from "@/lib/server/sathiApi";
-import { generateViaOpenRouterServer } from "@/lib/server/openRouterServer";
+import { generateServerAI, hasServerAISelection, serverAIStatus, type AIGeneration } from "@/lib/server/aiProvider";
 import { RATE_LIMITS } from "@/lib/engine/sathiConfig";
 import { answerQuestion } from "@/lib/engine/copilot";
 import { sanitizeInput } from "@/lib/engine/llmSafety";
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Too many questions — try again in a minute." }, { status: 429 });
     }
 
-    const body = (await req.json()) as { question?: string };
+    const body = (await req.json()) as { question?: string; useDeviceAI?: boolean };
     const question = (body.question ?? "").trim();
     if (question.length < 2 || question.length > 800) {
       return NextResponse.json({ error: "Question must be 2-800 characters" }, { status: 400 });
@@ -66,6 +66,8 @@ export async function POST(req: NextRequest) {
       getKnowledgeChunks(),
     ]);
 
+    const llmAllowed = body.useDeviceAI !== true && LLM_ENABLED && llmBudgetAllowed();
+    const generation: { result?: AIGeneration } = {};
     const answer = await answerQuestion(cleanedText || question, {
       txns,
       goals,
@@ -74,12 +76,18 @@ export async function POST(req: NextRequest) {
       openingBalance: user.openingBalance,
       salary: { amount: user.salaryAmount, payDay: user.salaryPayDay },
       liquidity: await getOwnerLiquidity(user.id, txns, anchor),
-      llmAllowed: LLM_ENABLED && llmBudgetAllowed(),
-      // Secondary server-side draft path (deployer's SATHI_OPENROUTER_API_KEY)
-      // used only when the primary z-ai sdk is unavailable; the result still
-      // passes the same numbersAreGrounded fail-closed validator.
-      llmFallback: (system, user) => generateViaOpenRouterServer(system, user),
+      llmAllowed,
+      llmGenerate: hasServerAISelection() ? async (system, prompt) => {
+        generation.result = await generateServerAI(system, prompt);
+        return generation.result.content;
+      } : undefined,
     });
+    const configured = serverAIStatus();
+    answer.aiStatus = body.useDeviceAI === true ? undefined : !llmAllowed
+      ? { ...configured, state: LLM_ENABLED ? "budget_exhausted" : "disabled" }
+      : generation.result
+        ? { state: generation.result.content && !answer.llmEnhanced ? "safety_rejected" : generation.result.state, provider: generation.result.provider, model: generation.result.model }
+        : answer.llmEnhanced ? { state: "ready", provider: "z-ai", model: null } : configured;
 
     await audit(user.id, "assistant_query", {
       question,

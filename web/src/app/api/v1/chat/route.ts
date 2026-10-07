@@ -4,7 +4,7 @@ import {
   buildEvidence, ok, unauthorized, notFound, badRequest, tooMany,
   LLM_ENABLED, llmBudgetAllowed,
 } from "@/lib/server/sathiApi";
-import { generateViaOpenRouterServer } from "@/lib/server/openRouterServer";
+import { generateServerAI, hasServerAISelection, serverAIStatus, type AIGeneration } from "@/lib/server/aiProvider";
 import { RATE_LIMITS, ESSENTIALS_PER_DAY_TAKA, THRESHOLDS } from "@/lib/engine/sathiConfig";
 import { handleMessage, type OrchestratorContext } from "@/lib/engine/orchestrator";
 import { computeMetrics } from "@/lib/engine/metricsEngine";
@@ -108,6 +108,7 @@ export async function POST(req: NextRequest) {
     // model may only reference numbers via {{fK}} tokens; trusted values are
     // substituted app-side and validated (fail-closed) afterwards.
     const llmAllowed = LLM_ENABLED && llmBudgetAllowed();
+    const generation: { result?: AIGeneration } = {};
     const generateDraft = async (
       cleanedText: string,
       _intent: string,
@@ -115,28 +116,30 @@ export async function POST(req: NextRequest) {
       _loc: "bn" | "en",
     ): Promise<string | null> => {
       if (!llmAllowed) return null;
+      if (hasServerAISelection()) {
+        generation.result = await generateServerAI(systemPrompt, cleanedText);
+        return generation.result.content;
+      }
+      let timer: ReturnType<typeof setTimeout> | undefined;
       try {
-        const { default: ZAI } = await import("z-ai-web-dev-sdk");
-        const zai = await ZAI.create();
-        const completion = await zai.chat.completions.create({
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: cleanedText },
-          ],
-        });
+        const completion = await Promise.race([
+          (async () => {
+            const { default: ZAI } = await import("z-ai-web-dev-sdk");
+            const zai = await ZAI.create();
+            return zai.chat.completions.create({ messages: [
+              { role: "system", content: systemPrompt }, { role: "user", content: cleanedText },
+            ] });
+          })(),
+          new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error("LLM timeout")), 20_000); }),
+        ]);
         const content = completion?.choices?.[0]?.message?.content;
         if (typeof content === "string" && content.trim().length >= 5) return content.trim();
-      } catch (err) {
-        console.warn("[v1 chat] LLM unavailable, failing closed:", err instanceof Error ? err.message : err);
-      }
-      // Secondary path: deployer's OpenRouter key (SATHI_OPENROUTER_API_KEY).
-      // The orchestrator's slot protocol + number validator still guard the
-      // draft — an uncompliant or hallucinating model never reaches the user.
-      try {
-        return await generateViaOpenRouterServer(systemPrompt, cleanedText);
       } catch {
-        return null; // fail-closed to the deterministic template
+        // Fail closed to the deterministic template; never log provider bodies.
+      } finally {
+        if (timer) clearTimeout(timer);
       }
+      return null;
     };
 
     const response = await handleMessage({
@@ -157,6 +160,11 @@ export async function POST(req: NextRequest) {
         refusal: response.refusal,
       },
       safe_to_spend_display: formatTaka(sts.safeToSpendTotal, locale),
+      aiStatus: !llmAllowed
+        ? { ...serverAIStatus(), state: LLM_ENABLED ? "budget_exhausted" : "disabled" }
+        : generation.result
+          ? { state: generation.result.content && response.fallbackUsed ? "safety_rejected" : generation.result.state, provider: generation.result.provider, model: generation.result.model }
+          : response.generatedText ? { state: "ready", provider: "z-ai", model: null } : serverAIStatus(),
     };
 
     const evidence = buildEvidence({

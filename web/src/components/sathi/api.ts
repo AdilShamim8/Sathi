@@ -122,6 +122,7 @@ export interface GoalPatchInput {
 }
 
 export const api = {
+  aiStatus: () => get<import("@/lib/engine/aiStatus").AIStatus>("/api/ai/status"),
   boot: () => get<BootPayload>("/api/boot"),
   completeOnboarding: (body: { name: string; mode: "personal" | "demo"; salaryAmount?: number | null; salaryPayDay?: number | null; openingBalance?: number }) =>
     post<{ ok: boolean; user: { id: number; name: string; mode: string } }>("/api/onboarding", body),
@@ -157,7 +158,7 @@ export const api = {
   goalAnalysis: (goalId: number) => get<GoalAnalysis>(`/api/goals/analyze?goalId=${goalId}`),
   simulateGoal: (body: { goalId: number; extraMonthlySavings?: number; cutCategory?: string; cutPct?: number }) =>
     post<SimulateResult>("/api/goals/simulate", body),
-  copilot: (question: string) => post<CopilotAnswer>("/api/copilot", { question }, { timeoutMs: 45_000 }),
+  copilot: (question: string, useDeviceAI = false) => post<CopilotAnswer>("/api/copilot", { question, useDeviceAI }, { timeoutMs: 45_000 }),
   insights: () => get<InsightRow[]>("/api/insights"),
   refreshInsights: () => post<InsightRow[]>("/api/insights"),
   salary: () => get<{ salaryAmount: number | null; salaryPayDay: number | null; salaryMerchant: string | null; openingBalance: number; note: string }>("/api/salary"),

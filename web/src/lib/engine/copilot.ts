@@ -72,6 +72,8 @@ export interface CopilotContext {
   liquidity?: { cashOnHand: number; otherLiquid: number };
   /** Kill switch / daily budget verdict from the route (default: allowed). */
   llmAllowed?: boolean;
+  /** Configured server provider takes precedence over the legacy gateway. */
+  llmGenerate?: (system: string, user: string) => Promise<string | null>;
   /** Secondary server-side draft generator (e.g. OpenRouter via env key) used
    *  when the primary z-ai sdk is unavailable. Same grounding validator applies. */
   llmFallback?: (system: string, user: string) => Promise<string | null>;
@@ -110,11 +112,11 @@ export async function answerQuestion(question: string, ctx: CopilotContext): Pro
   // LLM summary appears in the evidence; otherwise keep deterministic text.
   let llmSummary = ctx.llmAllowed === false
     ? null
-    : await tryLlmSummary(question, intent, base, knowledgeHits.map((h) => h.chunk.chunkText));
+    : await tryLlmSummary(question, intent, base, knowledgeHits.map((h) => h.chunk.chunkText), ctx.llmGenerate);
 
   // Secondary path (deployer's OpenRouter key, server-side): only when the
   // primary z-ai sdk produced nothing, and still behind the same validator.
-  if (llmSummary === null && ctx.llmAllowed !== false && ctx.llmFallback) {
+  if (llmSummary === null && ctx.llmAllowed !== false && !ctx.llmGenerate && ctx.llmFallback) {
     try {
       const evidenceText = [...base.numbers, ...base.evidence]
         .map((e) => `- ${e.label}: ${e.value}`)
@@ -372,13 +374,25 @@ async function tryLlmSummary(
   intent: Intent,
   base: CopilotAnswer,
   knowledgeChunks: string[],
+  generate?: (system: string, user: string) => Promise<string | null>,
 ): Promise<string | null> {
   try {
-    const { default: ZAI } = await import("z-ai-web-dev-sdk");
-    const zai = await ZAI.create();
     const evidenceText = [...base.numbers, ...base.evidence]
       .map((e) => `- ${e.label}: ${e.value}`)
       .join("\n");
+    if (generate) {
+      const text = await generate(
+        [
+          "You explain a financial decision-support answer for Sathi, Bangladesh. Reply in the user's language (Bangla, Banglish or English), in 2-3 warm, clear sentences.",
+          "Only repeat numbers from the computed evidence or draft. Never invent numbers, guarantee forecasts, pressure spending or give regulated financial advice. Output only the summary.",
+          `Intent: ${intent}. Draft answer: "${base.summary}"`,
+        ].join("\n"),
+        `User question: "${question}"\nComputed evidence:\n${evidenceText}\nAssumptions:\n${base.assumptions.join("\n")}`,
+      );
+      return typeof text === "string" && text.trim().length >= 10 && text.trim().length <= 1200 ? text.trim() : null;
+    }
+    const { default: ZAI } = await import("z-ai-web-dev-sdk");
+    const zai = await ZAI.create();
     const completion = await Promise.race([
       zai.chat.completions.create({
         messages: [

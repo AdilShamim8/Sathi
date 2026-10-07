@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Settings, Check, Database, Trash2, Wallet, Languages, ShieldCheck, AlertTriangle } from "lucide-react";
 import { api } from "./api";
 import { getOpenRouterConfig, setOpenRouterConfig, testOpenRouterKey, type OpenRouterTestResult } from "@/lib/engine/openrouterChat";
+import { aiStatusMessage } from "@/lib/engine/aiStatus";
 import { useLang } from "./i18n";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -31,6 +32,7 @@ export function SettingsSheet({
   const { data: txns } = useQuery({ queryKey: ["transactions"], queryFn: () => api.transactions({ limit: 500 }), enabled: open });
   const { data: goals } = useQuery({ queryKey: ["goals"], queryFn: api.goals, enabled: open });
   const { data: salary } = useQuery({ queryKey: ["salary"], queryFn: api.salary, enabled: open });
+  const sharedAI = useQuery({ queryKey: ["ai-status"], queryFn: api.aiStatus, enabled: open });
 
   const [name, setName] = useState<string | null>(null);
   const [balance, setBalance] = useState<string | null>(null);
@@ -241,15 +243,32 @@ export function SettingsSheet({
             </div>
           </section>
 
+          <section className="rounded-2xl border border-border/80 bg-secondary/30 p-3.5">
+            <p className="text-sm font-semibold">{lang === "bn" ? "সাইটের অনলাইন এআই" : "Site's online AI"}</p>
+            <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">
+              {sharedAI.data ? aiStatusMessage(sharedAI.data, lang)
+                : sharedAI.isError ? (lang === "bn" ? "এআই সেটিং যাচাই করা যায়নি। আবার চেষ্টা করুন।" : "Could not check AI settings. Try again.")
+                : (lang === "bn" ? "সেটিং যাচাই হচ্ছে…" : "Checking settings…")}
+            </p>
+            {sharedAI.data?.provider && <p className="mt-1 text-[11px] text-muted-foreground">{sharedAI.data.provider} · {sharedAI.data.model}</p>}
+            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+              {lang === "bn" ? "Groq-এর ফ্রি টিয়ারে ব্যবহারের সীমা আছে। OpenAI-এর ChatGPT মডেলের জন্য আলাদা পেইড API অ্যাকাউন্ট লাগে।" : "Groq offers a free tier with usage limits. OpenAI's ChatGPT models need a separate paid API account."}
+            </p>
+            <button onClick={() => sharedAI.refetch()} disabled={sharedAI.isFetching} className="press mt-2 rounded-xl border border-border px-3 py-1.5 text-[11px] font-semibold disabled:opacity-40">
+              {lang === "bn" ? "অবস্থা আবার দেখুন" : "Refresh status"}
+            </button>
+          </section>
+
           {/* OPTIONAL online AI chat — user's own OpenRouter key */}
           <section className="rounded-2xl border border-border/80 bg-secondary/30 p-3.5">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 shrink-0 text-leafdark" />
               <p className="text-sm font-semibold">
-                {lang === "bn" ? "অনলাইন এআই চ্যাট (ঐচ্ছিক)" : "Online AI chat (optional)"}
+                {lang === "bn" ? "আপনার OpenRouter কী (ঐচ্ছিক)" : "Your own OpenRouter key (optional)"}
               </p>
               <button
                 role="switch"
+                aria-label={lang === "bn" ? "আপনার OpenRouter কী ব্যবহার করুন" : "Use your own OpenRouter key"}
                 aria-checked={orOn}
                 onClick={() => { setOrEnabled(!orOn); setOpenRouterConfig({ enabled: !orOn }); }}
                 className={cn(
@@ -268,28 +287,33 @@ export function SettingsSheet({
             </div>
             <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">
               {lang === "bn"
-                ? "ছাড়াই সব কাজ করে। চালু করলে আপনার নিজের OpenRouter কী দিয়ে উত্তর আরও প্রাঞ্জল হয় — কী শুধু এই ডিভাইসে থাকে ও সরাসরি openrouter.ai-তে যায়। ব্যর্থ হলে নির্ধারিত উত্তরই থাকে।"
-                : "Everything works without it. When on, your own OpenRouter key makes replies more fluent — the key stays on this device and goes only to openrouter.ai. Any failure falls back to the deterministic answer."}
+                ? "চালু করলে সাইটের এআইয়ের বদলে আপনার নিজের কী ব্যবহার হবে। কী শুধু এই ডিভাইসে থাকে ও সরাসরি openrouter.ai-তে যায়। ব্যর্থ হলে অ্যাপের নিজস্ব উত্তর থাকে।"
+                : "When enabled with a key, this replaces the site's AI for your questions. Your key stays on this device and goes only to openrouter.ai. If it fails, the built-in answer remains."}
             </p>
             {orOn && (
               <div className="mt-2.5 space-y-2">
                 <input
                   type="password"
                   value={orKeyValue}
-                  onChange={(e) => setOrKey(e.target.value.trim())}
-                  onBlur={() => setOpenRouterConfig({ apiKey: orKeyValue })}
+                  onChange={(e) => { const value = e.target.value.trim(); setOrKey(value); setOpenRouterConfig({ apiKey: value }); setOrTest(null); }}
                   placeholder="sk-or-v1-…"
                   aria-label="OpenRouter API key"
                   className="min-w-0 flex-1 rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none transition focus:border-leafdark focus:ring-2 focus:ring-leaf/20"
                 />
                 <input
                   value={orModelValue}
-                  onChange={(e) => setOrModel(e.target.value.trim())}
-                  onBlur={() => setOpenRouterConfig({ model: orModelValue })}
-                  placeholder="openrouter/auto"
+                  onChange={(e) => { const value = e.target.value.trim(); setOrModel(value); setOpenRouterConfig({ model: value }); setOrTest(null); }}
+                  placeholder="openrouter/free"
                   aria-label="OpenRouter model"
                   className="min-w-0 flex-1 rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none transition focus:border-leafdark focus:ring-2 focus:ring-leaf/20"
                 />
+                <div className="flex items-center gap-2 text-[11px]">
+                  <button onClick={() => { setOrModel("openrouter/free"); setOpenRouterConfig({ model: "openrouter/free" }); setOrTest(null); }} className="press rounded-xl border border-border px-3 py-1.5 font-semibold">
+                    {lang === "bn" ? "ফ্রি মডেল ব্যবহার করুন" : "Use free models"}
+                  </button>
+                  <a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer" className="text-leafdark underline">{lang === "bn" ? "কী তৈরি করুন" : "Get a key"}</a>
+                </div>
+                <p className="text-[10px] text-muted-foreground">{lang === "bn" ? "ফ্রি মডেলেও কী লাগে, আর ব্যবহারের সীমা আছে।" : "Free models still need a key and have usage limits."}</p>
                 <p className="text-[10px] leading-relaxed text-muted-foreground">
                   {lang === "bn"
                     ? "মডেল কখনো টাকা হিসাব করে না — সংখ্যাগুলো অ্যাপের হিসাব থেকে স্লটে বসে যায়।"
@@ -330,8 +354,8 @@ export function SettingsSheet({
               <p className="flex items-start gap-1.5">
                 <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-leafdark" />
                 {lang === "bn"
-                  ? "সব ডেটা এই ডিভাইসের লোকাল ডেটাবেসে থাকে — কোনো সার্ভারে আপলোড হয় না। অ্যাপ ডিলিট করলে ডেটাও মুছে যায়।"
-                  : "All data lives in this device's local database — nothing is uploaded to a server. Deleting the app removes the data."}
+                  ? "আপনার হিসাব সাইটের ডেটাবেসে থাকে; চ্যাটের ইতিহাস এই ডিভাইসে থাকে। অনলাইন এআই ব্যবহার করলে আপনার প্রশ্ন ও প্রয়োজনীয় আর্থিক তথ্য নির্বাচিত প্রোভাইডারে যায়।"
+                  : "Your ledger is stored in the site's database; chat history stays on this device. Online AI sends your question and relevant financial evidence to the selected provider."}
               </p>
               <p className="flex items-start gap-1.5">
                 <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0 text-saffron" />

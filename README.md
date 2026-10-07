@@ -104,7 +104,7 @@ Sathi's answer: **Empower the customer with foresight, clear trade-offs, and hon
 ```
 
 ### Technology Stack
-- **Web app (`web/`) — what the live deployment runs:** Next.js 16 App Router, React 19, TypeScript (strict), Tailwind CSS 4, Prisma (SQLite; optional libSQL/Turso adapter for durable serverless storage), and the **z-ai LLM SDK (`z-ai-web-dev-sdk`) for the deployed chat** (server-side only, wrapped in the fail-closed validator chain). The chat uses **slot-based narration**: the LLM may only reference numbers through `{{fK}}` tokens that the app replaces with trusted, pre-formatted values; any bare digit or number word (Bangla or English) in the draft fails closed to a reviewed template. **Optional OpenRouter** is available in-app for users who bring their own key (Settings → Online AI chat): the key stays on the device, calls go directly to openrouter.ai, and any failure falls back to the deterministic copilot. OpenRouter is not required for anything and is not part of the Vercel deployment.
+- **Web app (`web/`) — what the live deployment runs:** Next.js 16 App Router, React 19, strict TypeScript, Tailwind CSS 4, Prisma SQLite with optional libSQL/Turso storage. Shared online chat supports **Groq** (free tier with limits), **OpenRouter** (free routing available) and **OpenAI GPT models** (separate API billing), with the existing z-ai gateway retained when no provider is selected. Both chat APIs preserve financial validation and built-in answers on failure. Users can instead use their own device-local OpenRouter key in Settings; it goes directly to OpenRouter and skips shared server AI calls. See [provider setup](docs/chat-provider-setup.md).
 - **Backend factory (repo root):** Python 3.11+, FastAPI, Pydantic v2 — the reference service and the training pipeline. Its LLM layer (`llm/orchestrator.py`, measured by `llm/pick_model.py`) supports OpenRouter-compatible providers via `LLM_*` env vars for self-hosted runs; it is offline-only and never served by Vercel.
 - **Data & ML:** pandas, NumPy, LightGBM 4.6.0 (quantile loss, 9 quantiles), scikit-learn, SHAP
 - **Storage:** SQLite (WAL mode) — `web/db` for the app, `data/` for the pipeline; hosted libSQL (Turso) supported for the app on serverless
@@ -247,13 +247,19 @@ bun run db:push      # create the SQLite schema (fresh DB auto-seeds on first lo
 |---|---|
 | `DATABASE_URL` | SQLite connection string (preconfigured to `file:../db/custom.db`, relative to `web/prisma/`) |
 | `SATHI_ML_ARTIFACTS` | (optional) override the model artifacts directory; defaults to `./ml-artifacts/forecast` |
-| `SATHI_OPENROUTER_API_KEY` | (optional) deployer's OpenRouter key — server-side fallback so chat replies get AI phrasing on deployments where the primary gateway has no credentials. Never exposed to the client; every draft still passes the fail-closed slot/grounding validators |
-| `SATHI_OPENROUTER_MODEL` | (optional) model for the fallback above; defaults to `openrouter/auto` |
+| `SATHI_AI_PROVIDER` | (optional) `groq`, `openrouter`, or `openai`; selects one shared server provider without cross-account retries |
+| `SATHI_GROQ_API_KEY` / `SATHI_GROQ_MODEL` | Groq account key / model (default `llama-3.3-70b-versatile`); free tier with limits |
+| `SATHI_OPENROUTER_API_KEY` / `SATHI_OPENROUTER_MODEL` | OpenRouter account key / model (default `openrouter/free`); free models require a key and have limits |
+| `SATHI_OPENAI_API_KEY` / `SATHI_OPENAI_MODEL` | OpenAI API key / model (default `gpt-4.1-mini`); separate API billing required |
 | (optional) AI gateway credentials | If absent, the copilot runs in deterministic mode — all features still work |
 
 **`.env`** (repo root — the Python backend; copy from `.env.example`): `APP_ENV`, `DATABASE_URL` (python format `sqlite:///./data/sathi.db`), `AUTH_SECRET`, `ALLOWED_ORIGINS`, `LLM_*` (the backend works end to end with `LLM_ENABLED=false`).
 
 > **Security Note:** Secrets and server keys are never committed to git or exposed to the client bundle.
+
+For published web/Android chat setup and troubleshooting, follow
+[the provider setup guide](docs/chat-provider-setup.md). Changing cloud workspace
+secrets alone does not change the published website; hosting settings need a redeploy.
 
 ---
 

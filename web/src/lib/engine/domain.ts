@@ -212,6 +212,7 @@ export interface CopilotAnswer {
   disclaimer: string;
   knowledgeRefs: string[];
   llmEnhanced: boolean;
+  aiStatus?: import("./aiStatus").AIStatus;
 }
 
 export interface FinancialSummary {

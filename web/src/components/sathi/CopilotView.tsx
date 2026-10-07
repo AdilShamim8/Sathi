@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, BookOpen, Sparkles, AlertTriangle, Trash2, X } from "lucide-react";
 import { api } from "./api";
 import { enhanceWithOpenRouter, getOpenRouterConfig } from "@/lib/engine/openrouterChat";
+import { aiStatusMessage } from "@/lib/engine/aiStatus";
 import { SectionTitle } from "./bits";
 import type { CopilotAnswer } from "@/lib/engine/domain";
 import { cn } from "@/lib/utils";
@@ -70,6 +71,7 @@ function AnswerCard({ a }: { a: CopilotAnswer }) {
       </div>
 
       <p className="mt-2.5 text-sm leading-relaxed text-balance">{a.summary}</p>
+      {!a.llmEnhanced && a.aiStatus && <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">{aiStatusMessage(a.aiStatus, lang)}</p>}
 
       {a.numbers.length > 0 && (
         <div className="mt-3 grid grid-cols-2 gap-1.5">
@@ -145,7 +147,9 @@ export function CopilotView() {
   // resolves, so localStorage is available and no SSR hydration can mismatch.
   const [turns, setTurns] = useState<Turn[]>(() => loadHistory());
   const [input, setInput] = useState("");
-  const ask = useMutation({ mutationFn: (question: string) => api.copilot(question) });
+  const ask = useMutation({ mutationFn: (request: { question: string; useDeviceAI: boolean }) => api.copilot(request.question, request.useDeviceAI) });
+  const [submitting, setSubmitting] = useState(false);
+  const submitLock = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -155,17 +159,20 @@ export function CopilotView() {
   }, [turns.length]);
 
   const submit = async (q: string) => {
-    if (!q.trim() || ask.isPending) return;
+    if (!q.trim() || submitLock.current) return;
+    submitLock.current = true;
+    setSubmitting(true);
     setInput("");
     try {
-      const answer = await ask.mutateAsync(q.trim());
+      const or = getOpenRouterConfig();
+      const useDeviceAI = or.enabled && Boolean(or.apiKey);
+      const answer = await ask.mutateAsync({ question: q.trim(), useDeviceAI });
 
       // OPTIONAL online enhancement (user's own OpenRouter key, mission 14):
       // the deterministic answer always exists first; the external model only
       // rephrases it through validated slot tokens and any failure is silent.
-      const or = getOpenRouterConfig();
       let final = answer;
-      if (or.enabled && or.apiKey) {
+      if (useDeviceAI && answer.intent !== "refusal") {
         const enhanced = await enhanceWithOpenRouter({
           question: q.trim(),
           deterministicSummary: answer.summary,
@@ -173,7 +180,9 @@ export function CopilotView() {
           locale: lang,
         });
         if (enhanced) {
-          final = { ...answer, summary: enhanced, llmEnhanced: true };
+          final = { ...answer, summary: enhanced, llmEnhanced: true, aiStatus: { state: "ready", provider: "openrouter", model: or.model } };
+        } else {
+          final = { ...answer, aiStatus: { state: "unavailable", provider: "openrouter", model: or.model } };
         }
       }
 
@@ -184,6 +193,9 @@ export function CopilotView() {
       });
     } catch {
       // handled via ask.isError below
+    } finally {
+      submitLock.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -268,7 +280,7 @@ export function CopilotView() {
             </motion.div>
           ))}
         </AnimatePresence>
-        {ask.isPending && (
+        {submitting && (
           <div className="mr-4 rounded-2xl rounded-tl-sm border border-border/80 bg-card p-4 shadow-ios">
             <p className="animate-pulse text-sm text-muted-foreground">
               {lang === "bn"
@@ -304,7 +316,7 @@ export function CopilotView() {
         />
         <button
           onClick={() => submit(input)}
-          disabled={ask.isPending || !input.trim()}
+          disabled={submitting || !input.trim()}
           className="press rounded-xl bg-primary p-2.5 text-primary-foreground shadow-ios transition enabled:hover:opacity-90 disabled:opacity-40"
           aria-label="Send"
         >
