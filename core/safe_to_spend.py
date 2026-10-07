@@ -75,8 +75,8 @@ def calculate_safe_to_spend(
         status = "cautious"
         status_label_bn = "সতর্কতামূলক"
         status_label_en = "Cautious"
-        advice_bn = f"দৈনিক সর্বোচ্চ {format_taka(daily_budget_paisa, 'bn')} খরচ করলে আগামী {horizon_days} দিন কোনো টানাপোড়েন ছাড়াই চলবে।"
-        advice_en = f"Spending up to {format_taka(daily_budget_paisa, 'en')}/day maintains full financial stability."
+        advice_bn = f"দৈনিক {format_taka(daily_budget_paisa, 'bn')}-এর মধ্যে খরচ রাখলে আগামী {horizon_days} দিনের পরিকল্পিত দায়দেনা সামলাতে সাহায্য করে। অপ্রত্যাশিত খরচে ঘাটতি হতে পারে।"
+        advice_en = f"Keeping spending within {format_taka(daily_budget_paisa, 'en')}/day helps protect your planned obligations; unexpected costs can still create a shortfall."
     else:
         status = "comfortable"
         status_label_bn = "স্বস্তিদায়ক"

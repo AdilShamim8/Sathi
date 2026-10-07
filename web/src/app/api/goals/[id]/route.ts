@@ -31,6 +31,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const targetAmount = patch.targetAmount ?? existing.targetAmount;
     const savedSoFar = patch.savedSoFar ?? existing.savedSoFar;
+    if (savedSoFar > targetAmount) {
+      return NextResponse.json({ error: "Saved so far cannot exceed the target amount" }, { status: 400 });
+    }
     const months = patch.months ?? Math.max(
       1,
       Math.round((targetDate.getTime() - Date.now()) / (30.44 * 24 * 3600 * 1000)),
@@ -40,7 +43,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const updated = await db.goal.update({
       where: { id: goalId },
       data: {
-        ...patch,
+        name: patch.name,
+        targetAmount: patch.targetAmount,
+        savedSoFar: patch.savedSoFar,
+        status: patch.status,
         targetDate,
         monthlyCommitment,
       },

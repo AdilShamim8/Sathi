@@ -11,8 +11,43 @@ import { validateTxnCreate, validateTxnPatch, validateGoalPatch } from "@/lib/se
 import { computeSpendingIntelligence, estimateCashOnHand } from "@/lib/engine/analytics";
 import { forecastCashflow } from "@/lib/engine/forecast";
 import type { Txn } from "@/lib/engine/domain";
+import { answerQuestion, numbersAreGrounded } from "@/lib/engine/copilot";
 
 const anchor = new Date("2026-10-03T12:00:00+06:00");
+
+describe("copilot numeric grounding and liquidity regressions", () => {
+  const base = {
+    intent: "safe_to_spend", summary: "You can spend ৳2,500 over 7 days at 10% risk.",
+    evidence: [{ label: "Exact amount", value: "৳125.50" }],
+    numbers: [{ label: "Budget", value: "৳2,500" }], options: [], assumptions: [],
+    confidence: "medium" as const, disclaimer: "", knowledgeRefs: [], llmEnhanced: false,
+  };
+
+  test("rejects hallucinated percentages, Bangla digits, words and unprefixed amounts", () => {
+    for (const draft of ["Your risk is 99%", "আপনি ৯৯৯৯ টাকা খরচ করতে পারবেন", "Spend five thousand taka", "Spend 9999 taka", "Spend ৳125.99"]) {
+      expect(numbersAreGrounded(draft, base)).toBe(false);
+    }
+  });
+
+  test("accepts grounded digits, Bangla digits, words and exact decimal amounts", () => {
+    for (const draft of ["Spend ৳2,500 over 7 days", "Spend ২৫০০ টাকা", "Spend two thousand five hundred taka", "The amount is ৳125.50", "Your risk is 10%", "Stay within your budget"]) {
+      expect(numbersAreGrounded(draft, base)).toBe(true);
+    }
+  });
+
+  test("copilot safe-to-spend includes the same declared liquidity as the shared compute pipeline", async () => {
+    const liquidity = { cashOnHand: 5000, otherLiquid: 2000 };
+    const salary = { amount: null, payDay: null };
+    const computed = computeAll([], anchor, 10000, salary, 7, liquidity);
+    const answer = await answerQuestion("How much can I safely spend?", {
+      txns: [], goals: [], knowledge: [], anchor, openingBalance: 10000,
+      salary, liquidity, llmAllowed: false,
+    });
+    expect(computed.sts.safeToSpendTotal).toBe(16000);
+    expect(answer.numbers.find((n) => n.label === "Safe to spend (7d)")?.value).toBe("৳16,000");
+    expect(answer.llmEnhanced).toBe(false);
+  });
+});
 
 describe("empty-ledger engine safety (fresh personal start)", () => {
   test("computeAll with zero transactions never crashes and yields sane zeros", () => {

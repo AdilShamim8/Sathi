@@ -81,6 +81,13 @@ export async function getUserInputs(userId: number): Promise<UserInputsRow> {
   return normalize(rows[0]);
 }
 
+/** Shared liquidity inputs for the owner summary, forecast, insights and copilot. */
+export async function getOwnerLiquidity(userId: number, txns: Txn[], anchor: Date) {
+  const inputs = await getUserInputs(userId);
+  const effective = effectiveCashOnHand(txns, anchor, inputs.cashOnHandTaka, inputs.cashOnHandUpdatedAt);
+  return { cashOnHand: effective.cashTaka, otherLiquid: inputs.otherLiquidTaka ?? 0 };
+}
+
 export async function upsertUserInputs(userId: number, patch: UserInputsPatch): Promise<UserInputsRow> {
   await ensureSchema();
   const current = await getUserInputs(userId);

@@ -7,6 +7,7 @@ import { RATE_LIMITS } from "@/lib/engine/sathiConfig";
 import { answerQuestion } from "@/lib/engine/copilot";
 import { sanitizeInput } from "@/lib/engine/llmSafety";
 import { render } from "@/lib/engine/templates";
+import { getOwnerLiquidity } from "@/lib/server/userInputs";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,7 @@ export async function POST(req: NextRequest) {
       anchor,
       openingBalance: user.openingBalance,
       salary: { amount: user.salaryAmount, payDay: user.salaryPayDay },
+      liquidity: await getOwnerLiquidity(user.id, txns, anchor),
       llmAllowed: LLM_ENABLED && llmBudgetAllowed(),
       // Secondary server-side draft path (deployer's SATHI_OPENROUTER_API_KEY)
       // used only when the primary z-ai sdk is unavailable; the result still
@@ -91,4 +93,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "The copilot is temporarily unavailable. Your data screens still work." }, { status: 500 });
   }
 }
-
